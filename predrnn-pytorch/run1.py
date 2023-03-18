@@ -1,5 +1,8 @@
 __author__ = 'yunbo'
 
+import tensorflow as tf
+tf.config.list_physical_devices('GPU')
+
 import os, sys
 import shutil
 import argparse
@@ -226,6 +229,7 @@ def train_wrapper(model):
     # load data
     train_data_files = args.train_data_paths.split(',')
     if len(train_data_files) <= 3:
+        print(f"train_data_files <= 3")
         train_input_handle, test_input_handle = datasets_factory.data_provider(
             args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, 
             args.img_width,
@@ -267,6 +271,7 @@ def train_wrapper(model):
 
             train_input_handle.next()
     else: #split trainning files to avoid memory over load
+        print(f"train_data_files > 3")
         eta = args.sampling_start_value
         random.shuffle(train_data_files)
         #chunked_train_data_files = [train_data_files[xi:xi+2] for xi in range(0, len(train_data_files), 2)]
@@ -320,12 +325,14 @@ def train_wrapper(model):
                 layer_ims = (anomaly_zonal + 3e-7) / 7.7e-7
                 enh_ims[0,:,:,:,args.layer_need_enhance] = layer_ims
                 ims = enh_ims.copy()
+            print(f"ims.shape: {ims.shape}")
             ims = preprocess.reshape_patch(ims, args.patch_size)
+            print(f"ims.shape: {ims.shape}")
             if args.reverse_scheduled_sampling == 1:
                 real_input_flag = reserve_schedule_sampling_exp(itr)
             else:
                 eta, real_input_flag = schedule_sampling(eta, itr)
-
+            # print(f"real_input_flag shape: {real_input_flag.shape}")
             trainer.train(model, ims, real_input_flag, args, itr)
             if itr % args.snapshot_interval == 0:
                 model.save(itr)

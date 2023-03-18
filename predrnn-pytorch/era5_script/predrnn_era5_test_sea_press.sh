@@ -5,8 +5,8 @@ python -u run1.py \
     --concurent_step 14 \
     --device cuda \
     --dataset_name mnist \
-    --train_data_paths /work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1024002012_3_24hr.npz \
-    --valid_data_paths /work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1024002012_3_24hr.npz \
+    --train_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
+    --valid_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
     --save_dir /scratch/08589/hvtran/predrnn-pytorch/checkpoints/2012_predrnn_test_sea_press \
     --gen_frm_dir /scratch/08589/hvtran/predrnn-pytorch/checkpoints/2012_predrnn_test_sea_press \
     --model_name predrnn_v2 \
@@ -43,7 +43,7 @@ python -u run1.py \
     --layer_need_enhance 0 \
     --find_max False \
     --multiply 1.1 \
-    --pretrained_model /work/08589/hvtran/ls6/ERA5_PredRNN-main/model.ckpt-best-sea_press
+    --pretrained_model /work/09012/haoli1/ls6/ERA5/model.ckpt-best-sea_press
 
 #cp /scratch/network/hvtran/era5/predrnn-pytorch/checkpoints/era5_predrnn/model.ckpt-1000 /home/hvtran/
-# /work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0921002022_3_24hr.npz 
+# /work/09012/haoli1/ls6/ERA5/era5_train_0921002022_3_24hr.npz 

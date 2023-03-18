@@ -4,10 +4,10 @@ python -u run1.py \
     --is_training 1 \
     --device cuda \
     --dataset_name mnist \
-    --train_data_paths /scratch/08589/hvtran/download/era5_train_0901002000_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002001_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002002_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002003_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002004_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002005_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002006_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002007_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002008_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002009_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002010_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002011_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002012_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002013_3_24hr.npz,/scratch/08589/hvtran/download/era5_train_0901002014_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0825002005_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1001002015_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1001002016_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0827002021_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0921002022_3_24hr.npz \
-    --valid_data_paths /work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1024002012_3_24hr.npz \
-    --save_dir /work/08589/hvtran/ls6/ERA5_PredRNN-main/predrnn-pytorch/checkpoints/era5_predrnn \
-    --gen_frm_dir /work/08589/hvtran/ls6/ERA5_PredRNN-main/predrnn-pytorch/checkpoints/era5_predrnn \
+    --train_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_0825002005_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_1001002015_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_1001002016_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0827002021_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0921002022_3_24hr.npz \
+    --valid_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
+    --save_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
+    --gen_frm_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
     --model_name predrnn_v2 \
     --reverse_input 1 \
     --is_WV 1 \
@@ -37,14 +37,14 @@ python -u run1.py \
     --r_exp_alpha 2500 \
     --lr 1e-4 \
     --batch_size 1 \
-    --max_iterations 10000 \
+    --max_iterations 2 \
     --display_interval 50 \
     --test_interval 1000000 \
     --snapshot_interval 2000 \
     --conv_on_input 0 \
     --res_on_conv 0 \
     --curr_best_loss 0.03 \
-    --pretrained_model /work/08589/hvtran/ls6/ERA5_PredRNN-main/model.ckpt-best
+    # --pretrained_model /work/09012/haoli1/ls6/ERA5/model.ckpt-best
 
 #cp /scratch/network/hvtran/era5/predrnn-pytorch/checkpoints/era5_predrnn/model.ckpt-1000 /home/hvtran/
-#,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_1001002016_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0827002021_3_24hr.npz,/work/08589/hvtran/ls6/ERA5_PredRNN-main/era5_train_0921002022_3_24hr.npz
+#,/work/09012/haoli1/ls6/ERA5/era5_train_1001002016_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0827002021_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0921002022_3_24hr.npz
