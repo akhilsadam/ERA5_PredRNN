@@ -67,7 +67,7 @@ class RNN(nn.Module):
             )
         self.cell_list = nn.ModuleList(cell_list)
         self.conv_last = nn.Conv2d(num_hidden[num_layers - 1], self.frame_channel, kernel_size=1, stride=1, padding=0,
-                                   bias=False).to("cuda:2")
+                                   bias=False).to(self.configs.device)
         # shared adapter
         adapter_num_hidden = num_hidden[0]
         self.adapter = nn.Conv2d(adapter_num_hidden, adapter_num_hidden, 1, stride=1, padding=0, bias=False)
