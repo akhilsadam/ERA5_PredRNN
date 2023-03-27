@@ -18,7 +18,7 @@ class Model(object):
 
         if configs.model_name in networks_map:
             Network = networks_map[configs.model_name]
-            self.network = Network(self.num_layers, self.num_hidden, configs).to('cuda:1')
+            self.network = Network(self.num_layers, self.num_hidden, configs).to(self.configs.device)
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
 
@@ -33,7 +33,7 @@ class Model(object):
 
     def load(self, checkpoint_path):
         print('load model:', checkpoint_path)
-        stats = torch.load(checkpoint_path, map_location=torch.device('cuda:1'))
+        stats = torch.load(checkpoint_path, map_location=torch.device(self.configs.device))
         self.network.load_state_dict(stats['net_param'])
 
     def train(self, frames, mask, istrain=True):

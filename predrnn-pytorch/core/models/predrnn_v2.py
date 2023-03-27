@@ -44,7 +44,7 @@ class RNN(nn.Module):
             self.layer_weights = np.ones((1))
         #print(self.layer_weights.shape)
         
-        self.layer_weights = torch.FloatTensor(self.layer_weights).to('cuda:1')
+        self.layer_weights = torch.FloatTensor(self.layer_weights).to(self.configs.device)
         height = configs.img_height // configs.patch_size
         width = configs.img_width // configs.patch_size
         #print(self.frame_channel)
@@ -63,7 +63,7 @@ class RNN(nn.Module):
             in_channel = self.frame_channel if i == 0 else num_hidden[i - 1]
             cell_list.append(
                 SpatioTemporalLSTMCell(in_channel, num_hidden[i], height, width, configs.filter_size,
-                                       configs.stride, configs.layer_norm).to("cuda:1")
+                                       configs.stride, configs.layer_norm).to(self.configs.device)
             )
         self.cell_list = nn.ModuleList(cell_list)
         self.conv_last = nn.Conv2d(num_hidden[num_layers - 1], self.frame_channel, kernel_size=1, stride=1, padding=0,
@@ -74,8 +74,8 @@ class RNN(nn.Module):
 
     def forward(self, frames_tensor, mask_true, istrain=True):
         # [batch, length, height, width, channel] -> [batch, length, channel, height, width]
-        frames = frames_tensor.permute(0, 1, 4, 2, 3).contiguous().to('cuda:1')
-        mask_true = mask_true.permute(0, 1, 4, 2, 3).contiguous().to('cuda:1')
+        frames = frames_tensor.permute(0, 1, 4, 2, 3).contiguous().to(self.configs.device)
+        mask_true = mask_true.permute(0, 1, 4, 2, 3).contiguous().to(self.configs.device)
         # print(f"in the beginning, mask_true shape: {mask_true.shape}")
         batch = frames.shape[0]
         height = frames.shape[3]
@@ -101,12 +101,12 @@ class RNN(nn.Module):
             # print(f"framesTensor shape: {frames.shape}")
             frames = np.transpose(frames,(0, 1, 4, 2, 3))
             #frames = preprocess.reshape_patch(frames, self.configs.patch_size)
-            frames = torch.FloatTensor(frames).to('cuda:1')
+            frames = torch.FloatTensor(frames).to(self.configs.device)
             if istrain:
                 frames_tensor = frames.permute(0, 1, 3, 4, 2).contiguous()
             
             mask_true = mask_true[:,:,:,:curr_height,:curr_width]
-            mask_true = torch.tile(mask_true[:,:,1:2,:,:],(1,1,self.frame_channel,1,1)).to("cuda:1")
+            mask_true = torch.tile(mask_true[:,:,1:2,:,:],(1,1,self.frame_channel,1,1)).to(self.configs.device)
 
         print(f"frames_tensor shape: {frames_tensor.shape}")
         h_t = []
@@ -121,9 +121,9 @@ class RNN(nn.Module):
 
         for i in range(self.num_layers):
             if self.configs.is_WV:
-                zeros = torch.zeros([batch, self.num_hidden[i], curr_height,curr_width]).to('cuda:1')
+                zeros = torch.zeros([batch, self.num_hidden[i], curr_height,curr_width]).to(self.configs.device)
             else:
-                zeros = torch.zeros([batch, self.num_hidden[i], height,width]).to('cuda:1')
+                zeros = torch.zeros([batch, self.num_hidden[i], height,width]).to(self.configs.device)
             h_t.append(zeros)
             c_t.append(zeros)
             delta_c_list.append(zeros)
@@ -131,13 +131,13 @@ class RNN(nn.Module):
         
         loss = 0
         if self.configs.is_WV:
-            memory = torch.zeros([batch, self.num_hidden[0], curr_height,curr_width]).to('cuda:1')
+            memory = torch.zeros([batch, self.num_hidden[0], curr_height,curr_width]).to(self.configs.device)
             next_frames = torch.empty(batch, self.configs.total_length - 1, 
-                                          curr_height,curr_width, self.frame_channel).to('cuda:1')
+                                          curr_height,curr_width, self.frame_channel).to(self.configs.device)
         else:
-            memory = torch.zeros([batch, self.num_hidden[0], height,width]).to('cuda:1')
+            memory = torch.zeros([batch, self.num_hidden[0], height,width]).to(self.configs.device)
             next_frames = torch.empty(batch, self.configs.total_length - 1, 
-                                          height,width, self.frame_channel).to('cuda:1')
+                                          height,width, self.frame_channel).to(self.configs.device)
         # print(f"next_frames shape: {next_frames.shape}")
         for t in range(0, self.configs.total_length-1):
             # print(f"t: {t}")
@@ -145,10 +145,10 @@ class RNN(nn.Module):
             if self.configs.reverse_scheduled_sampling == 1:
                 # reverse schedule sampling
                 if t == 0:
-                    net =  frames[:, t].to('cuda:1')
+                    net =  frames[:, t].to(self.configs.device)
                 else:
                     # print(f"t: {t}, mask_true[:, t - 1]: {np.sum(mask_true[:, t - 1].detach().cpu().numpy())}")
-                    net = mask_true[:, t-1] * frames[:, t] + (1 - mask_true[:, t-1]) * x_gen.to('cuda:1')
+                    net = mask_true[:, t-1] * frames[:, t] + (1 - mask_true[:, t-1]) * x_gen.to(self.configs.device)
             else:
                 # schedule sampling
                 if t < self.configs.input_length:
@@ -191,8 +191,8 @@ class RNN(nn.Module):
         #next_frames = next_frames[:,np.arange(0,self.configs.total_length),:,:,:]
         #frames_tensor = frames_tensor[:,np.arange(0,self.configs.total_length),:,:,:]
         if istrain:
-            loss = self.MSE_criterion(next_frames.to('cuda:2')*self.layer_weights.to('cuda:2'), frames_tensor[:,1:,:,:,:].to('cuda:2')*self.layer_weights.to('cuda:2')) + \
-                    self.configs.decouple_beta * decouple_loss.to('cuda:2')
+            loss = self.MSE_criterion(next_frames.to(self.configs.device)*self.layer_weights.to(self.configs.device), frames_tensor[:,1:,:,:,:].to(self.configs.device)*self.layer_weights.to(self.configs.device)) + \
+                    self.configs.decouple_beta * decouple_loss.to(self.configs.device)
             next_frames = None
         else:
             if self.configs.is_WV:
