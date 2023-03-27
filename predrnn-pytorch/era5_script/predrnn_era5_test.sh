@@ -7,8 +7,8 @@ python -u run1.py \
     --dataset_name mnist \
     --train_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
     --valid_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_0825002005_3_24hr.npz \
-    --save_dir /scratch/08589/hvtran/predrnn-pytorch/checkpoints/2012_predrnn_test \
-    --gen_frm_dir /scratch/08589/hvtran/predrnn-pytorch/checkpoints/2012_predrnn_test \
+    --save_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
+    --gen_frm_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
     --model_name predrnn_v2 \
     --reverse_input 1 \
     --img_height 720 \
@@ -43,7 +43,7 @@ python -u run1.py \
     --layer_need_enhance 1 \
     --find_max False \
     --multiply 1.1 \
-    --pretrained_model /work/09012/haoli1/ls6/ERA5/model.ckpt-best
+    # --pretrained_model /work/09012/haoli1/ls6/ERA5/model.ckpt-best
 
 #cp /scratch/network/hvtran/era5/predrnn-pytorch/checkpoints/era5_predrnn/model.ckpt-1000 /home/hvtran/
 # /work/09012/haoli1/ls6/ERA5/era5_train_0921002022_3_24hr.npz 

@@ -98,7 +98,7 @@ class RNN(nn.Module):
             #                         tcH2_reshape, tcV2_reshape, tcD2_reshape,
             #                         tcH1_reshape, tcV1_reshape, tcD1_reshape)), axis=4)
             frames = np.concatenate(((tcA1_reshape, tcH1_reshape, tcV1_reshape, tcD1_reshape)), axis=4)
-            print(f"framesTensor shape: {frames.shape}")
+            # print(f"framesTensor shape: {frames.shape}")
             frames = np.transpose(frames,(0, 1, 4, 2, 3))
             #frames = preprocess.reshape_patch(frames, self.configs.patch_size)
             frames = torch.FloatTensor(frames).to('cuda:1')
@@ -108,6 +108,7 @@ class RNN(nn.Module):
             mask_true = mask_true[:,:,:,:curr_height,:curr_width]
             mask_true = torch.tile(mask_true[:,:,1:2,:,:],(1,1,self.frame_channel,1,1)).to("cuda:1")
 
+        print(f"frames_tensor shape: {frames_tensor.shape}")
         h_t = []
         c_t = []
         delta_c_list = []
@@ -137,7 +138,7 @@ class RNN(nn.Module):
             memory = torch.zeros([batch, self.num_hidden[0], height,width]).to('cuda:1')
             next_frames = torch.empty(batch, self.configs.total_length - 1, 
                                           height,width, self.frame_channel).to('cuda:1')
-        print(f"next_frames shape: {next_frames.shape}")
+        # print(f"next_frames shape: {next_frames.shape}")
         for t in range(0, self.configs.total_length-1):
             # print(f"t: {t}")
             # print(f"framesTensor shape: {frames.shape}")
@@ -146,7 +147,7 @@ class RNN(nn.Module):
                 if t == 0:
                     net =  frames[:, t].to('cuda:1')
                 else:
-                    print(f"t: {t}, mask_true[:, t - 1]: {np.sum(mask_true[:, t - 1].detach().cpu().numpy())}")
+                    # print(f"t: {t}, mask_true[:, t - 1]: {np.sum(mask_true[:, t - 1].detach().cpu().numpy())}")
                     net = mask_true[:, t-1] * frames[:, t] + (1 - mask_true[:, t-1]) * x_gen.to('cuda:1')
             else:
                 # schedule sampling

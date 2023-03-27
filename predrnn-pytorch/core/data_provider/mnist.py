@@ -13,6 +13,7 @@ class InputHandle:
         self.concurent_step = input_param['concurent_step']
         self.img_layers = input_param['img_layers']
         if input_param['is_WV']:
+            # print(f"input_param['image_channel']: {input_param['image_channel']}")
             self.img_channel1 = int(input_param['image_channel']/10.)
         else:
             self.img_channel1 = input_param['image_channel']
@@ -26,6 +27,7 @@ class InputHandle:
         self.load()
 
     def load(self):
+        print(f"Loading data from {self.paths[0]}")
         dat_1 = np.load(self.paths[0])
         self.data['clips'] = dat_1['clips']
         self.data['dims'] = dat_1['dims']
@@ -36,6 +38,7 @@ class InputHandle:
             print('warning: length of image layers is not consistent with the specified image channel! Using default!')
             dat1_raw_data = dat_1['input_raw_data']
         self.data['input_raw_data'] = dat1_raw_data[:,:self.img_channel1,:,:]
+        print(f"self.num_paths: {self.num_paths}")
         if self.num_paths > 1:
             num_clips_1 = dat_1['clips'].shape[1]
             clip_arr = [dat_1['clips']]
@@ -51,6 +54,7 @@ class InputHandle:
             input_raw_arr[:curr_pos,...] = dat1_raw_data[:,:self.img_channel1,:,:]
             for pathi in range(1, self.num_paths):
                 #print(num_clips_1)
+                print(f"pathi={pathi}, Loading data from {self.paths[pathi]}")
                 dat_2 = np.load(self.paths[pathi])
                 next_pos = curr_pos + dat_2['input_raw_data'].shape[0]
                 temp_clips = dat_2['clips']
@@ -89,10 +93,9 @@ class InputHandle:
             self.current_batch_size = self.total() - self.current_position
         self.current_batch_indices = self.indices[
             self.current_position:self.current_position + self.current_batch_size]
-        self.current_input_length = max(self.data['clips'][0, ind, 1] for ind
-                                        in self.current_batch_indices)
-        self.current_output_length = max(self.data['clips'][1, ind, 1] for ind
-                                         in self.current_batch_indices)
+        self.current_input_length = max(self.data['clips'][0, ind, 1] for ind in self.current_batch_indices)
+        self.current_output_length = max(self.data['clips'][1, ind, 1] for ind in self.current_batch_indices)
+        # print(f"self.current_input_length:{self.current_input_length}, self.current_output_length:{self.current_output_length}")
 
     def next(self):
         self.current_position += self.current_batch_size
@@ -104,10 +107,9 @@ class InputHandle:
             self.current_batch_size = self.total() - self.current_position
         self.current_batch_indices = self.indices[
             self.current_position:self.current_position + self.current_batch_size]
-        self.current_input_length = max(self.data['clips'][0, ind, 1] for ind
-                                        in self.current_batch_indices)
-        self.current_output_length = max(self.data['clips'][1, ind, 1] for ind
-                                         in self.current_batch_indices)
+        self.current_input_length = max(self.data['clips'][0, ind, 1] for ind in self.current_batch_indices)
+        self.current_output_length = max(self.data['clips'][1, ind, 1] for ind in self.current_batch_indices)
+        print(f"self.current_input_length:{self.current_input_length}, self.current_output_length:{self.current_output_length}")
 
     def no_batch_left(self):
         if self.current_position >= self.total() - self.current_batch_size:
@@ -127,10 +129,13 @@ class InputHandle:
             begin = self.data['clips'][0, batch_ind, 0]
             end = self.data['clips'][0, batch_ind, 0] + \
                     self.data['clips'][0, batch_ind, 1]*self.concurent_step
+            print(f"batch_ind: {batch_ind}, begin: {begin}, end: {end}")
             data_slice = self.data['input_raw_data'][begin:end, :self.img_channel1, :, :]
+            print(f"data_slice shape: {data_slice.shape}, self.data['input_raw_data'] shape: {self.data['input_raw_data'].shape}")
             data_slice = np.transpose(data_slice,(0,2,3,1))
             input_batch[i, :self.current_input_length*self.concurent_step, :, :, :] = data_slice
         input_batch = input_batch.astype(self.input_data_type)
+        # print(f"self.no_batch_left(): {self.no_batch_left()}")
         return input_batch
 
     def output_batch(self):
@@ -140,6 +145,7 @@ class InputHandle:
             raw_dat = self.data['output_raw_data']
         else:
             raw_dat = self.data['input_raw_data'][:,:self.img_channel1,:,:]
+            # print(f"raw_dat shape: {raw_dat.shape}")
         if self.concurent_step > 1:
             return None
         if self.is_output_sequence:
@@ -170,9 +176,9 @@ class InputHandle:
 
     def get_batch(self):
         input_seq = self.input_batch()
-        #print(input_seq.shape)
+        # print(f"input_seq.shape: {input_seq.shape}")
         output_seq = self.output_batch()
-        #print(output_seq.shape)
+        # print(f"output_seq.shape: {output_seq.shape}")
         if output_seq is None:
             return input_seq
         else:

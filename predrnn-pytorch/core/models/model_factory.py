@@ -58,8 +58,7 @@ class Model(object):
             #print(i)
             with torch.no_grad():
                 next_frames, _ = self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], 
-                                          mask_tensor,
-                                          istrain=istrain)
+                                            mask_tensor, istrain=istrain)
             frames_tensor[:,input_length*i+total_length - output_length:\
                           input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
             final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())

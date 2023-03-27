@@ -10,7 +10,7 @@ python -u run1.py \
     --gen_frm_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
     --model_name predrnn_v2 \
     --reverse_input 1 \
-    --is_WV 1 \
+    --is_WV 0 \
     --center_enhance True \
     --layer_need_enhance 1 \
     --find_max False \
@@ -28,7 +28,7 @@ python -u run1.py \
     --wavelet db1 \
     --filter_size 5 \
     --stride 1 \
-    --patch_size 15 \
+    --patch_size 30 \
     --layer_norm 1 \
     --decouple_beta 0.05 \
     --reverse_scheduled_sampling 1 \
@@ -37,7 +37,7 @@ python -u run1.py \
     --r_exp_alpha 2500 \
     --lr 1e-4 \
     --batch_size 1 \
-    --max_iterations 2 \
+    --max_iterations 3 \
     --display_interval 50 \
     --test_interval 1000000 \
     --snapshot_interval 2000 \

@@ -327,7 +327,7 @@ def train_wrapper(model):
                 ims = enh_ims.copy()
             print(f"ims.shape: {ims.shape}")
             ims = preprocess.reshape_patch(ims, args.patch_size)
-            print(f"ims.shape: {ims.shape}")
+            print(f"ims.shape: {ims.shape}, ims dtype: {type(ims)}")
             if args.reverse_scheduled_sampling == 1:
                 real_input_flag = reserve_schedule_sampling_exp(itr)
             else:
@@ -344,12 +344,13 @@ def train_wrapper(model):
                 
 
 def test_wrapper(model):
-    model.load(args.pretrained_model)
+    # model.load(args.pretrained_model)
     test_input_handle = datasets_factory.data_provider(
         args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, args.img_width,
         seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
         img_channel = args.img_channel,img_layers = args.img_layers,
         is_training=False,is_WV=args.is_WV)
+    # test_input_handle.begin(do_shuffle=False)
     trainer.test(model, test_input_handle, args, 'test_result')
 
 
