@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0,1,2
 cd ..
 python -u run1.py \
     --is_training 0 \
-    --concurent_step 14 \
+    --concurent_step 1 \
     --device cuda \
     --dataset_name mnist \
     --train_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
