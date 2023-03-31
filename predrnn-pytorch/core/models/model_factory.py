@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, predrnn_v2_1
 
 class Model(object):
     def __init__(self, configs):
@@ -14,6 +14,7 @@ class Model(object):
             'predrnn_v2': predrnn_v2.RNN,
             'action_cond_predrnn': action_cond_predrnn.RNN,
             'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
+            'predrnn_v2_1': predrnn_v2_1.RNN,
         }
 
         if configs.model_name in networks_map:
@@ -41,6 +42,7 @@ class Model(object):
         mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
         self.optimizer.zero_grad()
         next_frames, loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
+        # torch.cuda.empty_cache()
         loss.backward()
         del next_frames
         self.optimizer.step()
@@ -55,12 +57,11 @@ class Model(object):
         mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
         final_next_frames = []
         for i in range(self.configs.concurent_step):
-            #print(i)
+            print(i)
             with torch.no_grad():
-                next_frames, _ = self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], 
-                                            mask_tensor, istrain=istrain)
-            frames_tensor[:,input_length*i+total_length - output_length:\
-                          input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
+                next_frames, _ = self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], mask_tensor, istrain=istrain)
+            print(f"next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
+            frames_tensor[:,input_length*i+input_length:input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
             final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())
             del next_frames
             torch.cuda.empty_cache()

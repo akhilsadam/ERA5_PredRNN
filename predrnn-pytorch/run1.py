@@ -126,6 +126,8 @@ parser.add_argument('--curr_best_loss', type=float, default=1e5)
 parser.add_argument('--isloss', type=int, default=1)
 parser.add_argument('--is_logscale', type=int, default=0)
 parser.add_argument('--is_WV', type=int, default=0)
+parser.add_argument('--press_constraint', type=int, default=1)
+parser.add_argument('--weighted_loss', type=int, default=1)
 
 args = parser.parse_args()
 print(args)
@@ -153,43 +155,27 @@ def reserve_schedule_sampling_exp(itr):
         (args.batch_size, args.total_length - args.input_length - 1))
     true_token = (random_flip < eta)
 
-    ones = np.ones((args.img_height // args.patch_size,
-                    args.img_width // args.patch_size,
-                    args.patch_size ** 2 * args.img_channel))
-    zeros = np.zeros((args.img_height // args.patch_size,
-                      args.img_width // args.patch_size,
-                      args.patch_size ** 2 * args.img_channel))
-
     real_input_flag = []
     for i in range(args.batch_size):
         for j in range(args.total_length - 2):
             if j < args.input_length - 1:
                 if r_true_token[i, j]:
-                    real_input_flag.append(ones)
+                    real_input_flag.append(1)
                 else:
-                    real_input_flag.append(zeros)
+                    real_input_flag.append(0)
             else:
                 if true_token[i, j - (args.input_length - 1)]:
-                    real_input_flag.append(ones)
+                    real_input_flag.append(1)
                 else:
-                    real_input_flag.append(zeros)
+                    real_input_flag.append(0)
     
     real_input_flag = np.array(real_input_flag)
-    real_input_flag = np.reshape(real_input_flag,
-                                 (args.batch_size,
-                                  args.total_length - 2,
-                                  args.img_height // args.patch_size,
-                                  args.img_width // args.patch_size,
-                                  args.patch_size ** 2 * args.img_channel))
+    real_input_flag = np.reshape(real_input_flag, (args.batch_size, args.total_length - 2, 1, 1, 1))
     return real_input_flag
 
 
 def schedule_sampling(eta, itr):
-    zeros = np.zeros((args.batch_size,
-                      args.total_length - args.input_length - 1,
-                      args.img_height // args.patch_size,
-                      args.img_width // args.patch_size,
-                      args.patch_size ** 2 * args.img_channel))
+    zeros = np.zeros((args.batch_size, args.total_length - args.input_length - 1, 1, 1, 1))
     if not args.scheduled_sampling:
         return 0.0, zeros
 
@@ -200,26 +186,16 @@ def schedule_sampling(eta, itr):
     random_flip = np.random.random_sample(
         (args.batch_size, args.total_length - args.input_length - 1))
     true_token = (random_flip < eta)
-    ones = np.ones((args.img_height // args.patch_size,
-                    args.img_width // args.patch_size,
-                    args.patch_size ** 2 * args.img_channel))
-    zeros = np.zeros((args.img_height // args.patch_size,
-                      args.img_width // args.patch_size,
-                      args.patch_size ** 2 * args.img_channel))
+   
     real_input_flag = []
     for i in range(args.batch_size):
         for j in range(args.total_length - args.input_length - 1):
             if true_token[i, j]:
-                real_input_flag.append(ones)
+                real_input_flag.append(1)
             else:
-                real_input_flag.append(zeros)
+                real_input_flag.append(0)
     real_input_flag = np.array(real_input_flag)
-    real_input_flag = np.reshape(real_input_flag,
-                                 (args.batch_size,
-                                  args.total_length - args.input_length - 1,
-                                  args.img_height // args.patch_size,
-                                  args.img_width // args.patch_size,
-                                  args.patch_size ** 2 * args.img_channel))
+    real_input_flag = np.reshape(real_input_flag, (args.batch_size, args.total_length - args.input_length - 1, 1, 1, 1))
     return eta, real_input_flag
 
 
@@ -234,7 +210,7 @@ def train_wrapper(model):
             args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, 
             args.img_width,
             seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
-            img_channel = args.img_channel,img_layers = args.img_layers,
+            img_channel = args.img_channel, img_layers = args.img_layers,
             is_training=True,is_WV=args.is_WV)
 
         eta = args.sampling_start_value
@@ -243,20 +219,7 @@ def train_wrapper(model):
             if train_input_handle.no_batch_left():
                 train_input_handle.begin(do_shuffle=True)
             ims = train_input_handle.get_batch()
-            ims = ims[:,:,:,:,:args.img_channel]
-            #center enhance
-            if args.center_enhance:
-                enh_ims = ims.copy()
-                layer_ims = enh_ims[0,:,:,:,args.layer_need_enhance]
-                #unnormalize
-                layer_ims = layer_ims *(105000 - 98000) + 98000
-                zonal_mean = np.mean(1/(layer_ims[0,:,:]), axis=1) #get lattitude mean of the first time step
-                anomaly_zonal = (1/layer_ims) - zonal_mean[None,:,None]
-                #re-normalize
-                layer_ims = (anomaly_zonal + 3e-7) / 7.7e-7
-                enh_ims[0,:,:,:,args.layer_need_enhance] = layer_ims
-                ims = enh_ims.copy()
-            ims = preprocess.reshape_patch(ims, args.patch_size)
+            ims = ims[:,:,:args.img_channel,:,:]
             if args.reverse_scheduled_sampling == 1:
                 real_input_flag = reserve_schedule_sampling_exp(itr)
             else:
@@ -287,7 +250,7 @@ def train_wrapper(model):
                     seq_length=args.total_length, 
                     injection_action=args.injection_action, 
                     concurent_step=args.concurent_step,
-                    img_channel = args.img_channel,img_layers = args.img_layers,
+                    img_channel=args.img_channel, img_layers=args.img_layers,
                     is_training=True,is_WV=args.is_WV)
         train_input_handle.begin(do_shuffle=True)
         for itr in range(1, args.max_iterations + 1):
@@ -312,27 +275,12 @@ def train_wrapper(model):
                 train_input_handle.begin(do_shuffle=True)
             
             ims = train_input_handle.get_batch()
-            ims = ims[:,:,:,:,:args.img_channel]
-            #center enhance
-            if args.center_enhance:
-                enh_ims = ims.copy()
-                layer_ims = enh_ims[0,:,:,:,args.layer_need_enhance]
-                #unnormalize
-                layer_ims = layer_ims *(105000 - 98000) + 98000
-                zonal_mean = np.mean(1/(layer_ims[0,:,:]), axis=1) #get lattitude mean of the first time step
-                anomaly_zonal = (1/layer_ims) - zonal_mean[None,:,None]
-                #re-normalize
-                layer_ims = (anomaly_zonal + 3e-7) / 7.7e-7
-                enh_ims[0,:,:,:,args.layer_need_enhance] = layer_ims
-                ims = enh_ims.copy()
-            print(f"ims.shape: {ims.shape}")
-            ims = preprocess.reshape_patch(ims, args.patch_size)
-            print(f"ims.shape: {ims.shape}, ims dtype: {type(ims)}")
+            ims = ims[:,:,:args.img_channel,:,:]
+            print(f"ims.shape: {ims.shape}")            
             if args.reverse_scheduled_sampling == 1:
                 real_input_flag = reserve_schedule_sampling_exp(itr)
             else:
                 eta, real_input_flag = schedule_sampling(eta, itr)
-            # print(f"real_input_flag shape: {real_input_flag.shape}")
             trainer.train(model, ims, real_input_flag, args, itr)
             if itr % args.snapshot_interval == 0:
                 model.save(itr)
@@ -363,9 +311,10 @@ if os.path.exists(args.gen_frm_dir):
 os.makedirs(args.gen_frm_dir)
 
 print('Initializing models')
-
+print(f"Before initialize model, args.img_channel:{args.img_channel}")
 model = Model(args)
-#model= nn.DataParallel(model)
+print(f"After initialize model, args.img_channel:{args.img_channel}")
+#model= nn.DataParallel(model, device_ids=[0, 1, 2])
 #model.to(args.device)
 
 if args.is_training:

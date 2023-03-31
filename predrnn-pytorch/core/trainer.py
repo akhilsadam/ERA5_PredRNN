@@ -42,10 +42,11 @@ def test(model, test_input_handle, configs, itr):
     test_input_handle.begin(do_shuffle=False)
     res_path = os.path.join(configs.gen_frm_dir, str(itr))
     os.mkdir(res_path)
+
     avg_mse = 0
     batch_id = 0
-    img_mse, ssim, psnr = [], [], []
-    lp = []
+    img_mse, ssim, psnr, lp = [], [], [], []
+
     for i in range(configs.total_length - configs.input_length):
         img_mse.append(0)
         ssim.append(0)
@@ -58,19 +59,17 @@ def test(model, test_input_handle, configs, itr):
     else:
         mask_input = configs.input_length
     
-    real_input_flag = np.zeros(
-            (configs.batch_size,
-             configs.total_length - mask_input - 1,
-             configs.img_height // configs.patch_size,
-             configs.img_width // configs.patch_size,
-             configs.patch_size ** 2 * configs.img_channel))
+    real_input_flag = np.zeros((configs.batch_size,
+                                configs.total_length - mask_input - 1,
+                                configs.img_height // configs.patch_size,
+                                configs.img_width // configs.patch_size,
+                                configs.patch_size ** 2 * configs.img_channel))
     # print(f"real_input_flag: {real_input_flag.shape}")
     if configs.reverse_scheduled_sampling == 1:
         real_input_flag[:, :configs.input_length - 1, :, :] = 1.0
 
     while (test_input_handle.no_batch_left() == False):
         batch_id = batch_id + 1
-        print(f"batch_id:{batch_id}")
         test_ims = test_input_handle.get_batch()
         print(f"batch_id:{batch_id}, test_ims shape: {test_ims.shape}")
         test_ims = test_ims[:, :, :, :, :configs.img_channel]
@@ -79,17 +78,16 @@ def test(model, test_input_handle, configs, itr):
         # enhance pressure
         if configs.center_enhance:
             enh_ims = test_ims.copy()
-            layer_ims = enh_ims[0,:,:,:,configs.layer_need_enhance]
+            layer_ims = enh_ims[0,:,configs.layer_need_enhance,:,:]
             #unnormalize
             layer_ims = layer_ims *(105000 - 98000) + 98000
             zonal_mean = np.mean(1/(layer_ims[0,:,:]), axis=1) #get lattitude mean of the first time step
-            # print(f"zonal_mean shape: {zonal_mean.shape}")
             anomaly_zonal = (1/layer_ims) - zonal_mean[None,:,None]
             #re-normalize
             layer_ims = (anomaly_zonal + 3e-7) / 7.7e-7
-            enh_ims[0,:,:,:,configs.layer_need_enhance] = layer_ims
+            enh_ims[0,:,configs.layer_need_enhance,:,:] = layer_ims
             test_ims = enh_ims.copy()
-        print(f"After enchance, min:{np.min(layer_ims)}, max:{np.max(layer_ims)}, mean:{np.mean(layer_ims)}")
+            print(f"After enchance, min:{np.min(layer_ims)}, max:{np.max(layer_ims)}, mean:{np.mean(layer_ims)}")
         #append output length to test_ims
         output_length = configs.total_length - configs.input_length
         curr_shapes = test_ims.shape
@@ -98,30 +96,29 @@ def test(model, test_input_handle, configs, itr):
         print(f"test_ims_pad shape: {test_ims_pad.shape}")
         ##############
         test_dat = preprocess.reshape_patch(test_ims_pad, configs.patch_size)
-        img_gen = model.test(test_dat, real_input_flag)
-        img_gen = preprocess.reshape_patch_back(img_gen, configs.patch_size)
-        img_out = img_gen.copy()
+        img_out = model.test(test_dat, real_input_flag)
+        img_out = preprocess.reshape_patch_back(img_out, configs.patch_size)
         ##############
         # center de-enhance
         if configs.center_enhance:
             enh_ims = img_out.copy()
-            layer_ims = enh_ims[0,:,:,:,configs.layer_need_enhance]
+            layer_ims = enh_ims[0,:,configs.layer_need_enhance,:,:]
             #unnormalize
             layer_ims = layer_ims * 7.7e-7 - 3e-7
             anomaly_zonal = 1/(layer_ims + zonal_mean[None,:,None])
             #re-normalize
             layer_ims = (anomaly_zonal - 98000) / (105000 - 98000)
-            enh_ims[0,:,:,:,configs.layer_need_enhance] = layer_ims
+            enh_ims[0,:,configs.layer_need_enhance,:,:] = layer_ims
             img_out = enh_ims.copy()
             #de-enhance for input images as well
             enh_ims = test_ims.copy()
-            layer_ims = enh_ims[0,:,:,:,configs.layer_need_enhance]
+            layer_ims = enh_ims[0,:,configs.layer_need_enhance,:,:]
             #unnormalize
             layer_ims = layer_ims * 7.7e-7 - 3e-7
             anomaly_zonal = 1/(layer_ims + zonal_mean[None,:,None])
             #re-normalize
             layer_ims = (anomaly_zonal - 98000) / (105000 - 98000)
-            enh_ims[0,:,:,:,configs.layer_need_enhance] = layer_ims
+            enh_ims[0,:,configs.layer_need_enhance,:,:] = layer_ims
             test_ims = enh_ims.copy()
         
         #img_out = img_out/layer_weights
@@ -131,8 +128,10 @@ def test(model, test_input_handle, configs, itr):
         for i in range(output_length):
             x = test_ims[:, i+configs.input_length, :, :, :]
             gx = img_out[:, i, :, :, :]
+            # print(f"max gx:{np.max(gx)}, min gx:{np.min(gx)}")
             gx = np.maximum(gx, 0)
             gx = np.minimum(gx, 1)
+            # print(f"After truncation, max gx:{np.max(gx)}, min gx:{np.min(gx)}")
             mse = np.square(x - gx).sum()
             img_mse[i] += mse
             avg_mse += mse
