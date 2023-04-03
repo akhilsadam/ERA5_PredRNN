@@ -1,13 +1,14 @@
- export CUDA_VISIBLE_DEVICES=0,1,2
+export CUDA_VISIBLE_DEVICES=0,1,2
 cd ..
+base_path="/work/09012/haoli1/ls6/ERA5/"
 python -u run1.py \
     --is_training 1 \
     --device cuda:1 \
     --dataset_name mnist \
-    --train_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_0825002005_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_1001002015_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_1001002016_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0827002021_3_24hr.npz,/work/09012/haoli1/ls6/ERA5/era5_train_0921002022_3_24hr.npz \
-    --valid_data_paths /work/09012/haoli1/ls6/ERA5/era5_train_1024002012_3_24hr.npz \
-    --save_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
-    --gen_frm_dir /work/09012/haoli1/ls6/ERA5/predrnn-pytorch/checkpoints/era5_predrnn \
+    --train_data_paths ${base_path}era5_train_0825002005_3_24hr.npz,${base_path}era5_train_1001002015_3_24hr.npz,${base_path}era5_train_1001002016_3_24hr.npz,${base_path}era5_train_0827002021_3_24hr.npz,${base_path}era5_train_0921002022_3_24hr.npz \
+    --valid_data_paths ${base_path}era5_train_1024002012_3_24hr.npz \
+    --save_dir ${base_path}predrnn-pytorch/checkpoints/era5_predrnn \
+    --gen_frm_dir ${base_path}/predrnn-pytorch/checkpoints/era5_predrnn \
     --model_name predrnn_v2 \
     --reverse_input 0 \
     --is_WV 1 \

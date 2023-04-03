@@ -2,7 +2,8 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, predrnn_v2_1
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2
+import wandb
 
 class Model(object):
     def __init__(self, configs):
@@ -14,7 +15,6 @@ class Model(object):
             'predrnn_v2': predrnn_v2.RNN,
             'action_cond_predrnn': action_cond_predrnn.RNN,
             'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
-            'predrnn_v2_1': predrnn_v2_1.RNN,
         }
 
         if configs.model_name in networks_map:
@@ -24,11 +24,23 @@ class Model(object):
             raise ValueError('Name of network unknown %s' % configs.model_name)
 
         self.optimizer = Adam(self.network.parameters(), lr=configs.lr)
+        if self.configs.upload_run:
+            self.upload_wandb()
+    
+    def upload_wandb(self):
+        # Uploading to wandb
+        run_name = '_'.join((self.configs.save_file, self.configs.run_name))
+        wandb.init(project=self.configs.project, name=run_name)
+        wandb.config.model_name = self.configs.model_name
+        wandb.config.opt = self.configs.opt
+        wandb.config.lr = self.configs.lr
+        wandb.config.batch_size = 1
+
 
     def save(self, itr):
         stats = {}
         stats['net_param'] = self.network.state_dict()
-        checkpoint_path = os.path.join(self.configs.save_dir, 'model.ckpt'+'-'+str(itr))
+        checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(itr)+'.ckpt')
         torch.save(stats, checkpoint_path)
         print("save model to %s" % checkpoint_path)
 
@@ -41,8 +53,10 @@ class Model(object):
         frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
         mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
         self.optimizer.zero_grad()
-        next_frames, loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
-        # torch.cuda.empty_cache()
+        next_frames, loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
+        if self.configs.upload_run:
+            wandb.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
+        torch.cuda.empty_cache()
         loss.backward()
         del next_frames
         self.optimizer.step()

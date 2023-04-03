@@ -1,5 +1,3 @@
-__author__ = 'yunbo'
-
 import tensorflow as tf
 tf.config.list_physical_devices('GPU')
 
@@ -15,6 +13,7 @@ import core.trainer as trainer
 import pywt as pw
 import torch.nn as nn
 import random
+import wandb
 
 from scipy import ndimage
 
@@ -62,7 +61,7 @@ parser.add_argument('--skip_time', type=int, default=1)
 parser.add_argument('--wavelet', type=str, default='db1')
 
 #center enhancement
-parser.add_argument('--center_enhance', type=str2bool, default=False)
+parser.add_argument('--center_enhance', type=int, default=0)
 parser.add_argument('--layer_need_enhance', type=int, default=0)
 parser.add_argument('--find_max', type=str2bool, default=True)
 parser.add_argument('--multiply', type=float, default=1.0)
@@ -128,6 +127,10 @@ parser.add_argument('--is_logscale', type=int, default=0)
 parser.add_argument('--is_WV', type=int, default=0)
 parser.add_argument('--press_constraint', type=int, default=1)
 parser.add_argument('--weighted_loss', type=int, default=1)
+parser.add_argument('--display_press_mean', type=int, default=1)
+parser.add_argument('--upload_run', type=int, default=1)
+parser.add_argument('--project', type=str, default='PC_PredRNN')
+parser.add_argument('--opt', type=str, default='Adam')
 
 args = parser.parse_args()
 print(args)
@@ -199,11 +202,14 @@ def schedule_sampling(eta, itr):
     return eta, real_input_flag
 
 
+
 def train_wrapper(model):
     if args.pretrained_model:
         model.load(args.pretrained_model)
     # load data
     train_data_files = args.train_data_paths.split(',')
+    for file in train_data_files:
+        print(file)
     if len(train_data_files) <= 3:
         print(f"train_data_files <= 3")
         train_input_handle, test_input_handle = datasets_factory.data_provider(
@@ -240,7 +246,6 @@ def train_wrapper(model):
         #chunked_train_data_files = [train_data_files[xi:xi+2] for xi in range(0, len(train_data_files), 2)]
         curr_pos = 0
         curr_train_path = train_data_files[curr_pos]
-        print(curr_train_path)
         #curr_train_path = ','.join(listi)
         train_input_handle, test_input_handle = datasets_factory.data_provider(
                     args.dataset_name, curr_train_path, 
@@ -276,7 +281,8 @@ def train_wrapper(model):
             
             ims = train_input_handle.get_batch()
             ims = ims[:,:,:args.img_channel,:,:]
-            print(f"ims.shape: {ims.shape}")            
+            # print(f"ims.shape: {ims.shape}")
+            print(f"Iteration: {itr}")
             if args.reverse_scheduled_sampling == 1:
                 real_input_flag = reserve_schedule_sampling_exp(itr)
             else:
@@ -301,17 +307,29 @@ def test_wrapper(model):
     # test_input_handle.begin(do_shuffle=False)
     trainer.test(model, test_input_handle, args, 'test_result')
 
+save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
+args.save_file = '_'.join(save_file)
+run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', ]
+args.run_name = '_'.join(run_name)
 
-if os.path.exists(args.save_dir):
-    shutil.rmtree(args.save_dir)
-os.makedirs(args.save_dir)
+args.save_dir = os.path.join(args.save_dir, args.save_file)
 
-if os.path.exists(args.gen_frm_dir):
-    shutil.rmtree(args.gen_frm_dir)
-os.makedirs(args.gen_frm_dir)
+if args.pretrained_model:
+    args.pretrained_model = os.path.join(args.pretrained_model, args.save_file, 'model_best.ckpt')
 
-print('Initializing models')
+
+if not os.path.exists(args.save_dir):
+    # shutil.rmtree(args.save_dir)
+    os.makedirs(args.save_dir)
+    print('Created:', args.save_dir)
+
+if not os.path.exists(args.gen_frm_dir):
+    # shutil.rmtree(args.gen_frm_dir)
+    os.makedirs(args.gen_frm_dir)
+
+
 print(f"Before initialize model, args.img_channel:{args.img_channel}")
+print('Initializing models')
 model = Model(args)
 print(f"After initialize model, args.img_channel:{args.img_channel}")
 #model= nn.DataParallel(model, device_ids=[0, 1, 2])

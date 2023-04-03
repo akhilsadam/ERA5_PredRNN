@@ -13,6 +13,7 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
     if dataset_name not in datasets_map:
         raise ValueError('Name of dataset unknown %s' % dataset_name)
     train_data_list = train_data_paths.split(',')
+    # print(f"train_data_list:{train_data_list}")
     valid_data_list = valid_data_paths.split(',')
     img_layers = [int(x) for x in img_layers.split(',')]
     if dataset_name == 'mnist':
@@ -24,7 +25,7 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
                             'input_data_type': 'float32',
                             'concurent_step':concurent_step,
                             'is_output_sequence': True,
-                            'name': dataset_name + 'test iterator',
+                            'name': dataset_name + ' test iterator',
                             'img_layers': img_layers,
                             'is_WV': is_WV
                            }

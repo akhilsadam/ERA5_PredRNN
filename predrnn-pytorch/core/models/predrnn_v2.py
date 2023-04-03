@@ -35,7 +35,7 @@ class RNN(nn.Module):
         self.patch_size = configs.patch_size
         # print(self.frame_channel)
         if configs.is_WV:
-            self.last_patch = 20
+            self.last_patch = 15
             height = int(configs.img_height/2) // self.last_patch
             width = int(configs.img_width/2) // self.last_patch
             self.frame_channel = 4*int(self.configs.img_channel/10)*self.last_patch**2
@@ -126,10 +126,10 @@ class RNN(nn.Module):
         batch = frames_tensor.shape[0]
         mask_true = mask_true.contiguous().to(self.configs.device)
         # print(f"in the beginning, mask_true shape: {mask_true.shape}")
-
-        frames_tensor = self.enhance(frames_tensor)
-        # print(f"ehance err:{torch.max(torch.abs(self.de_enhance(frames_tensor1) - frames_tensor))}")
-
+        
+        if self.configs.center_enhance:
+            chan_en = frames_tensor[0,:,self.configs.layer_need_enhance,:,:] *(105000 - 98000) + 98000
+            self.zonal_mean = torch.mean(1/(chan_en[0,:,:]), dim=1) #get lattitude mean of the first time step
 
         if self.configs.is_WV:
             frames_tensor = self.img_to_wv(frames_tensor)
@@ -158,7 +158,7 @@ class RNN(nn.Module):
         memory = torch.zeros([batch, self.num_hidden[0], self.cur_height, self.cur_width]).to(self.configs.device)
         next_frames = torch.empty(batch, self.configs.total_length-1, self.frame_channel, self.cur_height, self.cur_width).to(self.configs.device)
         # print(f"in the begining, next_frames shape:{next_frames.shape}")
-       
+        gen_pressure_mean = 0
         for t in range(0, self.configs.total_length-1):
             if self.configs.reverse_scheduled_sampling == 1:
                 # reverse schedule sampling
@@ -190,25 +190,33 @@ class RNN(nn.Module):
                     delta_m_visual.append(delta_m.view(delta_m.shape[0], delta_m.shape[1], -1))
 
             x_gen = self.conv_last(h_t[self.num_layers - 1])
+            x_gen = torch.unsqueeze(x_gen, dim=1)
             # print(f"x_gen shape: {x_gen.shape}")
+            if self.configs.press_constraint and self.configs.is_WV:
+                
+                # print(f"wv_to_img+de_enhance err:{torch.max(torch.abs(self.img_to_wv(self.enhance(self.de_enhance(self.wv_to_img(x_gen)))) - x_gen))}")
+                x_gen = self.wv_to_img(x_gen)
+                # print(f"img_to_wv err:{torch.max(torch.abs(self.wv_to_img(self.img_to_wv(x_gen)) - x_gen))}")
+                # print(f"after trans back to img, x_gen shape:{x_gen.shape}")
+                gen_mean = torch.mean(self.area_weight*x_gen[:,:,self.configs.layer_need_enhance])
+                x_gen[:,:,self.configs.layer_need_enhance,:,:] = x_gen[:,:,self.configs.layer_need_enhance,:,:] + self.mean_press - gen_mean
+                
+                # print(f"frames_tensor weighted mean press: {torch.mean(self.area_weight*x_gen[:,:,self.configs.layer_need_enhance])}")
+                x_gen= self.img_to_wv(x_gen)
+                # print(f"wv_to_img+de_enhance err:{torch.max(torch.abs(self.img_to_wv(self.wv_to_img(x_gen)) - x_gen))}")
+
+            if self.configs.display_press_mean:
+                x_gen1 = self.wv_to_img(x_gen)
+                gen_mean = torch.mean(self.area_weight*x_gen1[:,:,self.configs.layer_need_enhance])
+                gen_pressure_mean += gen_mean
+
+            x_gen = torch.squeeze(x_gen, dim=1)
             next_frames[:,t] = x_gen
+
             # decoupling loss
             for i in range(0, self.num_layers):
                 decouple_loss.append(
                     torch.mean(torch.abs(torch.cosine_similarity(delta_c_list[i], delta_m_list[i], dim=2))))
-
-        if self.configs.press_constraint and self.configs.is_WV:
-            next_frames = self.reshape_back_tensor(next_frames, self.last_patch)
-            # print(f"before trans back to img, next_frames shape:{next_frames.shape}")
-            next_frames = self.wv_to_img(next_frames, self.img_channel)
-            # print(f"after trans back to img, next_frames shape:{next_frames.shape}")
-            next_frames = self.de_enhance(next_frames)
-            diff = self.mean_press - torch.mean(self.area_weight*next_frames[:,:,self.configs.layer_need_enhance])
-            next_frames[:,:,self.configs.layer_need_enhance,:,:] += diff
-            # print(f"frames_tensor weighted mean press: {torch.mean(self.area_weight*next_frames[:,:,self.configs.layer_need_enhance])}")
-            next_frames = self.enhance(next_frames)
-            next_frames = self.img_to_wv(next_frames)
-            # print(f"after trans back to img, next_frames shape:{next_frames.shape}")
 
         if self.visual:
             # visualization of delta_c and delta_m
@@ -216,87 +224,81 @@ class RNN(nn.Module):
             delta_m_visual = torch.stack(delta_m_visual, dim=0)
             visualization(self.configs.total_length, self.num_layers, delta_c_visual, delta_m_visual, self.visual_path)
             self.visual = 0
+        
         decouple_loss = torch.mean(torch.stack(decouple_loss, dim=0))
         # [length, batch, channel, height, width] -> [batch, length, height, width, channel]
         #next_frames = next_frames[:,np.arange(0,self.configs.total_length),:,:,:]
         #frames_tensor = frames_tensor[:,np.arange(0,self.configs.total_length),:,:,:]
-
-        # print(f"Before loss calculation: next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
+        if self.configs.display_press_mean:
+            print(f"The generated pressure mean: {gen_pressure_mean/(self.configs.total_length-1)}")
         if istrain:
             if self.configs.weighted_loss and not self.configs.is_WV:
-                loss1 = self.get_weighted_loss(next_frames, frames_tensor[:,1:,:,:,:])
+                loss_pred = self.get_weighted_loss(next_frames, frames_tensor[:,1:,:,:,:])
             else:
-                loss1 = self.MSE_criterion(next_frames*self.layer_weights, frames_tensor[:,1:,:,:,:]*self.layer_weights)
-            loss = loss1 + self.configs.decouple_beta*decouple_loss
+                loss_pred = self.MSE_criterion(next_frames*self.layer_weights, frames_tensor[:,1:,:,:,:]*self.layer_weights)
+            print(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
+            loss = loss_pred + self.configs.decouple_beta*decouple_loss
             next_frames = None
         else:
             if self.configs.is_WV:
-                next_frames = self.reshape_back_tensor(next_frames, self.last_patch)
-                next_frames = self.wv_to_img(next_frames, self.img_channel)
-        return next_frames, loss
+                next_frames = self.wv_to_img(next_frames)
+        return next_frames, loss, loss_pred, decouple_loss
 
 
 
-    def wv_to_img(self, frames_wv, channel):
+    def wv_to_img(self, frames_wv):
         '''
         frames_wv: [B, T, C, H, W]
         '''
+        frames_wv = self.reshape_back_tensor(frames_wv, self.last_patch)
         B, T, C, H, W = frames_wv.shape
         frames_wv = torch.reshape(frames_wv, (B*T, C, H, W))
 
-        Yl = frames_wv[:,0:channel,:,:]
-        Yh1 = frames_wv[:,channel:2*channel,:,:]
-        Yh2 = frames_wv[:,2*channel:3*channel,:,:]
-        Yh3 = frames_wv[:,3*channel:4*channel,:,:]
+        Yl = frames_wv[:,0:self.img_channel,:,:]
+        Yh1 = frames_wv[:,self.img_channel:2*self.img_channel,:,:]
+        Yh2 = frames_wv[:,2*self.img_channel:3*self.img_channel,:,:]
+        Yh3 = frames_wv[:,3*self.img_channel:4*self.img_channel,:,:]
         Yh = [torch.stack((Yh1, Yh2, Yh3), dim=2)]
+
         img_tensor = self.ifm((Yl, Yh))
-        
         C, H, W = img_tensor.shape[1:]
         img_tensor = torch.reshape(img_tensor, (B, T, C, H, W))
+        if self.configs.center_enhance:
+            img_tensor = self.de_enhance(img_tensor)
         return img_tensor
 
     def img_to_wv(self, frames_tensor):
         '''
         img_tensor: [B, T, C, H, W]
         '''
+        if self.configs.center_enhance:
+            frames_tensor = self.enhance(frames_tensor)
         batch = frames_tensor.shape[0]
         seq_length = frames_tensor.shape[1]
         frames_tensor = torch.reshape(frames_tensor, (batch*seq_length, self.img_channel, self.configs.img_height, self.configs.img_width))
         Yl, Yh = self.xfm(frames_tensor)
-
-        Yl = torch.reshape(Yl, (batch, seq_length, self.img_channel, self.img_height//2, self.img_width//2))
-        Yh1 = torch.reshape(Yh[0][:,:,0], (batch, seq_length, self.img_channel, self.img_height//2, self.img_width//2))
-        Yh2 = torch.reshape(Yh[0][:,:,1], (batch, seq_length, self.img_channel, self.img_height//2, self.img_width//2))
-        Yh3 = torch.reshape(Yh[0][:,:,2], (batch, seq_length, self.img_channel, self.img_height//2, self.img_width//2))
-        # print(f"Yl: {Yl.shape}, Yh1: {Yh1.shape}, Yh2: {Yh2.shape}, Yh3: {Yh3.shape}")
-                
-        Yl = self.reshape_tensor(Yl, self.last_patch)
-        Yh1 = self.reshape_tensor(Yh1, self.last_patch)
-        Yh2 = self.reshape_tensor(Yh2, self.last_patch)
-        Yh3 = self.reshape_tensor(Yh3, self.last_patch)
-        # print(f"Yl: {Yl.shape}, Yh1: {Yh1.shape}, Yh2: {Yh2.shape}, Yh3: {Yh3.shape}")
-
-        frames_tensor = torch.cat(((Yl, Yh1, Yh2, Yh3)), dim=2)
+        frames_tensor = torch.cat(((Yl, Yh[0][:,:,0], Yh[0][:,:,1], Yh[0][:,:,2])), dim=1)
+        frames_tensor = torch.reshape(frames_tensor, (batch, seq_length, self.img_channel*4, self.img_height//2, self.img_width//2))
+        frames_tensor = self.reshape_tensor(frames_tensor, self.last_patch)
         return frames_tensor
     
     def enhance(self, img_tensor):
         #center enhance
-        layer_en = img_tensor[0,:,self.configs.layer_need_enhance,:,:].clone()
+        chan_en = img_tensor[0,:,self.configs.layer_need_enhance,:,:].clone()
         #unnormalize
-        layer_en = layer_en *(105000 - 98000) + 98000
-        self.zonal_mean = torch.mean(1/(layer_en[0,:,:]), dim=1) #get lattitude mean of the first time step
-        layer_en = (1/layer_en) - self.zonal_mean[None,:,None]
+        chan_en = chan_en *(105000 - 98000) + 98000
+        chan_en = (1/chan_en) - self.zonal_mean[None,:,None]
         #re-normalize
-        layer_en = (layer_en + 3e-7) / 7.7e-7
-        img_tensor[0,:,self.configs.layer_need_enhance,:,:] = layer_en
+        chan_en = (chan_en + 3e-7) / 7.7e-7
+        img_tensor[0,:,self.configs.layer_need_enhance,:,:] = chan_en
         return img_tensor
 
     def de_enhance(self, img_tensor):
-        layer_en = img_tensor[0,:,self.configs.layer_need_enhance,:,:].clone()
+        chan_en = img_tensor[0,:,self.configs.layer_need_enhance,:,:].clone()
         #unnormalize
-        layer_en = layer_en * 7.7e-7 - 3e-7
-        anomaly_zonal = 1/(layer_en + self.zonal_mean[None,:,None])
+        chan_en = chan_en * 7.7e-7 - 3e-7
+        anomaly_zonal = 1/(chan_en + self.zonal_mean[None,:,None])
         #re-normalize
-        layer_en = (anomaly_zonal - 98000) / (105000 - 98000)
-        img_tensor[0,:,self.configs.layer_need_enhance,:,:] = layer_en
+        chan_en = (anomaly_zonal - 98000) / (105000 - 98000)
+        img_tensor[0,:,self.configs.layer_need_enhance,:,:] = chan_en
         return img_tensor

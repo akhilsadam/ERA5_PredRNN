@@ -27,7 +27,7 @@ class InputHandle:
         self.load()
 
     def load(self):
-        print(f"Loading data from {self.paths[0]}")
+        print(f"{self.name}, Loading data from {self.paths[0]}")
         dat_1 = np.load(self.paths[0])
         self.data['clips'] = dat_1['clips']
         self.data['dims'] = dat_1['dims']
@@ -37,6 +37,7 @@ class InputHandle:
         except:
             print('warning: length of image layers is not consistent with the specified image channel! Using default!')
             dat1_raw_data = dat_1['input_raw_data']
+        print(f"NaN value num: {np.isnan(dat1_raw_data).sum()}")
         self.data['input_raw_data'] = dat1_raw_data[:,:self.img_channel1,:,:]
         if self.num_paths > 1:
             num_clips_1 = dat_1['clips'].shape[1]
@@ -73,9 +74,9 @@ class InputHandle:
             self.data['clips'] = np.concatenate(clip_arr, axis=1)
             self.data['input_raw_data'] = input_raw_arr[:next_pos,...]
 
-        for key in self.data.keys():
-            print(key)
-            print(self.data[key].shape)
+        # for key in self.data.keys():
+        #     print(key)
+        #     print(self.data[key].shape)
 
     def total(self):
         return self.data['clips'].shape[1]
