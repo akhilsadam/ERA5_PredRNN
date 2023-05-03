@@ -1,0 +1,62 @@
+After initialize model, args.img_channel:30
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012000_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012001_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012002_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012003_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012004_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012005_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012006_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012007_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012008_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012009_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012010_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012011_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012012_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012013_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012014_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012015_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012016_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012017_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012018_3_24hr.npz
+/scratch/09012/haoli1/ERA5/dataset/era5_train_09012019_3_24hr.npz
+train_data_files > 3
+mnist test iterator, Loading data from /scratch/09012/haoli1/ERA5/val_dataset/era5_train_09012020_3_24hr.npz
+NaN value num: 0
+mnist train iterator, Loading data from /scratch/09012/haoli1/ERA5/dataset/era5_train_09012013_3_24hr.npz
+NaN value num: 0
+Iteration: 1
+The generated pressure mean: 0.44754645228385925
+loss_pred:0.15505754947662354, decouple_loss:0.09726373851299286
+current best loss: 0.159921
+save model to /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/WV_1_PC_1_EH_1_PS_30/model_best.ckpt
+Iteration: 2
+The generated pressure mean: 0.4475463032722473
+loss_pred:0.1664779782295227, decouple_loss:0.2960560619831085
+Iteration: 3
+The generated pressure mean: 0.44754618406295776
+loss_pred:0.16270403563976288, decouple_loss:0.46242111921310425
+Iteration: 4
+The generated pressure mean: 0.44754624366760254
+loss_pred:0.15656647086143494, decouple_loss:0.5475077629089355
+Iteration: 5
+The generated pressure mean: 0.4475462734699249
+loss_pred:0.15691369771957397, decouple_loss:0.5686156749725342
+Iteration: 6
+The generated pressure mean: 0.4475462734699249
+loss_pred:0.14581714570522308, decouple_loss:0.6150791645050049
+Iteration: 7
+The generated pressure mean: 0.44754651188850403
+loss_pred:0.1340833306312561, decouple_loss:0.614126980304718
+Iteration: 8
+The generated pressure mean: 0.44754651188850403
+loss_pred:0.132896289229393, decouple_loss:0.4642927944660187
+current best loss: 0.156111
+save model to /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/WV_1_PC_1_EH_1_PS_30/model_best.ckpt
+Iteration: 9
+The generated pressure mean: 0.44754651188850403
+loss_pred:0.1318446546792984, decouple_loss:0.6441851258277893
+Iteration: 10
+The generated pressure mean: 0.44754675030708313
+loss_pred:0.11582940816879272, decouple_loss:0.6455561518669128
+current best loss: 0.148107
+save model to /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/WV_1_PC_1_EH_1_PS_30/model_best.ckpt

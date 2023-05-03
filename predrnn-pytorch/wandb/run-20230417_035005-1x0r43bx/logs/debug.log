@@ -1,0 +1,34 @@
+2023-04-17 03:50:05,522 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Configure stats pid to 1592625
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Loading settings from /home1/09012/haoli1/.config/wandb/settings
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Loading settings from /work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/wandb/settings
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'predrnn-pytorch/run1.py', 'program': '/work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/run1.py'}
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_init.py:_log_setup():507] Logging user logs to /work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/wandb/run-20230417_035005-1x0r43bx/logs/debug.log
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_init.py:_log_setup():508] Logging internal logs to /work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/wandb/run-20230417_035005-1x0r43bx/logs/debug-internal.log
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_init.py:init():547] calling init triggers
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_init.py:init():554] wandb.init called with sweep_config: {}
+config: {}
+2023-04-17 03:50:05,523 INFO    MainThread:1592625 [wandb_init.py:init():595] starting backend
+2023-04-17 03:50:05,524 INFO    MainThread:1592625 [wandb_init.py:init():599] setting up manager
+2023-04-17 03:50:05,526 INFO    MainThread:1592625 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-04-17 03:50:05,529 INFO    MainThread:1592625 [wandb_init.py:init():605] backend started and connected
+2023-04-17 03:50:05,537 INFO    MainThread:1592625 [wandb_init.py:init():695] updated telemetry
+2023-04-17 03:50:05,597 INFO    MainThread:1592625 [wandb_init.py:init():732] communicating run to backend with 60.0 second timeout
+2023-04-17 03:50:05,942 INFO    MainThread:1592625 [wandb_run.py:_on_init():2176] communicating current version
+2023-04-17 03:50:05,994 INFO    MainThread:1592625 [wandb_run.py:_on_init():2185] got version response 
+2023-04-17 03:50:05,994 INFO    MainThread:1592625 [wandb_init.py:init():782] starting run threads in backend
+2023-04-17 03:50:06,126 INFO    MainThread:1592625 [wandb_run.py:_console_start():2157] atexit reg
+2023-04-17 03:50:06,127 INFO    MainThread:1592625 [wandb_run.py:_redirect():2012] redirect: SettingsConsole.WRAP_RAW
+2023-04-17 03:50:06,127 INFO    MainThread:1592625 [wandb_run.py:_redirect():2077] Wrapping output streams.
+2023-04-17 03:50:06,127 INFO    MainThread:1592625 [wandb_run.py:_redirect():2102] Redirects installed.
+2023-04-17 03:50:06,128 INFO    MainThread:1592625 [wandb_init.py:init():824] run started, returning control to user process
+2023-04-17 03:50:06,128 INFO    MainThread:1592625 [wandb_config.py:__setitem__():152] config set model_name = predrnn_v2 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x15133d015c70>>
+2023-04-17 03:50:06,128 INFO    MainThread:1592625 [wandb_run.py:_config_callback():1285] config_cb model_name predrnn_v2 None
+2023-04-17 03:50:06,129 INFO    MainThread:1592625 [wandb_config.py:__setitem__():152] config set opt = Adam - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x15133d015c70>>
+2023-04-17 03:50:06,129 INFO    MainThread:1592625 [wandb_run.py:_config_callback():1285] config_cb opt Adam None
+2023-04-17 03:50:06,129 INFO    MainThread:1592625 [wandb_config.py:__setitem__():152] config set lr = 0.0001 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x15133d015c70>>
+2023-04-17 03:50:06,129 INFO    MainThread:1592625 [wandb_run.py:_config_callback():1285] config_cb lr 0.0001 None
+2023-04-17 03:50:06,129 INFO    MainThread:1592625 [wandb_config.py:__setitem__():152] config set batch_size = 1 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x15133d015c70>>
+2023-04-17 03:50:06,130 INFO    MainThread:1592625 [wandb_run.py:_config_callback():1285] config_cb batch_size 1 None
+2023-04-17 04:12:21,538 WARNING MsgRouterThr:1592625 [router.py:message_loop():77] message_loop has been closed

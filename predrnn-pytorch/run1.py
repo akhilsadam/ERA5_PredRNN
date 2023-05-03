@@ -1,16 +1,19 @@
 import tensorflow as tf
 tf.config.list_physical_devices('GPU')
+import os,sys
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1024"
 
-import os, sys
 import shutil
 import argparse
 import numpy as np
 import math
 from core.data_provider import datasets_factory
-from core.models.model_factory import Model
+from core.models.model_factory_multiGPU import Model
+# from core.models.model_factory import Model
 from core.utils import preprocess
 import core.trainer as trainer
 import pywt as pw
+import torch
 import torch.nn as nn
 import random
 import wandb
@@ -41,12 +44,13 @@ parser = argparse.ArgumentParser(description='PyTorch video prediction model - P
 # training/test
 parser.add_argument('--is_training', type=int, default=1)
 parser.add_argument('--device', type=str, default='cpu:0')
+parser.add_argument('--test_batch_size', type=int, default=15)
 
 # data
 parser.add_argument('--dataset_name', type=str, default='mnist')
 parser.add_argument('--train_data_paths', type=str, default='data/moving-mnist-example/moving-mnist-train.npz')
 parser.add_argument('--valid_data_paths', type=str, default='data/moving-mnist-example/moving-mnist-valid.npz')
-parser.add_argument('--save_dir', type=str, default='checkpoints/mnist_predrnn')
+parser.add_argument('--save_dir', type=str, default='')
 parser.add_argument('--gen_frm_dir', type=str, default='results/mnist_predrnn')
 parser.add_argument('--input_length', type=int, default=10)
 parser.add_argument('--total_length', type=int, default=20)
@@ -69,6 +73,7 @@ parser.add_argument('--multiply', type=float, default=1.0)
 # model
 parser.add_argument('--model_name', type=str, default='predrnn')
 parser.add_argument('--pretrained_model', type=str, default='')
+parser.add_argument('--pretrained_model_name', type=str, default='model_best.ckpt')
 parser.add_argument('--num_hidden', type=str, default='64,64,64,64')
 parser.add_argument('--filter_size', type=int, default=5)
 parser.add_argument('--stride', type=int, default=1)
@@ -121,7 +126,7 @@ parser.add_argument('--out_channel', type=int, default=5)
 parser.add_argument('--stat_layers', type=int, default=8)
 parser.add_argument('--stat_layers2', type=int, default=5)
 parser.add_argument('--out_weights', type=str, default='')
-parser.add_argument('--curr_best_loss', type=float, default=1e5)
+parser.add_argument('--curr_best_mse', type=float, default=1e5)
 parser.add_argument('--isloss', type=int, default=1)
 parser.add_argument('--is_logscale', type=int, default=0)
 parser.add_argument('--is_WV', type=int, default=0)
@@ -131,6 +136,10 @@ parser.add_argument('--display_press_mean', type=int, default=1)
 parser.add_argument('--upload_run', type=int, default=1)
 parser.add_argument('--project', type=str, default='PC_PredRNN')
 parser.add_argument('--opt', type=str, default='Adam')
+parser.add_argument('--save_best_name', type=str, default='best_mse')
+parser.add_argument('--gpu_num', type=int, default=3)
+
+
 
 args = parser.parse_args()
 print(args)
@@ -204,50 +213,32 @@ def schedule_sampling(eta, itr):
 
 
 def train_wrapper(model):
-    if args.pretrained_model:
+    torch.cuda.empty_cache()
+    if args.pretrained_model and os.path.exists(args.pretrained_model):
         model.load(args.pretrained_model)
-    # load data
+    model.network.train()
+    real_input_flag = np.zeros((args.batch_size, args.total_length-1-1, 1, 1, 1))
+    real_input_flag[:, :args.input_length - 1, :, :] = 1.0
     train_data_files = args.train_data_paths.split(',')
     for file in train_data_files:
         print(file)
-    if len(train_data_files) <= 3:
-        print(f"train_data_files <= 3")
-        train_input_handle, test_input_handle = datasets_factory.data_provider(
-            args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, 
-            args.img_width,
-            seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
-            img_channel = args.img_channel, img_layers = args.img_layers,
-            is_training=True,is_WV=args.is_WV)
-
-        eta = args.sampling_start_value
-
-        for itr in range(1, args.max_iterations + 1):
-            if train_input_handle.no_batch_left():
-                train_input_handle.begin(do_shuffle=True)
-            ims = train_input_handle.get_batch()
-            ims = ims[:,:,:args.img_channel,:,:]
-            if args.reverse_scheduled_sampling == 1:
-                real_input_flag = reserve_schedule_sampling_exp(itr)
-            else:
-                eta, real_input_flag = schedule_sampling(eta, itr)
-
-            trainer.train(model, ims, real_input_flag, args, itr)
-            if itr % args.snapshot_interval == 0:
-                model.save(itr)
-
-            if itr % args.test_interval == 0:
-                trainer.test(model, test_input_handle, args, itr)
-
-            train_input_handle.next()
-    else: #split trainning files to avoid memory over load
-        print(f"train_data_files > 3")
+    if len(train_data_files) > 0:
+        print(f"train_data_files nums: {len(train_data_files)}")
         eta = args.sampling_start_value
         random.shuffle(train_data_files)
-        #chunked_train_data_files = [train_data_files[xi:xi+2] for xi in range(0, len(train_data_files), 2)]
         curr_pos = 0
         curr_train_path = train_data_files[curr_pos]
-        #curr_train_path = ','.join(listi)
-        train_input_handle, test_input_handle = datasets_factory.data_provider(
+        test_input_handle = datasets_factory.data_provider(
+                    args.dataset_name, curr_train_path, 
+                    args.valid_data_paths, 
+                    args.test_batch_size, args.img_height, 
+                    args.img_width,
+                    seq_length=args.total_length, 
+                    injection_action=args.injection_action, 
+                    concurent_step=args.concurent_step,
+                    img_channel=args.img_channel, img_layers=args.img_layers,
+                    is_testing=True, is_training=False, is_WV=args.is_WV)
+        train_input_handle = datasets_factory.data_provider(
                     args.dataset_name, curr_train_path, 
                     args.valid_data_paths, 
                     args.batch_size, args.img_height, 
@@ -256,8 +247,7 @@ def train_wrapper(model):
                     injection_action=args.injection_action, 
                     concurent_step=args.concurent_step,
                     img_channel=args.img_channel, img_layers=args.img_layers,
-                    is_training=True,is_WV=args.is_WV)
-        train_input_handle.begin(do_shuffle=True)
+                    is_testing=False, is_training=True, is_WV=args.is_WV)
         for itr in range(1, args.max_iterations + 1):
             if train_input_handle.no_batch_left():
                 if curr_pos < len(train_data_files)-1:
@@ -267,7 +257,7 @@ def train_wrapper(model):
                 curr_train_path = train_data_files[curr_pos]
                 print(curr_train_path)
                 #curr_train_path = ','.join(listi)
-                train_input_handle, test_input_handle = datasets_factory.data_provider(
+                train_input_handle = datasets_factory.data_provider(
                     args.dataset_name, curr_train_path, 
                     args.valid_data_paths, 
                     args.batch_size, args.img_height, 
@@ -276,64 +266,85 @@ def train_wrapper(model):
                     injection_action=args.injection_action, 
                     concurent_step=args.concurent_step,
                     img_channel = args.img_channel,img_layers = args.img_layers,
-                    is_training=True,is_WV=args.is_WV)
-                train_input_handle.begin(do_shuffle=True)
+                    is_testing=False,is_training=True,is_WV=args.is_WV)
             
             ims = train_input_handle.get_batch()
             ims = ims[:,:,:args.img_channel,:,:]
-            # print(f"ims.shape: {ims.shape}")
-            print(f"Iteration: {itr}")
-            if args.reverse_scheduled_sampling == 1:
-                real_input_flag = reserve_schedule_sampling_exp(itr)
-            else:
-                eta, real_input_flag = schedule_sampling(eta, itr)
+            print(f"Iteration: {itr}, ims.shape: {ims.shape}")
+            # if args.reverse_scheduled_sampling == 1:
+            #     real_input_flag = reserve_schedule_sampling_exp(itr)
+            # else:
+            #     eta, real_input_flag = schedule_sampling(eta, itr)
             trainer.train(model, ims, real_input_flag, args, itr)
             if itr % args.snapshot_interval == 0:
                 model.save(itr)
 
             if itr % args.test_interval == 0:
-                trainer.test(model, test_input_handle, args, itr)
-
+                test_input_handle.begin(do_shuffle=False)
+                test_err = trainer.test(model, test_input_handle, args, 'test_result')
+                print('current test mse: '+str(np.round(test_err,6)))
+                if test_err < args.curr_best_mse:
+                    print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
+                    args.curr_best_mse = test_err
+                    model.save(args.save_best_name)
             train_input_handle.next()
                 
 
 def test_wrapper(model):
-    # model.load(args.pretrained_model)
+    model.load(args.pretrained_model)
     test_input_handle = datasets_factory.data_provider(
         args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, args.img_width,
         seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
         img_channel = args.img_channel,img_layers = args.img_layers,
-        is_training=False,is_WV=args.is_WV)
-    # test_input_handle.begin(do_shuffle=False)
-    trainer.test(model, test_input_handle, args, 'test_result')
+        is_testing=True,is_training=False,is_WV=args.is_WV)
+    test_err = trainer.test(model, test_input_handle, args, 'test_result')
+    print(f"The test mse is {test_err}")
+
+
+lat = torch.linspace(-np.pi/2, np.pi/2, args.img_height+1)
+lat = (lat[1:] + lat[:-1])*0.5
+cos_lat = torch.reshape(torch.cos(lat), (-1,1))
+args.area_weight = (cos_lat*720/torch.sum(cos_lat)).to(args.device)
 
 save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
 args.save_file = '_'.join(save_file)
+
 run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', ]
 args.run_name = '_'.join(run_name)
 
-args.save_dir = os.path.join(args.save_dir, args.save_file)
+len_nh = len([int(x) for x in args.num_hidden.split(',')])
+print(f"model.num_hidden length: {len_nh}")
+if len_nh != 4:
+    args.save_file = '_'.join((args.save_file, str(len_nh)))
+    args.run_name = '_'.join((args.run_name, str(len_nh)))
 
-if args.pretrained_model:
-    args.pretrained_model = os.path.join(args.pretrained_model, args.save_file, 'model_best.ckpt')
+if args.save_dir:
+    args.save_dir = os.path.join(args.save_dir, args.save_file)
+    if not os.path.exists(args.save_dir):
+        # shutil.rmtree(args.save_dir)
+        os.makedirs(args.save_dir)
+        print('Created:', args.save_dir)
 
+if args.pretrained_model and os.path.exists(args.pretrained_model):
+    args.pretrained_model = os.path.join(args.pretrained_model, args.save_file, args.pretrained_model_name)
+    print(f"pretrained_model: {args.pretrained_model}")
 
-if not os.path.exists(args.save_dir):
-    # shutil.rmtree(args.save_dir)
-    os.makedirs(args.save_dir)
-    print('Created:', args.save_dir)
-
+args.gen_frm_dir = os.path.join(args.gen_frm_dir, args.save_file)
 if not os.path.exists(args.gen_frm_dir):
     # shutil.rmtree(args.gen_frm_dir)
     os.makedirs(args.gen_frm_dir)
+    print('Created:', args.gen_frm_dir)
 
-
-print(f"Before initialize model, args.img_channel:{args.img_channel}")
 print('Initializing models')
 model = Model(args)
-print(f"After initialize model, args.img_channel:{args.img_channel}")
-#model= nn.DataParallel(model, device_ids=[0, 1, 2])
+# model= nn.DataParallel(model, device_ids=[0, 1, 2])
 #model.to(args.device)
+
+
+
+
+
+
 
 if args.is_training:
     train_wrapper(model)

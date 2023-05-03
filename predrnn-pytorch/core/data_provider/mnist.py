@@ -162,9 +162,14 @@ class InputHandle:
             begin = self.data['clips'][1, batch_ind, 0]
             end = self.data['clips'][1, batch_ind, 0] + \
                     self.data['clips'][1, batch_ind, 1]
+            if batch_ind == 60:
+                print(f"begin: {begin}, end: {end}")
+                print(f"raw_dat shape: {raw_dat.shape}")
             if self.is_output_sequence:
                 data_slice = raw_dat[begin:end, :, :, :]
                 output_batch[i, : data_slice.shape[0], :, :, :] = data_slice
+                if batch_ind == 60:
+                    print(f"output_batch: {output_batch[i, : data_slice.shape[0], :, :, :]}")
             else:
                 data_slice = raw_dat[begin, :, :, :]
                 output_batch[i,:, :, :] = data_slice
