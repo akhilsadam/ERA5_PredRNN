@@ -1,0 +1,79 @@
+
+load model: /work/09012/haoli1/ls6/PredRNN_checkpoints/WV_1_PC_1_EH_0_PS_40_5/model_2000.ckpt
+Traceback (most recent call last):
+  File "/work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/run1.py", line 350, in <module>
+    train_wrapper(model)
+  File "/work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/run1.py", line 218, in train_wrapper
+    model.load(args.pretrained_model)
+  File "/work/09012/haoli1/ls6/ERA5_PredRNN/predrnn-pytorch/core/models/model_factory_multiGPU.py", line 54, in load
+    self.network.load_state_dict(stats['net_param'])
+  File "/work/09012/haoli1/ls6/Pyt/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1604, in load_state_dict
+    raise RuntimeError('Error(s) in loading state_dict for {}:\n\t{}'.format(
+RuntimeError: Error(s) in loading state_dict for DataParallel:
+	size mismatch for module.cell_list.0.conv_x.0.weight: copying a param with shape torch.Size([3360, 4800, 5, 5]) from checkpoint, the shape in current model is torch.Size([3584, 4800, 5, 5]).
+	size mismatch for module.cell_list.0.conv_x.1.weight: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.0.conv_x.1.bias: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.0.conv_h.0.weight: copying a param with shape torch.Size([1920, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([2048, 512, 5, 5]).
+	size mismatch for module.cell_list.0.conv_h.1.weight: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.0.conv_h.1.bias: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.0.conv_m.0.weight: copying a param with shape torch.Size([1440, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([1536, 512, 5, 5]).
+	size mismatch for module.cell_list.0.conv_m.1.weight: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.0.conv_m.1.bias: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.0.conv_o.0.weight: copying a param with shape torch.Size([480, 960, 5, 5]) from checkpoint, the shape in current model is torch.Size([512, 1024, 5, 5]).
+	size mismatch for module.cell_list.0.conv_o.1.weight: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.0.conv_o.1.bias: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.0.conv_last.weight: copying a param with shape torch.Size([480, 960, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 1024, 1, 1]).
+	size mismatch for module.cell_list.1.conv_x.0.weight: copying a param with shape torch.Size([3360, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([3584, 512, 5, 5]).
+	size mismatch for module.cell_list.1.conv_x.1.weight: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.1.conv_x.1.bias: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.1.conv_h.0.weight: copying a param with shape torch.Size([1920, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([2048, 512, 5, 5]).
+	size mismatch for module.cell_list.1.conv_h.1.weight: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.1.conv_h.1.bias: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.1.conv_m.0.weight: copying a param with shape torch.Size([1440, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([1536, 512, 5, 5]).
+	size mismatch for module.cell_list.1.conv_m.1.weight: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.1.conv_m.1.bias: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.1.conv_o.0.weight: copying a param with shape torch.Size([480, 960, 5, 5]) from checkpoint, the shape in current model is torch.Size([512, 1024, 5, 5]).
+	size mismatch for module.cell_list.1.conv_o.1.weight: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.1.conv_o.1.bias: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.1.conv_last.weight: copying a param with shape torch.Size([480, 960, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 1024, 1, 1]).
+	size mismatch for module.cell_list.2.conv_x.0.weight: copying a param with shape torch.Size([3360, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([3584, 512, 5, 5]).
+	size mismatch for module.cell_list.2.conv_x.1.weight: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.2.conv_x.1.bias: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.2.conv_h.0.weight: copying a param with shape torch.Size([1920, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([2048, 512, 5, 5]).
+	size mismatch for module.cell_list.2.conv_h.1.weight: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.2.conv_h.1.bias: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.2.conv_m.0.weight: copying a param with shape torch.Size([1440, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([1536, 512, 5, 5]).
+	size mismatch for module.cell_list.2.conv_m.1.weight: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.2.conv_m.1.bias: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.2.conv_o.0.weight: copying a param with shape torch.Size([480, 960, 5, 5]) from checkpoint, the shape in current model is torch.Size([512, 1024, 5, 5]).
+	size mismatch for module.cell_list.2.conv_o.1.weight: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.2.conv_o.1.bias: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.2.conv_last.weight: copying a param with shape torch.Size([480, 960, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 1024, 1, 1]).
+	size mismatch for module.cell_list.3.conv_x.0.weight: copying a param with shape torch.Size([3360, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([3584, 512, 5, 5]).
+	size mismatch for module.cell_list.3.conv_x.1.weight: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.3.conv_x.1.bias: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.3.conv_h.0.weight: copying a param with shape torch.Size([1920, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([2048, 512, 5, 5]).
+	size mismatch for module.cell_list.3.conv_h.1.weight: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.3.conv_h.1.bias: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.3.conv_m.0.weight: copying a param with shape torch.Size([1440, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([1536, 512, 5, 5]).
+	size mismatch for module.cell_list.3.conv_m.1.weight: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.3.conv_m.1.bias: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.3.conv_o.0.weight: copying a param with shape torch.Size([480, 960, 5, 5]) from checkpoint, the shape in current model is torch.Size([512, 1024, 5, 5]).
+	size mismatch for module.cell_list.3.conv_o.1.weight: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.3.conv_o.1.bias: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.3.conv_last.weight: copying a param with shape torch.Size([480, 960, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 1024, 1, 1]).
+	size mismatch for module.cell_list.4.conv_x.0.weight: copying a param with shape torch.Size([3360, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([3584, 512, 5, 5]).
+	size mismatch for module.cell_list.4.conv_x.1.weight: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.4.conv_x.1.bias: copying a param with shape torch.Size([3360, 18, 36]) from checkpoint, the shape in current model is torch.Size([3584, 18, 36]).
+	size mismatch for module.cell_list.4.conv_h.0.weight: copying a param with shape torch.Size([1920, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([2048, 512, 5, 5]).
+	size mismatch for module.cell_list.4.conv_h.1.weight: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.4.conv_h.1.bias: copying a param with shape torch.Size([1920, 18, 36]) from checkpoint, the shape in current model is torch.Size([2048, 18, 36]).
+	size mismatch for module.cell_list.4.conv_m.0.weight: copying a param with shape torch.Size([1440, 480, 5, 5]) from checkpoint, the shape in current model is torch.Size([1536, 512, 5, 5]).
+	size mismatch for module.cell_list.4.conv_m.1.weight: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.4.conv_m.1.bias: copying a param with shape torch.Size([1440, 18, 36]) from checkpoint, the shape in current model is torch.Size([1536, 18, 36]).
+	size mismatch for module.cell_list.4.conv_o.0.weight: copying a param with shape torch.Size([480, 960, 5, 5]) from checkpoint, the shape in current model is torch.Size([512, 1024, 5, 5]).
+	size mismatch for module.cell_list.4.conv_o.1.weight: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.4.conv_o.1.bias: copying a param with shape torch.Size([480, 18, 36]) from checkpoint, the shape in current model is torch.Size([512, 18, 36]).
+	size mismatch for module.cell_list.4.conv_last.weight: copying a param with shape torch.Size([480, 960, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 1024, 1, 1]).
+	size mismatch for module.conv_last.weight: copying a param with shape torch.Size([4800, 480, 1, 1]) from checkpoint, the shape in current model is torch.Size([4800, 512, 1, 1]).
+	size mismatch for module.adapter.weight: copying a param with shape torch.Size([480, 480, 1, 1]) from checkpoint, the shape in current model is torch.Size([512, 512, 1, 1]).
