@@ -1,0 +1,1 @@
+Installation and all assumes Linux / WSL env.

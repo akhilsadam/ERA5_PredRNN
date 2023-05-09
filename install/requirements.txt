@@ -1,0 +1,13 @@
+tensorflow
+torch
+torchvision
+torchaudio
+lpips
+wandb
+numpy
+matplotlib
+opencv-python
+scipy
+skimage
+PyWavelets
+cdsapi
