@@ -1,5 +1,4 @@
 # Makefile for installation, setup, and running...
-# installation directory, working directory, and data directories, respectively (in secrets file)
 .ONESHELL:
 SHELL := /bin/bash
 user=$(shell whoami)
@@ -12,10 +11,5 @@ install_requirements:
 	@pip install -r ../PDE/requirements.txt
 deactivate:
 	@deactivate
-mkd:
-	@while IFS= read -r file; 		\
-	 do 							\
-		mkdir -p "$file";			\
-	done < "${user}_secrets.txt";	\
 
-install: venv install_requirements mkd
+install: venv install_requirements
