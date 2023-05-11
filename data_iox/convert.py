@@ -6,9 +6,13 @@ import os, sys
 import param, normalize
 
 
-def convert(path, output_path):
+def convert(path, output_path, logger=None):
+    if logger is None:
+        import logging
+        logger = logging.getLogger()
+    
     # load data
-    print('Loading data...')
+    logger.info('Loading data...')
     os.makedirs(output_path, exist_ok=True)
     os.makedirs(f'{output_path}/snapshots', exist_ok=True)
 
@@ -21,18 +25,18 @@ def convert(path, output_path):
     var_arrs = [[] for _ in range(n_var)]
 
     # collect data
-    print('Collecting data...')
+    logger.info('Collecting data...')
     for i, slice in tqdm(enumerate(data)):
         r = i % n_var
         var_arrs[r].append(slice.values[np.newaxis,...])
 
     # normalize data
-    print('Normalizing data...')
+    logger.info('Normalizing data...')
     for i in range(n_var):
         var_arrs[i] = normalize.norm_func[varnames[i]](var_arrs[i]) 
 
     # plot distribution
-    print(f'Making distribution snapshots (at timestamp {mid})...')
+    logger.info(f'Making distribution snapshots (at timestamp {mid})...')
     for i,s in tqdm(enumerate(varnames)):
         plt.figure(figsize=(5,5))
         plt.hist(var_arrs[i][mid,...])
@@ -41,15 +45,15 @@ def convert(path, output_path):
         plt.close()
 
     # collect data
-    print('Stacking data...')
+    logger.info('Stacking data...')
     final_data = np.vstack([var_arrs[i][np.newaxis,...] for i in range(n_var)])
     final_data = np.swapaxes(final_data,0,1)
     q = (final_data.shape[2] // 2) * 2 # trim to even size for clipping
     final_data = final_data[:,:,:q,:]
-    print('\tData Shape:', final_data.shape)
+    logger.info('\tData Shape:', final_data.shape)
 
     # plot snapshots
-    print(f'Making variable snapshots (at timestamp {mid})...')
+    logger.info(f'Making variable snapshots (at timestamp {mid})...')
     for i,s in tqdm(enumerate(varnames)):
         plt.figure(figsize=(20,10))
         plt.imshow(final_data[mid,i,:,:])
@@ -60,7 +64,7 @@ def convert(path, output_path):
 
 
     # make clips
-    print('Making clips...')
+    logger.info('Making clips...')
     in_step = 2
     out_step = 2
 
@@ -68,7 +72,7 @@ def convert(path, output_path):
     final_clips[0,:,0] = np.arange(0,n_step,in_step)
     final_clips[1,:,0] = np.arange(in_step,n_step+1,out_step)
     final_clips[1,:,1] = out_step
-    print('\tClip Shape:', final_clips.shape)
+    logger.info('\tClip Shape:', final_clips.shape)
 
     dim_shape = final_data.shape[1:]
     final_ds = {
@@ -78,10 +82,10 @@ def convert(path, output_path):
     }
 
     # save data
-    print('Saving data...')
+    logger.info('Saving data...')
     np.savez(f'{output_path}/data.npz', **final_ds)
 
-    print('Done!')
+    logger.info('Done!')
     
 if __name__ == '__main__':
     assert len(sys.argv) == 3, 'Usage: python convert.py <input_path> <output_path>'
