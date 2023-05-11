@@ -3,3 +3,5 @@ data/
 **/__pycache__/
 install/*secrets.txt
 git-secret/
+*.pyc
+*.mp4
