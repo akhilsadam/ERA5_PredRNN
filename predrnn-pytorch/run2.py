@@ -1,7 +1,7 @@
 # import tensorflow as tf
 # tf.config.list_physical_devices('GPU')
 import os,sys
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1024"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
 
 import shutil
 import argparse
@@ -139,7 +139,7 @@ parser.add_argument('--project', type=str, default='PC_PredRNN')
 parser.add_argument('--opt', type=str, default='Adam')
 parser.add_argument('--save_best_name', type=str, default='best_mse')
 parser.add_argument('--gpu_num', type=int, default=3)
-
+parser.add_argument('--time_step', type=str, default='')
 
 
 args = parser.parse_args()
@@ -315,8 +315,10 @@ args.area_weight = (cos_lat*720/torch.sum(cos_lat)).to(args.device)
 
 save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
 args.save_file = '_'.join(save_file)
-
-run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', ]
+if args.time_step:
+    args.save_file = '_'.join((args.save_file, args.time_step))
+   
+run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', args.time_step]
 args.run_name = '_'.join(run_name)
 
 len_nh = len([int(x) for x in args.num_hidden.split(',')])
@@ -324,7 +326,7 @@ print(f"model.num_hidden length: {len_nh}")
 if len_nh != 4:
     args.save_file = '_'.join((args.save_file, str(len_nh)))
     args.run_name = '_'.join((args.run_name, str(len_nh)))
-
+print(f"args.run_name: {args.run_name}")
 if args.save_dir:
     args.save_dir = os.path.join(args.save_dir, args.save_file)
     if not os.path.exists(args.save_dir):
