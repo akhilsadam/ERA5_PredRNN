@@ -3,6 +3,6 @@ data/
 **/__pycache__/
 install/*secrets.txt
 git-secret/
-*.pyc
-*.mp4
+**.pyc
+**.mp4
 **/wandb/
