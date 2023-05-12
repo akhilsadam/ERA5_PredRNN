@@ -11,6 +11,7 @@ short=\
         'sea_surface_temperature': 'temp',
         'surface_pressure': 'sea_press',
         'total_precipitation': 'precip',
+        'pde_u': 'u',
     }
 short_inv={v: k for k, v in short.items()}
 norm_dict=\

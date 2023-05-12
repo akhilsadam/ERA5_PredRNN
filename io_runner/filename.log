@@ -1,0 +1,253 @@
+23-05-11 10:43 __main__     INFO     User: mitt-wsl
+23-05-11 10:43 __main__     INFO     UID: 20729d59-d8da-4086-a46c-4ae6a2eefff7
+23-05-11 10:45 __main__     INFO     User: mitt-wsl
+23-05-11 10:45 __main__     INFO     UID: deae8469-9e2f-4dcc-8b15-f1bfb4a480e1
+23-05-11 10:45 __main__     INFO     User: mitt-wsl
+23-05-11 10:45 __main__     INFO     UID: ef131cee-d635-4bb3-b66b-230c69887477
+23-05-11 10:46 __main__     INFO     User: mitt-wsl
+23-05-11 10:46 __main__     INFO     UID: ca607cb2-1219-48e3-b31c-838b787e6790
+23-05-11 10:46 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_ca607cb2-1219-48e3-b31c-838b787e6790/
+23-05-11 10:47 __main__     INFO     User: mitt-wsl
+23-05-11 10:47 __main__     INFO     UID: b9247d79-3f01-49b2-8817-2dbd03b35a37
+23-05-11 10:47 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_b9247d79-3f01-49b2-8817-2dbd03b35a37/
+23-05-11 10:47 pde          INFO     Generating data...
+23-05-11 10:47 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 10:47 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 10:47 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 10:47 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 10:47 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 10:47 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 10:47 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 10:47 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 10:47 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 10:47 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 10:47 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 10:47 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 10:47 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 10:47 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 10:47 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 10:47 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 10:47 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 10:47 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 10:48 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 10:51 Controller   INFO     Simulation finished at t=720.0.
+23-05-11 10:51 pde          INFO     Saving PDE Movie...
+23-05-11 10:51 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_b9247d79-3f01-49b2-8817-2dbd03b35a37//movie.mp4
+23-05-11 10:52 pde          INFO     Making data...
+23-05-11 10:57 __main__     INFO     User: mitt-wsl
+23-05-11 10:57 __main__     INFO     UID: fd64db55-67cf-4d32-87b7-b40894c042d3
+23-05-11 10:57 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fd64db55-67cf-4d32-87b7-b40894c042d3/
+23-05-11 10:57 pde          INFO     Generating data...
+23-05-11 10:57 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 10:57 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 10:57 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 10:57 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 10:57 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 10:57 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 10:57 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 10:57 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 10:57 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 10:57 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 10:57 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 10:57 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 10:57 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 10:57 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 10:57 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 10:57 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 10:57 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 10:57 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 10:58 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:01 Controller   INFO     Simulation finished at t=720.0.
+23-05-11 11:01 pde          INFO     Saving PDE Movie...
+23-05-11 11:01 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fd64db55-67cf-4d32-87b7-b40894c042d3//movie.mp4
+23-05-11 11:02 pde          INFO     Making data...
+23-05-11 11:05 __main__     INFO     User: mitt-wsl
+23-05-11 11:05 __main__     INFO     UID: b6919b4e-f42b-4bdf-8ddf-2f0c5248cf82
+23-05-11 11:05 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 11:05 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_b6919b4e-f42b-4bdf-8ddf-2f0c5248cf82/
+23-05-11 11:05 pde          INFO     Generating data...
+23-05-11 11:05 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 11:05 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:05 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:05 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:05 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:05 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:05 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 11:05 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:05 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 11:05 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 11:05 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:05 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:05 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:05 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:05 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:06 Controller   INFO     Simulation finished at t=72.0.
+23-05-11 11:06 pde          INFO     Saving PDE Movie...
+23-05-11 11:06 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_b6919b4e-f42b-4bdf-8ddf-2f0c5248cf82//movie.mp4
+23-05-11 11:06 pde          INFO     Making data...
+23-05-11 11:07 __main__     INFO     User: mitt-wsl
+23-05-11 11:07 __main__     INFO     UID: 038d69f0-0bac-482b-b348-c3a2595ee829
+23-05-11 11:07 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 11:07 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_038d69f0-0bac-482b-b348-c3a2595ee829/
+23-05-11 11:07 pde          INFO     Generating data...
+23-05-11 11:07 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 11:07 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:07 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:07 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:07 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:07 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:07 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 11:07 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:07 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 11:07 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 11:07 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:07 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:07 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:07 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:07 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:08 Controller   INFO     Simulation finished at t=71.0.
+23-05-11 11:08 pde          INFO     Saving PDE Movie...
+23-05-11 11:08 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_038d69f0-0bac-482b-b348-c3a2595ee829//movie.mp4
+23-05-11 11:08 pde          INFO     Making data...
+23-05-11 11:08 convert      INFO     Loading data...
+23-05-11 11:09 __main__     INFO     User: mitt-wsl
+23-05-11 11:09 __main__     INFO     UID: 85727a89-18cd-4239-bc15-354f507c2c15
+23-05-11 11:09 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 11:09 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_85727a89-18cd-4239-bc15-354f507c2c15/
+23-05-11 11:09 pde          INFO     Generating data...
+23-05-11 11:09 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 11:09 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:09 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:09 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:09 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:09 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:09 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 11:09 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:09 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 11:09 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 11:09 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:09 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:09 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:09 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:09 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:10 Controller   INFO     Simulation finished at t=71.0.
+23-05-11 11:10 pde          INFO     Saving PDE Movie...
+23-05-11 11:10 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_85727a89-18cd-4239-bc15-354f507c2c15//movie.mp4
+23-05-11 11:10 pde          INFO     Making data...
+23-05-11 11:10 convert      INFO     Loading data...
+23-05-11 11:15 __main__     INFO     User: mitt-wsl
+23-05-11 11:15 __main__     INFO     UID: 50760315-ef26-4981-b3ea-63b7e7908d08
+23-05-11 11:15 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 11:15 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_50760315-ef26-4981-b3ea-63b7e7908d08/
+23-05-11 11:15 pde          INFO     Generating data...
+23-05-11 11:15 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 11:15 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:15 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:15 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:15 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:15 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:15 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 11:15 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:15 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 11:15 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 11:15 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:15 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:15 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:15 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:15 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:16 Controller   INFO     Simulation finished at t=71.0.
+23-05-11 11:16 pde          INFO     Saving PDE Movie...
+23-05-11 11:16 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_50760315-ef26-4981-b3ea-63b7e7908d08//movie.mp4
+23-05-11 11:16 pde          INFO     Making data...
+23-05-11 11:16 convert      INFO     Loading data...
+23-05-11 11:16 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-11 11:19 __main__     INFO     User: mitt-wsl
+23-05-11 11:19 __main__     INFO     UID: 47c1f778-4bf1-46bc-a27a-e60a268ba2fb
+23-05-11 11:19 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 11:19 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_47c1f778-4bf1-46bc-a27a-e60a268ba2fb/
+23-05-11 11:19 pde          INFO     Generating data...
+23-05-11 11:19 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 11:19 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:19 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:19 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:19 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 11:19 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 11:19 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 11:19 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 11:19 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 11:19 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 11:19 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 11:19 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 11:19 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 11:20 Controller   INFO     Simulation finished at t=71.0.
+23-05-11 11:20 pde          INFO     Saving PDE Movie...
+23-05-11 11:20 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_47c1f778-4bf1-46bc-a27a-e60a268ba2fb//movie.mp4
+23-05-11 11:20 pde          INFO     Making data...
+23-05-11 11:20 convert      INFO     Loading data...
+23-05-11 11:20 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-11 11:20 convert      INFO     Making clips...
+23-05-11 11:20 convert      INFO     Saving data...
+23-05-11 11:20 convert      INFO     Done!
+23-05-11 14:39 __main__     INFO     User: mitt-wsl
+23-05-11 14:39 __main__     INFO     UID: d249478c-79eb-481f-93e6-3b815c907401
+23-05-11 14:42 __main__     INFO     User: mitt-wsl
+23-05-11 14:42 __main__     INFO     UID: cb9898ef-3e5a-4271-a856-eb73704f1986
+23-05-11 14:42 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-11 14:42 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_cb9898ef-3e5a-4271-a856-eb73704f1986/
+23-05-11 14:42 pde          INFO     Generating data...
+23-05-11 14:42 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-11 14:42 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 14:42 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 14:42 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 14:42 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-11 14:42 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 14:42 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-11 14:42 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 14:42 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-11 14:42 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-11 14:42 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `gradient_squared` in PDE for `u`
+23-05-11 14:42 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `u`
+23-05-11 14:42 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-11 14:42 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-11 14:42 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-11 14:43 Controller   INFO     Simulation finished at t=71.0.
+23-05-11 14:43 pde          INFO     Saving PDE Movie...
+23-05-11 14:43 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_cb9898ef-3e5a-4271-a856-eb73704f1986//movie.mp4
+23-05-11 14:43 pde          INFO     Making data...
+23-05-11 14:43 convert      INFO     Loading data...
+23-05-11 14:43 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-11 14:43 convert      INFO     Making clips...
+23-05-11 14:43 convert      INFO     Saving data...
+23-05-11 14:43 convert      INFO     Done!

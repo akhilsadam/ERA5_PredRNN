@@ -5,3 +5,4 @@ install/*secrets.txt
 git-secret/
 *.pyc
 *.mp4
+**/wandb/

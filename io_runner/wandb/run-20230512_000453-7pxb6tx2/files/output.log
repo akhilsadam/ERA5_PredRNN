@@ -1,0 +1,15 @@
+/mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_47c1f778-4bf1-46bc-a27a-e60a268ba2fb/data.npz
+train_data_files nums: 1
+mnist test iterator, Loading data from /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_cb9898ef-3e5a-4271-a856-eb73704f1986/data.npz
+Traceback (most recent call last):
+  File "../predrnn-pytorch/run2.py", line 357, in <module>
+    train_wrapper(model)
+  File "../predrnn-pytorch/run2.py", line 238, in train_wrapper
+    test_input_handle = datasets_factory.data_provider(
+  File "/mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/predrnn-pytorch/core/data_provider/datasets_factory.py", line 31, in data_provider
+    test_input_handle = datasets_map[dataset_name].InputHandle(test_input_param)
+  File "/mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/predrnn-pytorch/core/data_provider/mnist_new.py", line 26, in __init__
+    self.load()
+  File "/mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/predrnn-pytorch/core/data_provider/mnist_new.py", line 34, in load
+    dat1_raw_data = dat_1['input_raw_data'][:,self.img_layers,:,:]
+IndexError: index 1 is out of bounds for axis 1 with size 1
