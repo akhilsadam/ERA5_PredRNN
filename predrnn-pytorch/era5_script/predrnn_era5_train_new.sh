@@ -15,11 +15,11 @@ python -u run1.py \
     --dataset_name mnist \
     --train_data_paths ${train_data_paths} \
     --valid_data_paths /scratch/09012/haoli1/ERA5/val_dataset/era5_train_09012020_3_24hr.npz \
-    --save_dir /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/ \
-    --gen_frm_dir /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/ \
+    --save_dir /work/09012/haoli1/ls6/PredRNN_checkpoints/ \
+    --gen_frm_dir /work/09012/haoli1/ls6/PredRNN_checkpoints/ \
     --model_name predrnn_v2 \
     --reverse_input 0 \
-    --is_WV 0 \
+    --is_WV 1 \
     --press_constraint 0 \
     --center_enhance 0 \
     --patch_size 40 \
@@ -58,7 +58,7 @@ python -u run1.py \
     --res_on_conv 0 \
     --curr_best_mse 0.03 \
     --save_best_name test_schedule_sampling_DynaMean \
-    --pretrained_model /work/09012/haoli1/ls6/ERA5_PredRNN/checkpoints/ \
+    --pretrained_model /work/09012/haoli1/ls6/PredRNN_checkpoints/ \
     --pretrained_model_name model_2000.ckpt \
 
 #cp /scratch/network/hvtran/era5/checkpoints/era5_predrnn/model.ckpt-1000 /home/hvtran/

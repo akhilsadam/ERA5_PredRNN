@@ -26,7 +26,8 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
                                 'is_output_sequence': True,
                                 'name': dataset_name + ' test iterator',
                                 'img_layers': img_layers,
-                                'is_WV': is_WV
+                                'is_WV': is_WV, 
+                                'total_length': seq_length
                                 }
             test_input_handle = datasets_map[dataset_name].InputHandle(test_input_param)
             test_input_handle.begin(do_shuffle=False)
@@ -43,7 +44,8 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
                                  'is_output_sequence': True,
                                  'name': dataset_name + ' train iterator',
                                  'img_layers': img_layers,
-                                 'is_WV': is_WV,
+                                 'is_WV': is_WV, 
+                                'total_length': seq_length
                                 }
             train_input_handle = datasets_map[dataset_name].InputHandle(train_input_param)
             train_input_handle.begin(do_shuffle=True)

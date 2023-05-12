@@ -22,7 +22,7 @@ class InputHandle:
         self.current_position = 0
         self.current_batch_size = 0
         self.current_batch_indices = []
-        self.current_input_length = 48
+        self.total_length = input_param['total_length']
         self.load()
 
     def load(self):
@@ -114,18 +114,18 @@ class InputHandle:
     def input_batch(self):
         if self.no_batch_left():
             return None
-        input_batch = np.zeros((self.current_batch_size, self.current_input_length) + tuple(self.data['dims'][0])).astype(self.input_data_type)
+        input_batch = np.zeros((self.current_batch_size, self.total_length) + tuple(self.data['dims'][0])).astype(self.input_data_type)
         for i in range(self.current_batch_size):
             batch_ind = self.current_batch_indices[i]
             begin = self.data['clips'][0, batch_ind, 0]
             end = self.data['clips'][1, batch_ind, 0] + self.data['clips'][0, batch_ind, 1]
-            if batch_ind == 60:
-                print(f"begin: {begin}, end: {end}")
-                print(f"raw_dat shape: {self.data['input_raw_data'].shape}")
+            # if batch_ind == 60:
+            #     print(f"begin: {begin}, end: {end}")
+            #     print(f"raw_dat shape: {self.data['input_raw_data'].shape}")
             # print(f"batch_ind: {batch_ind}, begin: {begin}, end: {end}")
             data_slice = self.data['input_raw_data'][begin:end, :self.img_channel1, :, :]
             # print(f"data_slice shape: {data_slice.shape}, self.data['input_raw_data'] shape: {self.data['input_raw_data'].shape}")
-            input_batch[i, :self.current_input_length, :, :, :] = data_slice
+            input_batch[i, :self.total_length, :, :, :] = data_slice
         input_batch = input_batch.astype(self.input_data_type)
         return input_batch
 
