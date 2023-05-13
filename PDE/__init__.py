@@ -22,12 +22,22 @@ def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     ############################################## Make data
     logger.info('Generating data...')
 
-    grid = pde.UnitGrid(gshape) # generate grid
+    grid = pde.UnitGrid(gshape, periodic=[False, False]) # generate grid
     state = pde.ScalarField.random_uniform(grid)  # generate initial condition
 
+    # set boundary conditions `bc` for all axes
+    bc_x_left = {"value": "-0.1*sin(y / 2)"}
+    bc_x_right = {"value_expression": "0.1*sin(y / 2 + t/10)"}
+    bc_y_right = {"value_expression": "sin(x / 2 + t/5)"}
+    bc_y_left = "neumann" #{"value": "0.1*sin(x / 2)"} # 
+    bc_x = [bc_x_left, bc_x_right]
+    bc_y =  [bc_y_left, bc_y_right]# "auto_periodic_neumann" #
+    bc=[bc_x, bc_y]
+
+
     # eq = pde.DiffusionPDE(diffusivity=0.1) 
-    # eq = pde.PDE({'c': 'laplace(c**3 - c - laplace(c))'})
-    eq = pde.PDE({"u": "-gradient_squared(u) / 2 - laplace(u + laplace(u))"}) # define the pde
+    eq = pde.PDE({'c': 'laplace(c**3 - c - laplace(c)) + 0.1*d_dy(c)'}, bc=bc)
+    # eq = pde.PDE({"u": "-gradient_squared(u) / 2 - laplace(u + laplace(u))"}, bc=bc) # define the pde
     storage = pde.MemoryStorage()
 
     eq.solve(state, t_range=t_step-1, dt=dt, tracker=["progress", storage.tracker(1)]) # solve the pde

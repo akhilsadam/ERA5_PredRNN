@@ -56,8 +56,8 @@ data = \
     'variable': [
         'pde_u',
     ],
-    't_step': 72,
-    'dt': 1e-4,
+    't_step': 720,
+    'dt': 1e-3,
     'nvar': 1,
     'gshape': [64, 64],
 }

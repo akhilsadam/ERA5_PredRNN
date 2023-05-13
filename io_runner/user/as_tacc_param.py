@@ -4,4 +4,5 @@ param=\
     'work_dir': r'$SCRATCH/phoices/era5_predrnn',
     'data_dir': r'$SCRATCH/phoices/era5_predrnn/data',
     'model_dir': r'$WORK/phoices/era5_predrnn/model',
+    'WSL': False,
 }

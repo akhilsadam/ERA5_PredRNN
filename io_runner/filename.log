@@ -251,3 +251,777 @@
 23-05-11 14:43 convert      INFO     Making clips...
 23-05-11 14:43 convert      INFO     Saving data...
 23-05-11 14:43 convert      INFO     Done!
+23-05-12 11:36 __main__     INFO     User: mitt-wsl
+23-05-12 11:36 __main__     INFO     UID: 1b414ce5-3689-4e47-a9ac-59ec644ab09d
+23-05-12 11:36 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 11:36 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 11:36 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1b414ce5-3689-4e47-a9ac-59ec644ab09d/
+23-05-12 11:36 pde          INFO     Generating data...
+23-05-12 11:36 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 11:36 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-12 11:36 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 11:36 pde.tools.numba INFO     Compile `gradient` with parallel=False
+23-05-12 11:39 Controller   INFO     Simulation interrupted at t=22.739899999999956
+23-05-12 11:39 pde          INFO     Saving PDE Movie...
+23-05-12 11:39 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1b414ce5-3689-4e47-a9ac-59ec644ab09d//movie.mp4
+23-05-12 11:39 pde          INFO     Making data...
+23-05-12 11:39 convert      INFO     Loading data...
+23-05-12 11:39 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 11:39 convert      INFO     Making clips...
+23-05-12 11:39 convert      INFO     Saving data...
+23-05-12 11:39 convert      INFO     Done!
+23-05-12 11:42 __main__     INFO     User: mitt-wsl
+23-05-12 11:42 __main__     INFO     UID: ee212045-b2ad-4dd5-ad28-751bd9ad318b
+23-05-12 11:42 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 11:42 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 11:42 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_ee212045-b2ad-4dd5-ad28-751bd9ad318b/
+23-05-12 11:42 pde          INFO     Generating data...
+23-05-12 11:42 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 11:42 PDE          INFO     Using boundary condition `[[{'derivative': 0.1}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:42 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 11:42 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:44 __main__     INFO     User: mitt-wsl
+23-05-12 11:44 __main__     INFO     UID: fc6f1e48-802f-4808-9375-54654acd0c55
+23-05-12 11:44 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 11:44 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 11:44 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fc6f1e48-802f-4808-9375-54654acd0c55/
+23-05-12 11:44 pde          INFO     Generating data...
+23-05-12 11:44 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 11:44 PDE          INFO     Using boundary condition `[[{'derivative': 0.1}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:44 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 11:44 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:44 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:44 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:44 PDE          INFO     Using boundary condition `[[{'derivative': 0.1}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:44 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 11:44 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:44 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:44 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:44 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:44 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 11:44 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:44 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 11:44 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 11:44 PDE          INFO     Using boundary condition `[[{'derivative': 0.1}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:44 PDE          INFO     Using boundary condition `[[{'derivative': 0.1}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:44 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:44 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:44 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-12 11:45 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 11:45 pde          INFO     Saving PDE Movie...
+23-05-12 11:45 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fc6f1e48-802f-4808-9375-54654acd0c55//movie.mp4
+23-05-12 11:45 pde          INFO     Making data...
+23-05-12 11:45 convert      INFO     Loading data...
+23-05-12 11:45 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 11:45 convert      INFO     Making clips...
+23-05-12 11:45 convert      INFO     Saving data...
+23-05-12 11:45 convert      INFO     Done!
+23-05-12 11:46 __main__     INFO     User: mitt-wsl
+23-05-12 11:46 __main__     INFO     UID: ed1cbae7-b5f7-450c-917d-7d9e9602760f
+23-05-12 11:46 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 11:46 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 11:46 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_ed1cbae7-b5f7-450c-917d-7d9e9602760f/
+23-05-12 11:46 pde          INFO     Generating data...
+23-05-12 11:46 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 11:46 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:46 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 11:46 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:46 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:46 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:46 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:46 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 11:46 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:46 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:46 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:46 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:46 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 11:46 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:46 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 11:46 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 11:46 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:46 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:46 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:46 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:46 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.0001
+23-05-12 11:47 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 11:47 pde          INFO     Saving PDE Movie...
+23-05-12 11:47 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_ed1cbae7-b5f7-450c-917d-7d9e9602760f//movie.mp4
+23-05-12 11:47 pde          INFO     Making data...
+23-05-12 11:47 convert      INFO     Loading data...
+23-05-12 11:47 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 11:47 convert      INFO     Making clips...
+23-05-12 11:47 convert      INFO     Saving data...
+23-05-12 11:47 convert      INFO     Done!
+23-05-12 11:55 __main__     INFO     User: mitt-wsl
+23-05-12 11:55 __main__     INFO     UID: 145cad9d-e70f-45f2-aa87-c2e461d45747
+23-05-12 11:55 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 11:55 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 11:55 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_145cad9d-e70f-45f2-aa87-c2e461d45747/
+23-05-12 11:55 pde          INFO     Generating data...
+23-05-12 11:55 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 11:55 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:55 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 11:55 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:55 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:55 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 11:55 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 11:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 11:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 11:55 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:55 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 11:55 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:55 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 11:55 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 11:55 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 11:55 PDE          INFO     Using boundary condition `[[{'derivative': 0.0}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 11:55 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 11:55 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 11:55 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=1e-05
+23-05-12 11:59 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 11:59 pde          INFO     Saving PDE Movie...
+23-05-12 11:59 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_145cad9d-e70f-45f2-aa87-c2e461d45747//movie.mp4
+23-05-12 11:59 pde          INFO     Making data...
+23-05-12 11:59 convert      INFO     Loading data...
+23-05-12 11:59 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 11:59 convert      INFO     Making clips...
+23-05-12 11:59 convert      INFO     Saving data...
+23-05-12 11:59 convert      INFO     Done!
+23-05-12 12:02 __main__     INFO     User: mitt-wsl
+23-05-12 12:02 __main__     INFO     UID: fef9d6dd-6076-42a7-86b7-89a6843c543b
+23-05-12 12:02 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:02 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:02 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fef9d6dd-6076-42a7-86b7-89a6843c543b/
+23-05-12 12:02 pde          INFO     Generating data...
+23-05-12 12:02 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:02 PDE          INFO     Using boundary condition `[[{}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 12:02 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:13 __main__     INFO     User: mitt-wsl
+23-05-12 12:13 __main__     INFO     UID: de697445-8b8a-476c-9145-9a4fa70107a3
+23-05-12 12:13 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:13 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:13 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_de697445-8b8a-476c-9145-9a4fa70107a3/
+23-05-12 12:13 pde          INFO     Generating data...
+23-05-12 12:13 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:13 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:13 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:13 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 12:13 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:13 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:13 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:13 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 12:13 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 12:13 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:13 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'periodic']` for operator `laplace` in PDE for `u`
+23-05-12 12:13 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:13 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:13 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=1e-05
+23-05-12 12:17 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 12:17 pde          INFO     Saving PDE Movie...
+23-05-12 12:17 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_de697445-8b8a-476c-9145-9a4fa70107a3//movie.mp4
+23-05-12 12:17 pde          INFO     Making data...
+23-05-12 12:17 convert      INFO     Loading data...
+23-05-12 12:17 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 12:17 convert      INFO     Making clips...
+23-05-12 12:17 convert      INFO     Saving data...
+23-05-12 12:17 convert      INFO     Done!
+23-05-12 12:19 __main__     INFO     User: mitt-wsl
+23-05-12 12:19 __main__     INFO     UID: b458561a-1518-4ebf-b843-efec2b7f081f
+23-05-12 12:19 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:19 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:19 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_b458561a-1518-4ebf-b843-efec2b7f081f/
+23-05-12 12:19 pde          INFO     Generating data...
+23-05-12 12:19 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:19 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `u`
+23-05-12 12:19 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:19 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:19 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:19 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 12:19 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 12:19 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `u`
+23-05-12 12:19 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:19 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:19 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:19 __main__     INFO     User: mitt-wsl
+23-05-12 12:19 __main__     INFO     UID: 95c3c5ee-d75d-4386-addf-93ad2a7d4ffa
+23-05-12 12:19 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:19 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:19 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_95c3c5ee-d75d-4386-addf-93ad2a7d4ffa/
+23-05-12 12:19 pde          INFO     Generating data...
+23-05-12 12:20 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:20 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `u`
+23-05-12 12:20 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:20 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:20 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:20 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:20 pde.tools.numba INFO     Compile `gradient_squared` with parallel=False
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:20 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:20 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:20 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:20 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:20 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 12:20 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 12:20 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `u`
+23-05-12 12:20 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient_squared` in PDE for `u`
+23-05-12 12:20 PDE          INFO     RHS for `u` has signature ('u', 't', 'none', 'bc_args')
+23-05-12 12:20 ScalarExpression INFO     Parse sympy expression `-gradient_squared(u, none, bc_args)/2 - laplace(u + laplace(u, none, bc_args), none, bc_args)`
+23-05-12 12:20 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 12:20 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 12:20 pde          INFO     Saving PDE Movie...
+23-05-12 12:20 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_95c3c5ee-d75d-4386-addf-93ad2a7d4ffa//movie.mp4
+23-05-12 12:20 pde          INFO     Making data...
+23-05-12 12:20 convert      INFO     Loading data...
+23-05-12 12:20 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 12:20 convert      INFO     Making clips...
+23-05-12 12:20 convert      INFO     Saving data...
+23-05-12 12:20 convert      INFO     Done!
+23-05-12 12:46 __main__     INFO     User: mitt-wsl
+23-05-12 12:46 __main__     INFO     UID: eb10230a-f6b9-4844-84d7-d433a03190cb
+23-05-12 12:47 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:47 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:47 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_eb10230a-f6b9-4844-84d7-d433a03190cb/
+23-05-12 12:47 pde          INFO     Generating data...
+23-05-12 12:47 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:47 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 12:47 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:47 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:47 ScalarExpression INFO     Parse sympy expression `sin(y/2)`
+23-05-12 12:47 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:47 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:47 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 12:47 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 12:47 ScalarExpression INFO     Parse sympy expression `laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 12:47 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 12:47 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 12:47 PDE          INFO     Using boundary condition `[[{'value': 'sin(y / 2)'}, {'value': 'sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 12:47 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 12:47 ScalarExpression INFO     Parse sympy expression `laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 12:47 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 12:47 Controller   INFO     Simulation finished at t=71.0.
+23-05-12 12:47 pde          INFO     Saving PDE Movie...
+23-05-12 12:47 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_eb10230a-f6b9-4844-84d7-d433a03190cb//movie.mp4
+23-05-12 12:47 pde          INFO     Making data...
+23-05-12 12:47 convert      INFO     Loading data...
+23-05-12 12:47 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-12 12:47 convert      INFO     Making clips...
+23-05-12 12:47 convert      INFO     Saving data...
+23-05-12 12:47 convert      INFO     Done!
+23-05-12 12:50 __main__     INFO     User: mitt-wsl
+23-05-12 12:50 __main__     INFO     UID: 3ee96ff3-3c40-41f9-9d6f-9beeb127a855
+23-05-12 12:50 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 12:50 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 12:50 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_3ee96ff3-3c40-41f9-9d6f-9beeb127a855/
+23-05-12 12:50 pde          INFO     Generating data...
+23-05-12 12:50 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 12:50 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 12:50 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 12:50 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 12:50 ScalarExpression INFO     Parse sympy expression `0.1*sin(y/2)`
+23-05-12 12:50 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 12:50 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 12:50 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 12:50 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 12:50 ScalarExpression INFO     Parse sympy expression `laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 12:50 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 12:50 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 12:50 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 12:50 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 12:50 ScalarExpression INFO     Parse sympy expression `laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 12:50 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 12:51 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 12:51 pde          INFO     Saving PDE Movie...
+23-05-12 12:51 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_3ee96ff3-3c40-41f9-9d6f-9beeb127a855//movie.mp4
+23-05-12 12:51 pde          INFO     Making data...
+23-05-12 12:51 convert      INFO     Loading data...
+23-05-12 12:51 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 12:51 convert      INFO     Making clips...
+23-05-12 12:51 convert      INFO     Saving data...
+23-05-12 12:51 convert      INFO     Done!
+23-05-12 13:02 __main__     INFO     User: mitt-wsl
+23-05-12 13:02 __main__     INFO     UID: 86d5b6ed-30de-413f-9f53-aa38b5823daf
+23-05-12 13:02 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:02 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:02 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_86d5b6ed-30de-413f-9f53-aa38b5823daf/
+23-05-12 13:02 pde          INFO     Generating data...
+23-05-12 13:02 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:02 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:02 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `0.1*sin(y/2)`
+23-05-12 13:02 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:02 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:02 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:02 pde.tools.numba INFO     Compile `gradient` with parallel=False
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `0.1*sin(y/2)`
+23-05-12 13:02 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:02 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:02 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:02 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:02 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:02 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:02 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:02 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:02 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:02 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:03 __main__     INFO     User: mitt-wsl
+23-05-12 13:03 __main__     INFO     UID: 228aaeda-e257-49bf-baa6-822a212b7199
+23-05-12 13:03 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:03 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:03 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_228aaeda-e257-49bf-baa6-822a212b7199/
+23-05-12 13:03 pde          INFO     Generating data...
+23-05-12 13:03 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:03 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:03 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:03 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:05 __main__     INFO     User: mitt-wsl
+23-05-12 13:05 __main__     INFO     UID: 22877b84-e205-4531-bc9a-18b815dad840
+23-05-12 13:05 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:05 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_22877b84-e205-4531-bc9a-18b815dad840/
+23-05-12 13:05 pde          INFO     Generating data...
+23-05-12 13:05 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:05 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:05 pde.tools.numba INFO     Compile `gradient` with parallel=False
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:05 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:05 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:05 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:05 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:05 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:05 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:05 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:05 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:05 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:05 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:05 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:05 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:05 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:05 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:09 __main__     INFO     User: mitt-wsl
+23-05-12 13:09 __main__     INFO     UID: fbb55f6d-9980-4219-bbc7-742ebc33ba5c
+23-05-12 13:10 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:10 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fbb55f6d-9980-4219-bbc7-742ebc33ba5c/
+23-05-12 13:10 pde          INFO     Generating data...
+23-05-12 13:10 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:10 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:10 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:10 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:10 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:10 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:10 pde.tools.numba INFO     Compile `gradient` with parallel=False
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:10 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:10 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:10 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:10 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:10 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:10 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:10 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `gradient` in PDE for `c`
+23-05-12 13:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:10 ScalarExpression INFO     Parse sympy expression `0.1*gradient(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:13 __main__     INFO     User: mitt-wsl
+23-05-12 13:13 __main__     INFO     UID: 01565b3f-167d-4525-ac8b-cff283c60d80
+23-05-12 13:13 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:13 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_01565b3f-167d-4525-ac8b-cff283c60d80/
+23-05-12 13:13 pde          INFO     Generating data...
+23-05-12 13:13 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:13 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `d_dx` in PDE for `c`
+23-05-12 13:13 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:13 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:13 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:13 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:13 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:13 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:13 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:13 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:13 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `0.1*d_dx(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:13 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:13 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:13 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `d_dx` in PDE for `c`
+23-05-12 13:13 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:13 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:13 ScalarExpression INFO     Parse sympy expression `0.1*d_dx(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:13 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:14 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:14 pde          INFO     Saving PDE Movie...
+23-05-12 13:14 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_01565b3f-167d-4525-ac8b-cff283c60d80//movie.mp4
+23-05-12 13:15 pde          INFO     Making data...
+23-05-12 13:15 convert      INFO     Loading data...
+23-05-12 13:15 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:15 convert      INFO     Making clips...
+23-05-12 13:15 convert      INFO     Saving data...
+23-05-12 13:15 convert      INFO     Done!
+23-05-12 13:18 __main__     INFO     User: mitt-wsl
+23-05-12 13:18 __main__     INFO     UID: 76c16156-04eb-4853-af1c-a66890195f9f
+23-05-12 13:18 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:18 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:18 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_76c16156-04eb-4853-af1c-a66890195f9f/
+23-05-12 13:18 pde          INFO     Generating data...
+23-05-12 13:18 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:18 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value': '-0.1*sin(x / 2)'}, {'value': '0.1*sin(+ / 2)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:18 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:18 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:18 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:18 ScalarExpression INFO     Parse sympy expression `-0.1*sin(x/2)`
+23-05-12 13:19 __main__     INFO     User: mitt-wsl
+23-05-12 13:19 __main__     INFO     UID: d351720c-82ba-46e2-af13-9ff8a0acd50f
+23-05-12 13:19 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:19 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_d351720c-82ba-46e2-af13-9ff8a0acd50f/
+23-05-12 13:19 pde          INFO     Generating data...
+23-05-12 13:19 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:19 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value': '-0.1*sin(x / 2)'}, {'value': '0.1*sin(x / 2)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:19 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-0.1*sin(x/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `0.1*sin(x/2)`
+23-05-12 13:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:19 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value': '-0.1*sin(x / 2)'}, {'value': '0.1*sin(x / 2)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:19 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-0.1*sin(x/2)`
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `0.1*sin(x/2)`
+23-05-12 13:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:19 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:19 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:19 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value': '-0.1*sin(x / 2)'}, {'value': '0.1*sin(x / 2)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:19 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value': '-0.1*sin(x / 2)'}, {'value': '0.1*sin(x / 2)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:19 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:19 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:19 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:20 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:20 pde          INFO     Saving PDE Movie...
+23-05-12 13:20 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_d351720c-82ba-46e2-af13-9ff8a0acd50f//movie.mp4
+23-05-12 13:21 pde          INFO     Making data...
+23-05-12 13:21 convert      INFO     Loading data...
+23-05-12 13:21 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:21 convert      INFO     Making clips...
+23-05-12 13:21 convert      INFO     Saving data...
+23-05-12 13:21 convert      INFO     Done!
+23-05-12 13:23 __main__     INFO     User: mitt-wsl
+23-05-12 13:23 __main__     INFO     UID: 1bb62b33-98f5-4bd3-a483-cb7ecf4d1edf
+23-05-12 13:23 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:23 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1bb62b33-98f5-4bd3-a483-cb7ecf4d1edf/
+23-05-12 13:23 pde          INFO     Generating data...
+23-05-12 13:23 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:23 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `d_dy` in PDE for `c`
+23-05-12 13:23 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:23 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:23 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:23 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:23 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:23 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:23 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:23 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:23 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:23 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:23 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:23 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `d_dy` in PDE for `c`
+23-05-12 13:23 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], 'auto_periodic_neumann']` for operator `laplace` in PDE for `c`
+23-05-12 13:23 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:23 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:23 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:24 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:24 pde          INFO     Saving PDE Movie...
+23-05-12 13:24 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1bb62b33-98f5-4bd3-a483-cb7ecf4d1edf//movie.mp4
+23-05-12 13:25 pde          INFO     Making data...
+23-05-12 13:25 convert      INFO     Loading data...
+23-05-12 13:25 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:25 convert      INFO     Making clips...
+23-05-12 13:25 convert      INFO     Saving data...
+23-05-12 13:25 convert      INFO     Done!
+23-05-12 13:29 __main__     INFO     User: mitt-wsl
+23-05-12 13:29 __main__     INFO     UID: 304e3ca6-fe93-4dc0-bcb6-3326ef275a01
+23-05-12 13:29 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:29 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_304e3ca6-fe93-4dc0-bcb6-3326ef275a01/
+23-05-12 13:29 pde          INFO     Generating data...
+23-05-12 13:29 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:29 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value_expression': '-0.1*sin(x / 2 + t/5)'}, 'neumann']]` for operator `laplace` in PDE for `c`
+23-05-12 13:29 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:29 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value_expression': '-0.1*sin(x / 2 + t/5)'}, 'neumann']]` for operator `d_dy` in PDE for `c`
+23-05-12 13:29 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:29 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:29 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:29 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:29 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:29 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value_expression': '-0.1*sin(x / 2 + t/5)'}, 'neumann']]` for operator `laplace` in PDE for `c`
+23-05-12 13:29 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], [{'value_expression': '-0.1*sin(x / 2 + t/5)'}, 'neumann']]` for operator `d_dy` in PDE for `c`
+23-05-12 13:29 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:29 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:29 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:30 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:30 pde          INFO     Saving PDE Movie...
+23-05-12 13:30 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_304e3ca6-fe93-4dc0-bcb6-3326ef275a01//movie.mp4
+23-05-12 13:31 pde          INFO     Making data...
+23-05-12 13:31 convert      INFO     Loading data...
+23-05-12 13:31 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:31 convert      INFO     Making clips...
+23-05-12 13:31 convert      INFO     Saving data...
+23-05-12 13:31 convert      INFO     Done!
+23-05-12 13:32 __main__     INFO     User: mitt-wsl
+23-05-12 13:32 __main__     INFO     UID: bb84ae3c-df21-4cfa-8208-11ea64a12a2a
+23-05-12 13:33 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:33 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_bb84ae3c-df21-4cfa-8208-11ea64a12a2a/
+23-05-12 13:33 pde          INFO     Generating data...
+23-05-12 13:33 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:33 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': '-0.1*sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:33 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:33 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': '-0.1*sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:33 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `-value - 0.2*sin(t/5 + x/2)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:33 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:33 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:33 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': '-0.1*sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:33 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': '-0.1*sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:33 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:33 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:33 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:34 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:34 pde          INFO     Saving PDE Movie...
+23-05-12 13:34 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_bb84ae3c-df21-4cfa-8208-11ea64a12a2a//movie.mp4
+23-05-12 13:35 pde          INFO     Making data...
+23-05-12 13:35 convert      INFO     Loading data...
+23-05-12 13:35 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:35 convert      INFO     Making clips...
+23-05-12 13:35 convert      INFO     Saving data...
+23-05-12 13:35 convert      INFO     Done!
+23-05-12 13:36 __main__     INFO     User: mitt-wsl
+23-05-12 13:36 __main__     INFO     UID: 5af2c49b-0070-459b-845e-568f699c24e5
+23-05-12 13:36 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:36 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:36 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_5af2c49b-0070-459b-845e-568f699c24e5/
+23-05-12 13:36 pde          INFO     Generating data...
+23-05-12 13:36 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:36 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:36 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:37 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:37 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:37 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:37 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:37 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:37 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:37 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:37 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:37 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:38 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:38 pde          INFO     Saving PDE Movie...
+23-05-12 13:38 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_5af2c49b-0070-459b-845e-568f699c24e5//movie.mp4
+23-05-12 13:39 pde          INFO     Making data...
+23-05-12 13:39 convert      INFO     Loading data...
+23-05-12 13:39 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:39 convert      INFO     Making clips...
+23-05-12 13:39 convert      INFO     Saving data...
+23-05-12 13:39 convert      INFO     Done!
+23-05-12 13:39 __main__     INFO     User: mitt-wsl
+23-05-12 13:39 __main__     INFO     UID: f7c4a4f2-8320-44d0-9262-0e09bc50eae7
+23-05-12 13:39 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-12 13:39 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_f7c4a4f2-8320-44d0-9262-0e09bc50eae7/
+23-05-12 13:39 pde          INFO     Generating data...
+23-05-12 13:39 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-12 13:39 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:39 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:39 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:39 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-0.1*sin(y/2)`
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 0.2*sin(t/10 + y/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `-value + 2*sin(t/5 + x/2)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-12 13:39 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:39 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:39 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-12 13:39 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-12 13:39 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `laplace` in PDE for `c`
+23-05-12 13:39 PDE          INFO     Using boundary condition `[[{'value': '-0.1*sin(y / 2)'}, {'value_expression': '0.1*sin(y / 2 + t/10)'}], ['neumann', {'value_expression': 'sin(x / 2 + t/5)'}]]` for operator `d_dy` in PDE for `c`
+23-05-12 13:39 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-12 13:39 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-12 13:39 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-12 13:41 Controller   INFO     Simulation finished at t=719.0.
+23-05-12 13:41 pde          INFO     Saving PDE Movie...
+23-05-12 13:41 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_f7c4a4f2-8320-44d0-9262-0e09bc50eae7//movie.mp4
+23-05-12 13:42 pde          INFO     Making data...
+23-05-12 13:42 convert      INFO     Loading data...
+23-05-12 13:42 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-12 13:42 convert      INFO     Making clips...
+23-05-12 13:42 convert      INFO     Saving data...
+23-05-12 13:42 convert      INFO     Done!
