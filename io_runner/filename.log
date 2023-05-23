@@ -1025,3 +1025,620 @@
 23-05-12 13:42 convert      INFO     Making clips...
 23-05-12 13:42 convert      INFO     Saving data...
 23-05-12 13:42 convert      INFO     Done!
+23-05-16 11:58 __main__     INFO     User: mitt-wsl
+23-05-16 11:58 __main__     INFO     UID: 47bce8a9-fa5d-4b11-acb2-04e70162560b
+23-05-16 11:58 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 11:58 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_47bce8a9-fa5d-4b11-acb2-04e70162560b/
+23-05-16 11:58 pde          INFO     Generating data...
+23-05-16 11:58 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 11:58 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 11:58 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 11:58 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 11:58 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 11:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 11:58 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 11:58 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 11:58 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 11:58 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 11:58 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 11:58 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 11:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 11:58 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 11:58 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 11:59 Controller   INFO     Simulation finished at t=719.0.
+23-05-16 11:59 pde          INFO     Saving PDE Movie...
+23-05-16 11:59 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_47bce8a9-fa5d-4b11-acb2-04e70162560b//movie.mp4
+23-05-16 12:00 pde          INFO     Making data...
+23-05-16 12:00 convert      INFO     Loading data...
+23-05-16 12:00 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-16 12:00 convert      INFO     Making clips...
+23-05-16 12:00 convert      INFO     Saving data...
+23-05-16 12:00 convert      INFO     Done!
+23-05-16 12:10 __main__     INFO     User: mitt-wsl
+23-05-16 12:10 __main__     INFO     UID: 35639da9-0408-4438-8886-711def0ed5b6
+23-05-16 12:10 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:10 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_35639da9-0408-4438-8886-711def0ed5b6/
+23-05-16 12:10 pde          INFO     Generating data...
+23-05-16 12:10 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:10 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:10 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:10 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:10 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:10 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:10 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args) + cos(2*pi*t)`
+23-05-16 12:10 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:10 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:10 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:10 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:10 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args) + cos(2*pi*t)`
+23-05-16 12:10 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:11 Controller   INFO     Simulation finished at t=719.0.
+23-05-16 12:11 pde          INFO     Saving PDE Movie...
+23-05-16 12:11 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_35639da9-0408-4438-8886-711def0ed5b6//movie.mp4
+23-05-16 12:11 pde          INFO     Making data...
+23-05-16 12:11 convert      INFO     Loading data...
+23-05-16 12:11 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-16 12:11 convert      INFO     Making clips...
+23-05-16 12:11 convert      INFO     Saving data...
+23-05-16 12:11 convert      INFO     Done!
+23-05-16 12:16 __main__     INFO     User: mitt-wsl
+23-05-16 12:16 __main__     INFO     UID: dc040eb5-23b8-452e-b9a6-3bf51a7fa281
+23-05-16 12:16 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:16 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_dc040eb5-23b8-452e-b9a6-3bf51a7fa281/
+23-05-16 12:16 pde          INFO     Generating data...
+23-05-16 12:16 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:16 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:16 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dx` in PDE for `c`
+23-05-16 12:16 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:16 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:16 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:16 ScalarExpression INFO     Parse sympy expression `0.1*d_dx(c, none, bc_args)*cos(2*pi*t) + 0.1*d_dy(c, none, bc_args)*sin(2*pi*t) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:16 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:16 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:16 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dx` in PDE for `c`
+23-05-16 12:16 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:16 ScalarExpression INFO     Parse sympy expression `0.1*d_dx(c, none, bc_args)*cos(2*pi*t) + 0.1*d_dy(c, none, bc_args)*sin(2*pi*t) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:16 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:17 Controller   INFO     Simulation finished at t=71.0.
+23-05-16 12:17 pde          INFO     Saving PDE Movie...
+23-05-16 12:17 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_dc040eb5-23b8-452e-b9a6-3bf51a7fa281//movie.mp4
+23-05-16 12:17 pde          INFO     Making data...
+23-05-16 12:17 convert      INFO     Loading data...
+23-05-16 12:17 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-16 12:17 convert      INFO     Making clips...
+23-05-16 12:17 convert      INFO     Saving data...
+23-05-16 12:17 convert      INFO     Done!
+23-05-16 12:21 __main__     INFO     User: mitt-wsl
+23-05-16 12:21 __main__     INFO     UID: c92a212f-6f0a-4278-9555-dc6cc29e3ba9
+23-05-16 12:22 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:22 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:22 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_c92a212f-6f0a-4278-9555-dc6cc29e3ba9/
+23-05-16 12:22 pde          INFO     Generating data...
+23-05-16 12:22 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:22 PDE          INFO     Using boundary condition `[['periodic', 'periodic'], ['periodic', 'periodic']]` for operator `laplace` in PDE for `c`
+23-05-16 12:22 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:23 __main__     INFO     User: mitt-wsl
+23-05-16 12:23 __main__     INFO     UID: 144b7bb1-e331-4893-a19c-1da56fa4c760
+23-05-16 12:23 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:23 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:23 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_144b7bb1-e331-4893-a19c-1da56fa4c760/
+23-05-16 12:23 pde          INFO     Generating data...
+23-05-16 12:23 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:23 PDE          INFO     Using boundary condition `[['periodic', 'periodic'], ['periodic', 'periodic']]` for operator `laplace` in PDE for `c`
+23-05-16 12:23 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:26 __main__     INFO     User: mitt-wsl
+23-05-16 12:26 __main__     INFO     UID: 965bdee2-d11f-450e-ae57-bc7f70360bbc
+23-05-16 12:26 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:26 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_965bdee2-d11f-450e-ae57-bc7f70360bbc/
+23-05-16 12:26 pde          INFO     Generating data...
+23-05-16 12:26 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:26 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:26 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:26 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:26 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:26 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:26 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:26 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:26 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:26 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:26 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:26 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:26 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:26 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:27 __main__     INFO     User: mitt-wsl
+23-05-16 12:27 __main__     INFO     UID: 726fd3ed-916e-49cb-ae85-75a7a7ff6c63
+23-05-16 12:27 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:27 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_726fd3ed-916e-49cb-ae85-75a7a7ff6c63/
+23-05-16 12:27 pde          INFO     Generating data...
+23-05-16 12:27 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:27 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:27 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:27 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:27 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:27 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:27 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:27 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:27 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:27 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:27 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:27 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:27 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:27 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:33 __main__     INFO     User: mitt-wsl
+23-05-16 12:33 __main__     INFO     UID: 2d2f4e2a-2160-483d-a2bb-6e18a29a9167
+23-05-16 12:33 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:33 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_2d2f4e2a-2160-483d-a2bb-6e18a29a9167/
+23-05-16 12:33 pde          INFO     Generating data...
+23-05-16 12:33 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:33 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:33 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:33 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:33 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:33 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:33 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:33 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:33 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:33 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:33 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `laplace` in PDE for `c`
+23-05-16 12:33 PDE          INFO     Using boundary condition `auto_periodic_neumann` for operator `d_dy` in PDE for `c`
+23-05-16 12:33 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:33 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:34 __main__     INFO     User: mitt-wsl
+23-05-16 12:34 __main__     INFO     UID: e119c953-92d5-494c-a34f-cc398ea113aa
+23-05-16 12:34 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:34 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_e119c953-92d5-494c-a34f-cc398ea113aa/
+23-05-16 12:34 pde          INFO     Generating data...
+23-05-16 12:34 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:34 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:34 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:34 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:34 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:34 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:34 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:34 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:34 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:34 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:34 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:34 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:34 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:34 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:34 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:35 Controller   INFO     Simulation finished at t=71.0.
+23-05-16 12:35 pde          INFO     Saving PDE Movie...
+23-05-16 12:35 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_e119c953-92d5-494c-a34f-cc398ea113aa//movie.mp4
+23-05-16 12:35 pde          INFO     Making data...
+23-05-16 12:35 convert      INFO     Loading data...
+23-05-16 12:35 convert      INFO     Making variable snapshots (at timestamp 36)...
+23-05-16 12:35 convert      INFO     Making clips...
+23-05-16 12:35 convert      INFO     Saving data...
+23-05-16 12:35 convert      INFO     Done!
+23-05-16 12:36 __main__     INFO     User: mitt-wsl
+23-05-16 12:36 __main__     INFO     UID: 1670db13-c78e-4306-a871-44611ab87a3e
+23-05-16 12:36 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:36 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1670db13-c78e-4306-a871-44611ab87a3e/
+23-05-16 12:36 pde          INFO     Generating data...
+23-05-16 12:36 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:36 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:36 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:36 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:36 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:36 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:36 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:36 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:36 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:36 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:36 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:36 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:36 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:36 ScalarExpression INFO     Parse sympy expression `0.1*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:36 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:37 Controller   INFO     Simulation finished at t=719.0.
+23-05-16 12:37 pde          INFO     Saving PDE Movie...
+23-05-16 12:37 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1670db13-c78e-4306-a871-44611ab87a3e//movie.mp4
+23-05-16 12:37 pde          INFO     Making data...
+23-05-16 12:37 convert      INFO     Loading data...
+23-05-16 12:37 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-16 12:37 convert      INFO     Making clips...
+23-05-16 12:37 convert      INFO     Saving data...
+23-05-16 12:37 convert      INFO     Done!
+23-05-16 12:39 __main__     INFO     User: mitt-wsl
+23-05-16 12:39 __main__     INFO     UID: 592c1c87-fcf7-4398-bf5a-be082344df85
+23-05-16 12:40 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:40 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_592c1c87-fcf7-4398-bf5a-be082344df85/
+23-05-16 12:40 pde          INFO     Generating data...
+23-05-16 12:40 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:40 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:40 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:40 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:40 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:40 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:40 ScalarExpression INFO     Parse sympy expression `0.05*d_dx(c, none, bc_args) + 0.25*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:40 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:40 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:40 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:40 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:40 ScalarExpression INFO     Parse sympy expression `0.05*d_dx(c, none, bc_args) + 0.25*d_dy(c, none, bc_args) + laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:40 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:41 Controller   INFO     Simulation finished at t=719.0.
+23-05-16 12:41 pde          INFO     Saving PDE Movie...
+23-05-16 12:41 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_592c1c87-fcf7-4398-bf5a-be082344df85//movie.mp4
+23-05-16 12:41 pde          INFO     Making data...
+23-05-16 12:41 convert      INFO     Loading data...
+23-05-16 12:41 convert      INFO     Making variable snapshots (at timestamp 360)...
+23-05-16 12:41 convert      INFO     Making clips...
+23-05-16 12:41 convert      INFO     Saving data...
+23-05-16 12:41 convert      INFO     Done!
+23-05-16 12:45 __main__     INFO     User: mitt-wsl
+23-05-16 12:45 __main__     INFO     UID: 2432875f-e2c8-472a-84f4-3acf805a9813
+23-05-16 12:45 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:45 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_2432875f-e2c8-472a-84f4-3acf805a9813/
+23-05-16 12:45 pde          INFO     Generating data...
+23-05-16 12:45 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:45 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:45 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:45 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:45 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:45 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:45 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:45 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:45 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:45 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:45 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:45 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:45 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.001
+23-05-16 12:45 Controller   INFO     Simulation interrupted at t=0
+23-05-16 12:45 Controller   WARNING  Spent more time on handling trackers (8.26) than on the actual simulation (0)
+23-05-16 12:45 pde          INFO     Saving PDE Movie...
+23-05-16 12:45 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_2432875f-e2c8-472a-84f4-3acf805a9813//movie.mp4
+23-05-16 12:45 pde          INFO     Making data...
+23-05-16 12:45 convert      INFO     Loading data...
+23-05-16 12:45 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:45 convert      INFO     Making clips...
+23-05-16 12:45 convert      INFO     Saving data...
+23-05-16 12:45 convert      INFO     Done!
+23-05-16 12:46 __main__     INFO     User: mitt-wsl
+23-05-16 12:46 __main__     INFO     UID: 7e6be5b4-4b72-46a0-9a5b-2b8ef47ba7af
+23-05-16 12:46 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:46 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_7e6be5b4-4b72-46a0-9a5b-2b8ef47ba7af/
+23-05-16 12:46 pde          INFO     Generating data...
+23-05-16 12:46 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:46 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:46 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:46 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:46 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:46 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:46 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:46 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:46 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:46 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:46 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:46 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:46 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:47 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:47 pde          INFO     Saving PDE Movie...
+23-05-16 12:47 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_7e6be5b4-4b72-46a0-9a5b-2b8ef47ba7af//movie.mp4
+23-05-16 12:48 pde          INFO     Making data...
+23-05-16 12:48 convert      INFO     Loading data...
+23-05-16 12:48 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:48 convert      INFO     Making clips...
+23-05-16 12:48 convert      INFO     Saving data...
+23-05-16 12:48 convert      INFO     Done!
+23-05-16 12:50 __main__     INFO     User: mitt-wsl
+23-05-16 12:50 __main__     INFO     UID: 1a6ffcea-c787-454b-b5e4-936ddffaca5c
+23-05-16 12:50 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:50 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1a6ffcea-c787-454b-b5e4-936ddffaca5c/
+23-05-16 12:50 pde          INFO     Generating data...
+23-05-16 12:50 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:50 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:50 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:50 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:50 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:50 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:50 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:50 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:50 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:50 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:50 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:50 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:51 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:51 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:51 pde          INFO     Saving PDE Movie...
+23-05-16 12:51 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_1a6ffcea-c787-454b-b5e4-936ddffaca5c//movie.mp4
+23-05-16 12:52 pde          INFO     Making data...
+23-05-16 12:52 convert      INFO     Loading data...
+23-05-16 12:52 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:52 convert      INFO     Making clips...
+23-05-16 12:52 convert      INFO     Saving data...
+23-05-16 12:52 convert      INFO     Done!
+23-05-16 12:52 __main__     INFO     User: mitt-wsl
+23-05-16 12:52 __main__     INFO     UID: 8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4
+23-05-16 12:52 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:52 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4/
+23-05-16 12:52 pde          INFO     Generating data...
+23-05-16 12:52 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:52 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:52 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:52 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:52 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:52 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:52 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:52 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:52 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:52 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:52 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:52 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:53 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:53 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:53 pde          INFO     Saving PDE Movie...
+23-05-16 12:53 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4//movie.mp4
+23-05-16 12:54 pde          INFO     Making data...
+23-05-16 12:54 convert      INFO     Loading data...
+23-05-16 12:54 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:54 convert      INFO     Making clips...
+23-05-16 12:54 convert      INFO     Saving data...
+23-05-16 12:54 convert      INFO     Done!
+23-05-16 12:54 __main__     INFO     User: mitt-wsl
+23-05-16 12:54 __main__     INFO     UID: c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d
+23-05-16 12:55 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:55 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d/
+23-05-16 12:55 pde          INFO     Generating data...
+23-05-16 12:55 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:55 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:55 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:55 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:55 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:55 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:55 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:55 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:55 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:55 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:55 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:55 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:55 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:55 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:55 pde          INFO     Saving PDE Movie...
+23-05-16 12:55 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d//movie.mp4
+23-05-16 12:56 pde          INFO     Making data...
+23-05-16 12:56 convert      INFO     Loading data...
+23-05-16 12:56 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:56 convert      INFO     Making clips...
+23-05-16 12:56 convert      INFO     Saving data...
+23-05-16 12:56 convert      INFO     Done!
+23-05-16 12:56 __main__     INFO     User: mitt-wsl
+23-05-16 12:56 __main__     INFO     UID: 6514bad1-7bb8-4e8d-ae26-591672875882
+23-05-16 12:56 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:56 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_6514bad1-7bb8-4e8d-ae26-591672875882/
+23-05-16 12:56 pde          INFO     Generating data...
+23-05-16 12:56 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:56 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:56 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:56 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:56 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:56 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:56 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:56 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:56 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:56 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:56 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:56 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:57 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:57 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:57 pde          INFO     Saving PDE Movie...
+23-05-16 12:57 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_6514bad1-7bb8-4e8d-ae26-591672875882//movie.mp4
+23-05-16 12:58 pde          INFO     Making data...
+23-05-16 12:58 convert      INFO     Loading data...
+23-05-16 12:58 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 12:58 convert      INFO     Making clips...
+23-05-16 12:58 convert      INFO     Saving data...
+23-05-16 12:58 convert      INFO     Done!
+23-05-16 12:58 __main__     INFO     User: mitt-wsl
+23-05-16 12:58 __main__     INFO     UID: fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49
+23-05-16 12:58 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 12:58 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49/
+23-05-16 12:58 pde          INFO     Generating data...
+23-05-16 12:58 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:58 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:58 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:58 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 12:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:58 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 12:58 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:58 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 12:58 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 12:58 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 12:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 12:58 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 12:59 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 12:59 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 12:59 pde          INFO     Saving PDE Movie...
+23-05-16 12:59 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49//movie.mp4
+23-05-16 13:00 pde          INFO     Making data...
+23-05-16 13:00 convert      INFO     Loading data...
+23-05-16 13:00 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 13:00 convert      INFO     Making clips...
+23-05-16 13:00 convert      INFO     Saving data...
+23-05-16 13:00 convert      INFO     Done!
+23-05-16 13:00 __main__     INFO     User: mitt-wsl
+23-05-16 13:00 __main__     INFO     UID: c5403523-1954-49d1-947f-b1ca9c60096a
+23-05-16 13:00 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-05-16 13:00 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-05-16 13:00 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_c5403523-1954-49d1-947f-b1ca9c60096a/
+23-05-16 13:00 pde          INFO     Generating data...
+23-05-16 13:01 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 13:01 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 13:01 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 13:01 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-05-16 13:01 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 13:01 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-05-16 13:01 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 13:01 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-05-16 13:01 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dy` in PDE for `c`
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `d_dx` in PDE for `c`
+23-05-16 13:01 PDE          INFO     Using boundary condition `['periodic', 'anti-periodic']` for operator `laplace` in PDE for `c`
+23-05-16 13:01 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args')
+23-05-16 13:01 ScalarExpression INFO     Parse sympy expression `0.0125*d_dx(c, none, bc_args) + 0.0625*d_dy(c, none, bc_args) + 0.25*laplace(c**3 - c - laplace(c, none, bc_args), none, bc_args)`
+23-05-16 13:01 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.01
+23-05-16 13:01 Controller   INFO     Simulation finished at t=1079.0.
+23-05-16 13:01 pde          INFO     Saving PDE Movie...
+23-05-16 13:01 matplotlib.animation INFO     MovieWriter._run: running command: ffmpeg -f rawvideo -vcodec rawvideo -s 640x480 -pix_fmt rgba -r 30 -loglevel error -i pipe: -vcodec h264 -pix_fmt yuv420p -y /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_c5403523-1954-49d1-947f-b1ca9c60096a//movie.mp4
+23-05-16 13:02 pde          INFO     Making data...
+23-05-16 13:02 convert      INFO     Loading data...
+23-05-16 13:02 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-05-16 13:02 convert      INFO     Making clips...
+23-05-16 13:02 convert      INFO     Saving data...
+23-05-16 13:02 convert      INFO     Done!

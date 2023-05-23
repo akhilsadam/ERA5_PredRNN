@@ -1,9 +1,11 @@
 import os, importlib, numpy as np, subprocess, sys
 # change these params
-training=False
-train = ['PDE_5af2c49b-0070-459b-845e-568f699c24e5',]
-valid = ['PDE_f7c4a4f2-8320-44d0-9262-0e09bc50eae7',]
-pretrain_name='model_16000.ckpt'
+training=True
+train = ['PDE_1a6ffcea-c787-454b-b5e4-936ddffaca5c','PDE_7e6be5b4-4b72-46a0-9a5b-2b8ef47ba7af',
+         'PDE_8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4','PDE_6514bad1-7bb8-4e8d-ae26-591672875882',
+         'PDE_c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d','PDE_c5403523-1954-49d1-947f-b1ca9c60096a']
+valid = ['PDE_fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49',]
+pretrain_name=None #'model_16000.ckpt'
 ###############################################
 
 
@@ -35,15 +37,18 @@ if 'year' in param.data:
     patch_size = '40'
     num_hidden = '480,480,480,480,480,480'
     lr = '1e-4'
+    rss='1'
 else:
     img_channel = '1' # we only have one channel for PDE data
     img_layers = '0'
     input_length = '2' # should depend on n of timesteps - exactly how?
     total_length = '4' # twice the input length (why?)
     layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
-    patch_size = '64' # divides the image l,w - breaks it into patches.
-    num_hidden = '64,64,64,64,64,64' # number of hidden units in each layer
+    patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+    num_hidden = '16,16,16,16,16,16' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
+    # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
     lr = '1e-3' # learning rate
+    rss = '0' # reverse scheduled sampling - turning it off for now
 
 if training:
     save = f"--save_dir {checkpoint_dir}"
@@ -57,7 +62,7 @@ else:
     batch = '3'
     test_batch = '3'
 
-if not pretrain_name:
+if pretrain_name is None:
     pretrained = ''
 else:
     print('Using pretrained model')
@@ -101,7 +106,7 @@ cmd = f"python3 -u ../predrnn-pytorch/run2.py \
 --stride 1 \
 --layer_norm 1 \
 --decouple_beta 0.05 \
---reverse_scheduled_sampling 1 \
+--reverse_scheduled_sampling {rss} \
 --r_sampling_step_1 25000 \
 --r_sampling_step_2 50000 \
 --r_exp_alpha 2500 \
