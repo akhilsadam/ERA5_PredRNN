@@ -9,7 +9,7 @@ import numpy as np
 import math
 from core.data_provider import datasets_factory
 from core.utils import preprocess
-import core.trainer as trainer
+import core.trainer2 as trainer
 import pywt as pw
 import torch
 import torch.nn as nn
@@ -42,6 +42,12 @@ parser = argparse.ArgumentParser(description='PyTorch video prediction model - P
 # more params on model selection (added by Akhil)
 parser.add_argument('--multigpu', type=bool, default=False)
 
+# option to save test output
+parser.add_argument('--save_output', type=str2bool, default=False)
+# option to save test output (number of frames)
+parser.add_argument('--test_iterations', type=int, default=1)
+
+##
 # training/test
 parser.add_argument('--is_training', type=int, default=1)
 parser.add_argument('--device', type=str, default='cpu:0')

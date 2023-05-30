@@ -1,6 +1,7 @@
 venv/
 data/
 model/
+testing/
 **/__pycache__/
 install/*secrets.txt
 git-secret/

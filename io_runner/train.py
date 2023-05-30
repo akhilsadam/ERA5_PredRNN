@@ -5,7 +5,8 @@ train = ['PDE_1a6ffcea-c787-454b-b5e4-936ddffaca5c','PDE_7e6be5b4-4b72-46a0-9a5b
          'PDE_8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4','PDE_6514bad1-7bb8-4e8d-ae26-591672875882',
          'PDE_c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d','PDE_c5403523-1954-49d1-947f-b1ca9c60096a']
 valid = ['PDE_fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49',]
-pretrain_name=None #'model_16000.ckpt'
+pretrain_name=None #'model_20000.ckpt'
+save_test_output=False #True
 ###############################################
 
 
@@ -38,29 +39,34 @@ if 'year' in param.data:
     num_hidden = '480,480,480,480,480,480'
     lr = '1e-4'
     rss='1'
+    test_iterations = 0; # number of test iterations to run
 else:
     img_channel = '1' # we only have one channel for PDE data
     img_layers = '0'
-    input_length = '2' # should depend on n of timesteps - exactly how?
-    total_length = '4' # twice the input length (why?)
+    input_length = 20 #'2' # (length of input sequence?)
+    total_length = 40 #'4' # (complete sequence length?)
     layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
     patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
     num_hidden = '16,16,16,16,16,16' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
     # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
     lr = '1e-3' # learning rate
     rss = '0' # reverse scheduled sampling - turning it off for now
+    test_iterations = 1; # number of test iterations to run
 
 if training:
     save = f"--save_dir {checkpoint_dir}"
-    concurrency = '--save_dir {checkpoint_dir}'
+    concurrency = f'--save_dir {checkpoint_dir}'
     train_int = '1'
     batch = '3'
     test_batch = '9'
+    test_iterations = 0; # number of test iterations to run
 else:
+    save = ''
     concurrency = '--concurent_step 1' # not sure what this does - seems to step and update tensors at the same time (unsure if this works given comment)
     train_int = '0'
     batch = '3'
     test_batch = '3'
+    test_iterations = 100; # number of test iterations to run
 
 if pretrain_name is None:
     pretrained = ''
@@ -68,17 +74,21 @@ else:
     print('Using pretrained model')
     pretrained =f'--pretrained_model {checkpoint_dir} ' + \
     f'--pretrained_model_name {pretrain_name} '
-    
+
+save_test_output_arg = 'True' if save_test_output and not training else 'False'
+
 print('Data Dims:',shp)
 
 cmd = f"python3 -u ../predrnn-pytorch/run2.py \
 --is_training {train_int} \
+--test_iterations {test_iterations} \
 {concurrency} \
 --device cuda:0 \
 --dataset_name mnist \
 --train_data_paths {train_data_paths} \
 --valid_data_paths {valid_data_paths} \
 {save} \
+--save_output {save_test_output_arg} \
 --gen_frm_dir {checkpoint_dir} \
 --model_name predrnn_v2 \
 --reverse_input 0 \
