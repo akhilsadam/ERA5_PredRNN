@@ -16,3 +16,4 @@ pytorch_wavelets
 cdsapi
 pygrib
 tqdm
+trphysx==0.0.8

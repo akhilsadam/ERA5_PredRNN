@@ -53,6 +53,7 @@ def test(model, test_input_handle, configs, itr):
     real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)
     test_ims_ALL = []
     img_out_ALL = []
+    avg_mse = 0
     for _ in range(configs.test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
@@ -64,7 +65,7 @@ def test(model, test_input_handle, configs, itr):
             img_out, loss, loss_pred, decouple_loss = model.test(test_ims, real_input_flag)
             img_out = img_out.detach()
 
-            avg_mse = torch.mean((img_out[:,-output_length:]-test_ims[:,-output_length:])**2*configs.area_weight).cpu().numpy()
+            avg_mse += torch.mean((img_out[:,-output_length:]-test_ims[:,-output_length:])**2*configs.area_weight).cpu().numpy()
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
             test_ims_ALL.append(test_ims)
@@ -72,9 +73,9 @@ def test(model, test_input_handle, configs, itr):
             
             test_input_handle.next()
 
-        except StopIteration:
+        except Exception as e:
             break
-
+    avg_mse /= configs.test_iterations
 
 
     # real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)
