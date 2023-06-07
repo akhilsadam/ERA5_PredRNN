@@ -33,15 +33,24 @@ class BERT(BaseModel):
             configs.patch_size = 1
         return configs
         
-    def core_forward(self, seq_in):
+    def core_forward(self, seq_total):
+        seq_in = seq_total[:,:self.configs.input_length]
         if len(seq_in.shape) == 4:
             inpt = self.preprocessor.input_transform(seq_in)
-            outpt = self.model(inpt)
-            return self.preprocessor.output_transform(outpt)
-        
-        inpt = self.preprocessor.batched_input_transform(seq_in)
+        else:
+            inpt = self.preprocessor.batched_input_transform(seq_in)
+            
         outpt = self.model(inpt)
-        return self.preprocessor.batched_output_transform(outpt)
+        outpt = torch.cat((inpt,outpt),dim=1)
+        
+        if len(seq_in.shape) == 4:
+            out = self.preprocessor.output_transform(outpt)
+        else:
+            out = self.preprocessor.batched_output_transform(outpt)
+            
+        loss_pred = torch.nn.functional.mse_loss(out[:,self.configs.input_length:], seq_total[:,self.configs.input_length:])
+        loss_decouple = torch.tensor(0.0)
+        return loss_pred, loss_decouple, out
 
     
         
