@@ -350,7 +350,12 @@ def main(args):
         print('Created:', args.gen_frm_dir)
 
     print('Initializing models')
-    model = Model(args)
+    if 'preprocessor' in args.__dict__ and 'model' in args.__dict__:
+        model = Model(args, preprocessor=args.preprocessor, model_args=args.model)
+    elif 'preprocessor' not in args.__dict__ and 'model' not in args.__dict__:
+        model = Model(args)
+    else:
+        print('Preprocessor and model should both be specified if not using model "predrnn_v2", else neither should be specified.')
     # model= nn.DataParallel(model, device_ids=[0, 1, 2])
     #model.to(args.device)
 

@@ -17,6 +17,8 @@ def abstractmethod(f):
 class BaseModel(nn.Module):
     def __init__(self, num_layers, num_hidden, configs):
         super(BaseModel, self).__init__()
+        
+        configs = self.edit_config(configs)
 
         self.configs = configs
         self.visual = self.configs.visual
@@ -39,70 +41,26 @@ class BaseModel(nn.Module):
         self.img_height = configs.img_height
         self.img_width = configs.img_width
     
+    @abstractmethod
+    def edit_config(self,configs):
+        '''Modify configs to match the model. This method should be overridden in the subclass.'''
+        return configs
     
     @abstractmethod
-    def init_memory(self):
-        """Override this method in your model if you use memory units. Runs on start of each call to forward()"""
-        return None
-    
-    @abstractmethod
-    def core_forward(self, last_frame, memory):
+    def core_forward(self, seq_in):
         """This method should contain the actual forward pass of your model. Runs on each timestep in the forward() loop"""
-        return last_frame
+        loss_pred = torch.tensor(0.0)
+        decouple_loss = torch.tensor(0.0)
+        seq_out = seq_in
+        return loss_pred, decouple_loss, seq_out
 
-    @abstractmethod
-    def get_decouple_loss(self, layer):
-        """This method should return the decoupling loss for a given layer. Decoupling loss is defined as a dot product of spatial and temporal states for ConvLSTM frameworks"""
-        return torch.tensor(0.0).to(self.configs.device)
         
     def forward(self, frames_tensor, mask_true, istrain=True):
         '''
         frames_tensor shape: [batch, length, channel, height, width]
         '''
-        # print(f"Inside, frames_tensor shape:{frames_tensor.shape}, frames_tensor device: {frames_tensor.get_device()}")
-        # print(f"Inside, self.area_weight device: {self.area_weight.get_device()}")
-
-        tensor_device = frames_tensor.get_device()
-        batch = frames_tensor.shape[0]
-        mask_true = mask_true.contiguous()
-
-        decouple_loss = []
-
-        loss = 0
-        memory = self.init_memory()
-        next_frames = torch.empty(batch, self.configs.total_length-1, self.frame_channel, self.cur_height, self.cur_width).to(tensor_device)
-        # print(f"in the begining, next_frames shape:{next_frames.shape}")
-
-        for t in range(self.configs.total_length-1):
-            if (
-                self.configs.reverse_scheduled_sampling == 1
-                and t == 0
-                or self.configs.reverse_scheduled_sampling != 1
-                and t < self.configs.input_length
-            ):
-                net =  frames_tensor[:, t]
-            elif self.configs.reverse_scheduled_sampling == 1:
-                # print(f"t: {t}, mask_true[:, t - 1]: {np.sum(mask_true[:, t - 1].detach().cpu().numpy())}")
-                net = mask_true[:, t-1] * frames_tensor[:, t] + (1 - mask_true[:, t-1]) * x_gen
-            else:
-                net = mask_true[:, t - self.configs.input_length] * frames_tensor[:, t] + \
-                              (1 - mask_true[:, t - self.configs.input_length]) * x_gen
-
-            x_gen = self.core_forward(net, memory)
-            next_frames[:,t] = x_gen
-
-            # decoupling loss
-            decouple_loss.extend(
-                self.get_decouple_loss(i)
-                for i in range(self.num_layers)
-            )
+        loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor)
             
-        decouple_loss = torch.mean(torch.stack(decouple_loss, dim=0))
-
-        if self.configs.weighted_loss and not self.configs.is_WV:
-            loss_pred = self.get_weighted_loss(next_frames, frames_tensor[:,1:,:,:,:])
-        else:
-            loss_pred = self.MSE_criterion(next_frames, frames_tensor[:,1:,:,:,:])
         print(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
         loss = loss_pred + self.configs.decouple_beta*decouple_loss
 
@@ -110,10 +68,7 @@ class BaseModel(nn.Module):
             next_frames = None
             return loss, loss_pred.detach(), decouple_loss.detach()
         else:
-            if self.configs.is_WV:
-                next_frames = self.wv_to_img(next_frames)
-            else:
-                next_frames = self.reshape_back_tensor(next_frames, self.patch_size)
+            next_frames = self.reshape_back_tensor(next_frames, self.patch_size)
             return next_frames, loss, loss_pred, decouple_loss
     
 

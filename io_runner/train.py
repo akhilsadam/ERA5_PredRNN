@@ -8,20 +8,46 @@ valid = ['PDE_063698fc-15d0-43d2-9098-8da521dd6b4c',]
 pretrain_name='model_best_mse.ckpt'
 save_test_output=True
 ###############################################
-model_name = 'TF' # [TF, predrnn_v2]
+model_name = 'BERT' # [BERT, predrnn_v2]
+model_config = \
+    {
+        'BERT':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 8, # number of heads in the transformer
+            'n_embd': 512, # number of hidden units in the transformer
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions (None uses default for FFN RELU)
+            'activation': 'relu', # activation function
+        },
+        # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
+        
+    }
+model_config_toy = \
+    {
+        'BERT':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+        },
+        # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
+        
+    }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
 preprocessor_name = 'POD' # [raw, POD]
 preprocessor_config = \
-{
-    'POD':{
-        'eigenvector': lambda var: f'POD_eigenvector_{var}.npy', # place to store precomputed eigenvectors in the data directory
-        # (var is the variable name)
-        'make_eigenvector': True, # whether to compute eigenvectors or not
-        'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
-        'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+    {
+        'POD':{
+            'eigenvector': lambda var: f'POD_eigenvector_{var}.npy', # place to store precomputed eigenvectors in the data directory
+            # (var is the variable name)
+            'make_eigenvector': True, # whether to compute eigenvectors or not
+            'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+        },
     }
-}
 ###############################################
 ########## DO NOT EDIT BELOW THIS LINE ########
 ###############################################
@@ -44,7 +70,10 @@ shp = dat['dims'][0]
 l = dat['input_raw_data'].shape[0]
 param = importlib.import_module('param',f"{datadir}/{train[0]}")
 
-if 'year' in param.data:
+weather_prediction = 'year' in param.data
+
+if weather_prediction:
+    
     img_channel = 3
     img_layers = '0,1,2'
     input_length = '24'
@@ -149,14 +178,21 @@ cmdargs = f"--is_training {train_int} \
 {pretrained}"
 
 args = run2.parser.parse_args(cmdargs.split(' '))
-preprocessor_args = preprocessor_config[preprocessor_name]
-preprocessor_args['data_dir'] = datadir
-preprocessor_args['train_data_paths'] = train_data_paths
-preprocessor_args['train_data_paths'] = train_data_paths
-preprocessor_args['n_var'] = img_channel
-preprocessor_args['shapex'] = shp[1]
-preprocessor_args['shapey'] = shp[2]
-args.preprocessor = \
-    importlib.import_module(f'../predrnn-pytorch/core/preprocessors/{preprocessor_name}.py') \
-    .Preprocessor(preprocessor_args)
+if preprocessor_name is not 'raw':
+    preprocessor_args = preprocessor_config[preprocessor_name]
+    preprocessor_args['data_dir'] = datadir
+    preprocessor_args['train_data_paths'] = train_data_paths
+    preprocessor_args['train_data_paths'] = train_data_paths
+    preprocessor_args['n_var'] = img_channel
+    preprocessor_args['shapex'] = shp[1]
+    preprocessor_args['shapey'] = shp[2]
+    args.preprocessor = \
+        importlib.import_module(f'../predrnn-pytorch/core/preprocessors/{preprocessor_name}.py') \
+        .Preprocessor(preprocessor_args)
+if model_name is not 'predrnn_v2':
+    if weather_prediction:
+        model_args = model_config[model_name]
+    else:
+        model_args = model_config_toy[model_name]
+    args.model = model_args
 run2.main(args)

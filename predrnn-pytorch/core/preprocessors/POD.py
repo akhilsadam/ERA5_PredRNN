@@ -116,10 +116,14 @@ class Preprocessor:
             gc.collect()
         
     def preload(self):
+        '''
+        [B, T, C, H, W] -> [B, T, latent]
+        '''
         data = [np.load(self.eigenvector_path(v)) for v in range(self.n_var)]
         latent_dims = np.cumsum([data[v]['latent_dimension'] for v in range(self.n_var)]).tolist()
         latent_dims.insert(0,0)
         self.latent_dims = latent_dims
         self.input_transform = lambda x: torch.cat([data[v]['input_transform'](data[v]['eigenvectors'],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
+        self.batched_input_transform = lambda x: torch.stack([data[v]['input_transform'](data[v]['eigenvectors'],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
         self.output_transform = lambda a: torch.stack([data[v]['output_transform'](data[v]['eigenvectors'],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        
+        self.batched_output_transform = lambda a: torch.stack([data[v]['output_transform'](data[v]['eigenvectors'],a[:,:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=2)
