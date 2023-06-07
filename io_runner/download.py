@@ -1,10 +1,17 @@
 import cdsapi
-import uuid, os, importlib
+import uuid, os, importlib, argparse
 import logging
 ###########
 import param
 import convert
 ###########
+parser = argparse.ArgumentParser(description='Data Downloader')
+
+parser.add_argument('--input_length', type=int, default=20)
+parser.add_argument('--total_length', type=int, default=40)
+kwargs = vars(parser.parse_args())
+
+
 logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler('filename.log'), logging.StreamHandler()])
 logger = logging.getLogger(__name__)
@@ -45,6 +52,6 @@ else:
     assert 'gshape' in param.data, logger.critical('gshape must be provided for PDE data')
     
     final_data = gen.gen_data(param.data['t_step'], param.data['dt'], param.data['nvar'], param.data['gshape'], cdatadir, logging.getLogger('pde'))
-    convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'), pygrib_fmt=False, final_data=final_data)
+    convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'), pygrib_fmt=False, final_data=final_data, **kwargs)
     
     

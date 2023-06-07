@@ -1,15 +1,30 @@
 import os, importlib, numpy as np, subprocess, sys
 # change these params
-training=True
-train = ['PDE_1a6ffcea-c787-454b-b5e4-936ddffaca5c','PDE_7e6be5b4-4b72-46a0-9a5b-2b8ef47ba7af',
-         'PDE_8fd4a2c2-4024-41ea-b042-c5a9d5a7b4a4','PDE_6514bad1-7bb8-4e8d-ae26-591672875882',
-         'PDE_c5684c0f-60c5-4b1c-85bf-f7d9a44c5f4d','PDE_c5403523-1954-49d1-947f-b1ca9c60096a']
-valid = ['PDE_fd2f7f76-f3c5-48f6-bdeb-9f2b676d5d49',]
-pretrain_name=None #'model_20000.ckpt'
-save_test_output=False #True
+training=False
+train = ['PDE_1b0ed7df-0651-4f9a-85a5-4c6a6b534898','PDE_55fbd98b-cd2f-4045-ab3f-3af6ddae531b',
+         'PDE_14a60c9a-6f59-43cc-9519-c45bd8720cc2','PDE_ccfa2cb4-6622-4a57-9b02-68bb00696a4c',
+         'PDE_b6893217-e82f-4ef1-8dfd-5531a19f7522','PDE_fcd3a352-00a1-4a8f-b3ee-c79846497236']
+valid = ['PDE_063698fc-15d0-43d2-9098-8da521dd6b4c',]
+pretrain_name='model_best_mse.ckpt'
+save_test_output=True
 ###############################################
-
-
+model_name = 'TF' # [TF, predrnn_v2]
+# note predrnn_v2 does not work with any preprocessing or other options
+###############################################
+preprocessor_name = 'POD' # [raw, POD]
+preprocessor_config = \
+{
+    'POD':{
+        'eigenvector': lambda var: f'POD_eigenvector_{var}.npy', # place to store precomputed eigenvectors in the data directory
+        # (var is the variable name)
+        'make_eigenvector': True, # whether to compute eigenvectors or not
+        'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+        'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+    }
+}
+###############################################
+########## DO NOT EDIT BELOW THIS LINE ########
+###############################################
 user=os.popen('whoami').read().replace('\n','')
 userparam=importlib.import_module(f'user.{user}_param')
 
@@ -30,7 +45,7 @@ l = dat['input_raw_data'].shape[0]
 param = importlib.import_module('param',f"{datadir}/{train[0]}")
 
 if 'year' in param.data:
-    img_channel = '3'
+    img_channel = 3
     img_layers = '0,1,2'
     input_length = '24'
     total_length = '48'
@@ -39,15 +54,15 @@ if 'year' in param.data:
     num_hidden = '480,480,480,480,480,480'
     lr = '1e-4'
     rss='1'
-    test_iterations = 0; # number of test iterations to run
+    test_iterations = 1; # number of test iterations to run
 else:
-    img_channel = '1' # we only have one channel for PDE data
+    img_channel = 1 # we only have one channel for PDE data
     img_layers = '0'
     input_length = 20 #'2' # (length of input sequence?)
     total_length = 40 #'4' # (complete sequence length?)
     layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
     patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-    num_hidden = '16,16,16,16,16,16' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
+    num_hidden = '8,8,8,8,8,8' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
     # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
     lr = '1e-3' # learning rate
     rss = '0' # reverse scheduled sampling - turning it off for now
@@ -59,7 +74,7 @@ if training:
     train_int = '1'
     batch = '3'
     test_batch = '9'
-    test_iterations = 0; # number of test iterations to run
+    test_iterations = 1; # number of test iterations to run
 else:
     save = ''
     concurrency = '--concurent_step 1' # not sure what this does - seems to step and update tensors at the same time (unsure if this works given comment)
@@ -79,8 +94,9 @@ save_test_output_arg = 'True' if save_test_output and not training else 'False'
 
 print('Data Dims:',shp)
 
-cmd = f"python3 -u ../predrnn-pytorch/run2.py \
---is_training {train_int} \
+run2=importlib.import_module('../predrnn-pytorch/run2.py')
+
+cmdargs = f"--is_training {train_int} \
 --test_iterations {test_iterations} \
 {concurrency} \
 --device cuda:0 \
@@ -90,7 +106,7 @@ cmd = f"python3 -u ../predrnn-pytorch/run2.py \
 {save} \
 --save_output {save_test_output_arg} \
 --gen_frm_dir {checkpoint_dir} \
---model_name predrnn_v2 \
+--model_name {model_name} \
 --reverse_input 0 \
 --is_WV 0 \
 --press_constraint 0 \
@@ -132,4 +148,15 @@ cmd = f"python3 -u ../predrnn-pytorch/run2.py \
 --curr_best_mse 0.03 \
 {pretrained}"
 
-process = subprocess.run(cmd, shell=True)
+args = run2.parser.parse_args(cmdargs.split(' '))
+preprocessor_args = preprocessor_config[preprocessor_name]
+preprocessor_args['data_dir'] = datadir
+preprocessor_args['train_data_paths'] = train_data_paths
+preprocessor_args['train_data_paths'] = train_data_paths
+preprocessor_args['n_var'] = img_channel
+preprocessor_args['shapex'] = shp[1]
+preprocessor_args['shapey'] = shp[2]
+args.preprocessor = \
+    importlib.import_module(f'../predrnn-pytorch/core/preprocessors/{preprocessor_name}.py') \
+    .Preprocessor(preprocessor_args)
+run2.main(args)

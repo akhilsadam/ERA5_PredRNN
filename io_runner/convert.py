@@ -5,7 +5,7 @@ import os, sys
 import param, normalize
 
 
-def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None):
+def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, input_length=20, total_length=40):
     if logger is None:
         import logging
         logger = logging.getLogger()
@@ -74,8 +74,8 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None):
 
     # make clips
     logger.info('Making clips...')
-    in_step = 2
-    out_step = 2
+    in_step = input_length
+    out_step = input_length
 
     final_clips = np.ones((2,int(np.ceil(n_step/(in_step))),2))*in_step
     final_clips[0,:,0] = np.arange(0,n_step,in_step)
