@@ -9,7 +9,7 @@ valid = ['PDE_063698fc-15d0-43d2-9098-8da521dd6b4c',]
 pretrain_name=None #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=False
 ###############################################
-model_name = 'TF' # [TF, predrnn_v2]
+model_name = 'DNN' # [DNN,TF, predrnn_v2]
 model_config = \
     {
         'TF':{
@@ -24,35 +24,46 @@ model_config = \
             'activation': 'relu', # activation function
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
+        'DNN':{
+            'hidden': [], # number of hidden units for all layers in sequence
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+        },
 
     }
 model_config_toy = \
     {
         'TF':{
-            'n_encoder_layers': 3, # number of layers in the encoder
-            'n_decoder_layers': 3, # number of layers in the decoder
+            'n_encoder_layers': 8, # number of layers in the encoder
+            'n_decoder_layers': 8, # number of layers in the decoder
             'n_head': 8, # number of heads in the transformer
             'n_embd': 320, # number of hidden units in the transformer
             'n_ffn_embd': 1000, # number of hidden units in the FFN
-            'dropout': 0.05, # dropout rate
-            'dropout_pos_enc': 0.05, # dropout rate for positional encoding
+            'dropout': 0.00, # dropout rate
+            'dropout_pos_enc': 0.00, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
-
+        'DNN':{
+            'hidden': [320,320,320], # number of hidden units for all layers in sequence
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+        },
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
-preprocessor_name = 'POD' # [raw, POD]
+preprocessor_name = 'POD' # [raw, control, POD]
 preprocessor_config = \
     {
         'POD':{
             'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
             'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
-            'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+        },
+        'control':{
         },
     }
 ###############################################
@@ -65,7 +76,7 @@ if userparam.param['WSL']:
     os.environ['LD_LIBRARY_PATH'] = '/usr/lib/wsl/lib'
 
 datadir = os.path.abspath(userparam.param['data_dir'])
-checkpoint_dir = f"{userparam.param['model_dir']}/{model_name}"
+checkpoint_dir = f"{userparam.param['model_dir']}/{model_name}/{preprocessor_name}/"
 os.makedirs(checkpoint_dir, exist_ok=True)
 
 train_data_paths = ','.join([f"{datadir}/{tr}/data.npz" for tr in train])

@@ -60,7 +60,7 @@ class BaseModel(nn.Module):
         return loss_pred, decouple_loss, seq_out
 
         
-    def forward(self, frames_tensor, mask_true, istrain=True):
+    def forward(self, frames_tensor, mask_true=None, istrain=True):
         '''
         frames_tensor shape: [batch, length, channel, height, width]
         '''

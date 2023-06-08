@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 import torch
-import gc
+import gc, os, jpcm
 import numpy as np
 import torch.nn as nn
 import logging
+import imageio.v3 as imageio
 from tqdm import tqdm
 logger = logging.getLogger('POD-preprocessor')
 
@@ -38,6 +39,7 @@ class Preprocessor:
             setattr(self, k, v)
             
         self.eigenvector_path = lambda var: f"{self.datadir}/{self.eigenvector(var)}"
+        self.eigenvector_vis_path =  f"{self.datadir}/eigen_vis/"
         
         assert self.train_data_paths not in [None,[]], "train_data_paths (training datasets) must be specified and not empty"
         assert self.valid_data_paths not in [None,[]], "valid_data_paths (validation datasets) must be specified and not empty"
@@ -45,9 +47,12 @@ class Preprocessor:
         assert self.shapex > 0, "shapex (x dimension of data) must be specified and greater than 0"
         assert self.shapey > 0, "shapey (y dimension of data) must be specified and greater than 0"
         
+        self.cmap = jpcm.get('desert')        
         with torch.no_grad():
             if self.make_eigenvector:
                 self.precompute()
+                
+
     
     def precompute(self):
         shape = None # (time, var, shapex, shapey)
@@ -94,10 +99,7 @@ class Preprocessor:
             else:
                 logger.info(f'PVE threshold {self.PVE_threshold} reached at {loc} eigenvectors.')
             # truncate
-            if rows < cols:
-                eigenvectors = U[:,:loc].cpu().numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
-            else:
-                eigenvectors = V[:loc,:].cpu().numpy() # input transformation is a = V @ x, output transformation is y = V.T @ a
+            eigenvectors = U[:,:loc].cpu().numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
             latent_dimension = loc.item()
             
             # save eigenvectors
@@ -109,6 +111,15 @@ class Preprocessor:
             }
             np.savez(self.eigenvector_path(v), **vdict)
             
+            logger.info(f'Plotting eigenvectors for variable {v}...')
+            for i in tqdm(range(latent_dimension)):
+                os.makedirs(f"{self.eigenvector_vis_path}/{v}/", exist_ok=True)
+                # convert colormap
+                imc = self.cmap(eigenvectors[:,i]).reshape(shape[-2],shape[-1],4)[:,:,:3]
+                imc /= np.max(imc)
+                imc = (imc*255).astype(np.uint8)                
+                imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/_{i}.png", imc, format='JPEG')
+            
             del dataset, U, s, V, PVE, loc, eigenvectors, latent_dimension, vdict
             gc.collect()
         
@@ -117,7 +128,7 @@ class Preprocessor:
         [B, T, C, H, W] -> [B, T, latent]
         '''
         data = [np.load(self.eigenvector_path(v)) for v in range(self.n_var)]
-        data_torch = [torch.from_numpy(d['eigenvectors']).float().to(device) for d in data]
+        self.data_torch = [torch.from_numpy(d['eigenvectors']).float().to(device) for d in data]
         latent_dims = np.cumsum([data[v]['latent_dimension'] for v in range(self.n_var)]).tolist()
         latent_dims.insert(0,0)
         
@@ -132,6 +143,6 @@ class Preprocessor:
         
         self.latent_dims = latent_dims
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
+        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: torch.stack([out_tf(data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1]]) for v in range(self.n_var)],dim=2)
+        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1]]) for v in range(self.n_var)],dim=2)

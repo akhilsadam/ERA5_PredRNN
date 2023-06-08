@@ -8,6 +8,7 @@ BASE=$(shell builtin cd $(dir)/../; pwd)
 venv:
 	@python3 -m venv ../venv --prompt "ERA5_PredRNN"
 install_requirements: 
+	- apt-get install graphviz
 	@source ../venv/bin/activate
 	@pip install -r ../install/requirements.txt
 	@pip install -r ../PDE/requirements.txt

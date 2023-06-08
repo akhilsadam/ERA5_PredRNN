@@ -2,7 +2,9 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN
+from torchview import draw_graph
+import traceback, sys
 import wandb
 import gc
 
@@ -17,6 +19,7 @@ class Model(object):
             'action_cond_predrnn': action_cond_predrnn.RNN,
             'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
             'TF': TF.TF,
+            'DNN': DNN.DNN,
         }
 
         if configs.model_name in networks_map:
@@ -24,14 +27,39 @@ class Model(object):
             self.network = Network(self.num_layers, self.num_hidden, configs).to(self.configs.device)
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
+        
+        if 'predrnn' not in configs.model_name and 'pretrained_model' not in configs.__dict__:
+            try:
+                self.modelvis()
+            except Exception as e:
+                ex_type, ex_value, ex_traceback = sys.exc_info()
+                trace_back = traceback.extract_tb(ex_traceback)
+                print(f"Is graphviz installed? Could not visualize model: {e}")
+                    # Format stacktrace
+                stack_trace = []
+                for trace in trace_back:
+                    stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
+                print("Exception type : %s " % ex_type.__name__)
+                print("Exception message : %s" %ex_value)
+                print("Stack trace : %s" %stack_trace)
+                
 
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr=configs.lr)
         if self.configs.upload_run:
             self.upload_wandb()
     
+    def modelvis(self):
+        draw_graph(self.network, input_size= \
+            (self.configs.batch_size,self.configs.total_length, \
+            self.configs.img_channel,self.configs.img_height,self.configs.img_width), expand_nested=False, roll=True, save_graph=True, filename=self.configs.model_name, directory=self.configs.save_dir)  
+        # model_graph.visual_graph.render(format='svg')
+    
     def upload_wandb(self):
         # Uploading to wandb
-        run_name = '_'.join((self.configs.save_file, self.configs.run_name))
+        run_name = (
+            f'{self.configs.model_name}_{self.configs.preprocessor_name}_'
+            + '_'.join((self.configs.save_file, self.configs.run_name))
+        )
         wandb.init(project=self.configs.project, name=run_name)
         wandb.config.model_name = self.configs.model_name
         wandb.config.opt = self.configs.opt

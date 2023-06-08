@@ -13,12 +13,13 @@ class TF(BaseModel):
         assert self.preprocessor is not None, "Preprocessor is None, please check config! Cannot operate on raw data."
         assert self.model_args is not None, "Model args is None, please check config!"
         # assert configs.input_length == configs.total_length//2, "TF model requires input_length == total_length//2"
-        assert configs.input_length > 0, "TF model requires input_length"
-        assert configs.total_length > configs.input_length, "TF model requires total_length"
+        assert configs.input_length > 0, "Model requires input_length"
+        assert configs.total_length > configs.input_length, "Model requires total_length"
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
         self.preprocessor.load(device=configs.device)
+        self.device = configs.device
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
@@ -54,12 +55,10 @@ class TF(BaseModel):
         return configs
         
     def core_forward(self, seq_total, istrain=True):
-        seq_in = seq_total[:,:self.configs.input_length]
-
-        inpt = self.preprocessor.batched_input_transform(seq_in)
-        if istrain:
-            test = self.preprocessor.batched_input_transform(seq_total)
-            loss_pred = 0.0
+        inl = self.configs.input_length
+        test = self.preprocessor.batched_input_transform(seq_total)
+        inpt = test[:,:inl,:]
+        loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
             
@@ -67,7 +66,7 @@ class TF(BaseModel):
         # outpt = torch.cat((inpt,outpt),dim=1)
         
         src = inpt
-        tgt = inpt[:, -2:-1]
+        tgt = inpt[:, -1, :].unsqueeze(1)
         
         for i in range(self.predict_length):
             
@@ -96,17 +95,21 @@ class TF(BaseModel):
             if i == self.predict_length -1:
                 break            
             
-            last_predicted_value = prediction[:, -1, :]
-            # Reshape from [batch_size, 1] --> [batch_size, 1, 1]
-            last_predicted_value = last_predicted_value.unsqueeze(-1)
+            last_predicted_value = prediction[:, -1, :].unsqueeze(1)
+            # print(f"last_predicted_value shape: {last_predicted_value.size()}")
+            # Reshape from [batch_size, nlatent] --> [batch_size, 1, nlatent]
 
             # Detach the predicted element from the graph and concatenate with 
             # tgt in dimension 1 or 0
             
+            loss_pred += torch.nn.functional.mse_loss(last_predicted_value, test[:,inl+i,:].unsqueeze(1))
+            # print(f"tgt shape: {tgt.size()}")
             if istrain:
-                loss_pred += torch.nn.functional.mse_loss(last_predicted_value, test[:,self.configs.input_length+i+1:self.configs.input_length+i+2])
-            
-            tgt = torch.cat((tgt, last_predicted_value.detach()), 1)
+                # teacher forcing
+                tgt = torch.cat((tgt, test[:,inl+i+1,:].unsqueeze(1)), 1)
+            else:
+                # self-generated reasoning chain
+                tgt = torch.cat((tgt, last_predicted_value.detach()), 1)
         
         # print("OUTPUTSIZE", outpt.size())
 
@@ -114,10 +117,7 @@ class TF(BaseModel):
             
         # loss_pred = torch.nn.functional.mse_loss(out[:,self.configs.input_length:], seq_total[:,self.configs.input_length:])
         loss_decouple = torch.tensor(0.0)
-        
-        if not istrain:
-            loss_pred = 0.0
-        
+
         return loss_pred, loss_decouple, out
 
     
@@ -171,7 +171,7 @@ class PositionalEncoding(nn.Module):
     
 # fom KasperGroesLudvigsen's github
 
-def generate_square_subsequent_mask(dim1: int, dim2: int) -> torch.Tensor:
+def generate_square_subsequent_mask(dim1: int, dim2: int, device) -> torch.Tensor:
     """
     Generates an upper-triangular matrix of -inf, with zeros on diag.
     Modified from: 
@@ -191,8 +191,7 @@ def generate_square_subsequent_mask(dim1: int, dim2: int) -> torch.Tensor:
 
         A Tensor of shape [dim1, dim2]
     """
-    return torch.triu(torch.ones(dim1, dim2) * float('-inf'), diagonal=1)
-
+    return torch.triu(torch.ones(dim1, dim2, device=device) * float('-inf'), diagonal=1)
 
 
 class TimeSeriesTransformer(nn.Module):
@@ -347,6 +346,19 @@ class TimeSeriesTransformer(nn.Module):
             num_layers=n_decoder_layers, 
             norm=None
             )
+        
+    def init_FFN_weights(self,tf_encoder_layer, layer_num=0):
+        # initialize the weights of the feed-forward network (assuming RELU)
+        # TODO need to add option if using sine activation
+        if self.initialization not in [None,[]]:
+            self.initialization(tf_encoder_layer.linear1.weight, layer_num)
+            self.initialization(tf_encoder_layer.linear2.weight, layer_num)
+        else:
+            initrange = math.sqrt(3 / self.ninp)
+            nn.init.uniform_(tf_encoder_layer.linear1.weight, -initrange, initrange)
+            nn.init.uniform_(tf_encoder_layer.linear2.weight, -initrange, initrange)
+        nn.init.zeros_(tf_encoder_layer.linear1.bias)
+        nn.init.zeros_(tf_encoder_layer.linear2.bias)
 
     def forward(self, src: torch.Tensor, tgt: torch.Tensor, src_mask: torch.Tensor=None, 
                 tgt_mask: torch.Tensor=None) -> torch.Tensor:
