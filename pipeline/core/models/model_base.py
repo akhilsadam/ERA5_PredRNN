@@ -1,4 +1,5 @@
 import logging
+import abc
 import torch
 import numpy as np
 import torch.nn as nn
@@ -15,6 +16,8 @@ def abstractmethod(f):
     return f
 
 class BaseModel(nn.Module):
+    __metaclass__ = abc.ABCMeta
+    
     def __init__(self, num_layers, num_hidden, configs):
         super(BaseModel, self).__init__()
         
@@ -41,14 +44,16 @@ class BaseModel(nn.Module):
         self.img_height = configs.img_height
         self.img_width = configs.img_width
     
-    @abstractmethod
+    @abc.abstractmethod
     def edit_config(self,configs):
         '''Modify configs to match the model. This method should be overridden in the subclass.'''
+        abstractmethod(__name__)
         return configs
     
-    @abstractmethod
-    def core_forward(self, seq_in):
+    @abc.abstractmethod
+    def core_forward(self, seq_in, istrain):
         """This method should contain the actual forward pass of your model. Runs on each timestep in the forward() loop"""
+        abstractmethod(__name__)
         loss_pred = torch.tensor(0.0)
         decouple_loss = torch.tensor(0.0)
         seq_out = seq_in
@@ -59,7 +64,7 @@ class BaseModel(nn.Module):
         '''
         frames_tensor shape: [batch, length, channel, height, width]
         '''
-        loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor)
+        loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor, istrain)
             
         print(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
         loss = loss_pred + self.configs.decouple_beta*decouple_loss

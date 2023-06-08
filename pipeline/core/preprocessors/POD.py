@@ -9,7 +9,7 @@ logger = logging.getLogger('POD-preprocessor')
 
 def simple_randomized_torch_svd(M, k=10):
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
-    B = torch.tensor(M)
+    B = M.clone().detach()
     m, n = B.size()
     transpose = False
     if m < n:
@@ -17,7 +17,7 @@ def simple_randomized_torch_svd(M, k=10):
         B = B.transpose(0, 1)
         m, n = B.size()
     rand_matrix = torch.rand((n,k), dtype=torch.double, device=M.device)  # short side by k
-    Q, _ = torch.qr(B @ rand_matrix)                              # long side by k
+    Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
     smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
     U_hat, s, V = torch.svd(smaller_matrix,False)
     U = (Q @ U_hat)
@@ -27,7 +27,7 @@ class Preprocessor:
     def __init__(self, config):
         cdict = {
             'datadir': 'data', # directory where data is stored
-            'eigenvector': lambda var: f'POD_eigenvector_{var}.npy', # place to store precomputed eigenvectors
+            'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors
             'make_eigenvector': True, # whether to compute eigenvectors or not
             'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
@@ -45,9 +45,9 @@ class Preprocessor:
         assert self.shapex > 0, "shapex (x dimension of data) must be specified and greater than 0"
         assert self.shapey > 0, "shapey (y dimension of data) must be specified and greater than 0"
         
-        if self.make_eigenvector:
-            self.precompute()
-        self.preload()
+        with torch.no_grad():
+            if self.make_eigenvector:
+                self.precompute()
     
     def precompute(self):
         shape = None # (time, var, shapex, shapey)
@@ -91,39 +91,47 @@ class Preprocessor:
             if loc > self.max_n_eigenvectors:
                 logger.warn(f'PVE threshold {self.PVE_threshold} not reached! Using {self.max_n_eigenvectors} eigenvectors instead of {loc} eigenvectors.')
                 loc = self.max_n_eigenvectors
+            else:
+                logger.info(f'PVE threshold {self.PVE_threshold} reached at {loc} eigenvectors.')
             # truncate
             if rows < cols:
                 eigenvectors = U[:,:loc].cpu().numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
-                input_transform = lambda eigen,x: torch.matmul(eigen.T, x.reshape(-1,rows))
-                output_transform = lambda eigen,a: torch.matmul(eigen, a).reshape(-1,shape[-2],shape[-1])
             else:
                 eigenvectors = V[:loc,:].cpu().numpy() # input transformation is a = V @ x, output transformation is y = V.T @ a
-                input_transform = lambda eigen,x: torch.matmul(eigen, x.reshape(-1,cols))
-                output_transform = lambda eigen,a: torch.matmul(eigen.T, a).reshape(-1,shape[-2],shape[-1])
-            latent_dimension = loc    
+            latent_dimension = loc.item()
             
             # save eigenvectors
             logger.info(f'Saving eigenvectors for variable {v}...')
             vdict = {
                 'eigenvectors': eigenvectors,
                 'latent_dimension': latent_dimension,
-                'input_transform': input_transform,
-                'output_transform': output_transform,
+                'method': [rows,cols]
             }
-            np.save(self.eigenvector_path(v), **vdict)
+            np.savez(self.eigenvector_path(v), **vdict)
             
-            del dataset, U, s, V, PVE, loc, eigenvectors, input_transform, output_transform, latent_dimension, vdict
+            del dataset, U, s, V, PVE, loc, eigenvectors, latent_dimension, vdict
             gc.collect()
         
-    def preload(self):
+    def load(self, device):
         '''
         [B, T, C, H, W] -> [B, T, latent]
         '''
         data = [np.load(self.eigenvector_path(v)) for v in range(self.n_var)]
+        data_torch = [torch.from_numpy(d['eigenvectors']).float().to(device) for d in data]
         latent_dims = np.cumsum([data[v]['latent_dimension'] for v in range(self.n_var)]).tolist()
         latent_dims.insert(0,0)
+        
+        def in_tf(method):
+            rows = method[0] 
+            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, x.reshape(x.size(0),x.size(1),rows))#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+                
+        def out_tf(eigen,a):
+            out = torch.einsum('sl,btl->bts',eigen, a)
+            return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey)
+            
+        
         self.latent_dims = latent_dims
-        self.input_transform = lambda x: torch.cat([data[v]['input_transform'](data[v]['eigenvectors'],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: torch.stack([data[v]['input_transform'](data[v]['eigenvectors'],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
-        self.output_transform = lambda a: torch.stack([data[v]['output_transform'](data[v]['eigenvectors'],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: torch.stack([data[v]['output_transform'](data[v]['eigenvectors'],a[:,:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=2)
+        # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
+        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
+        # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
+        self.batched_output_transform = lambda a: torch.stack([out_tf(data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1]]) for v in range(self.n_var)],dim=2)

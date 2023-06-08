@@ -1,6 +1,7 @@
 import os, importlib, numpy as np, subprocess, sys
 # change these params
 training=True
+max_iterations = 100000
 train = ['PDE_1b0ed7df-0651-4f9a-85a5-4c6a6b534898','PDE_55fbd98b-cd2f-4045-ab3f-3af6ddae531b',
          'PDE_14a60c9a-6f59-43cc-9519-c45bd8720cc2','PDE_ccfa2cb4-6622-4a57-9b02-68bb00696a4c',
          'PDE_b6893217-e82f-4ef1-8dfd-5531a19f7522','PDE_fcd3a352-00a1-4a8f-b3ee-c79846497236']
@@ -8,14 +9,17 @@ valid = ['PDE_063698fc-15d0-43d2-9098-8da521dd6b4c',]
 pretrain_name=None #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=False
 ###############################################
-model_name = 'BERT' # [BERT, predrnn_v2]
+model_name = 'TF' # [TF, predrnn_v2]
 model_config = \
     {
-        'BERT':{
-            'n_layers': 6, # number of layers in the transformer
+        'TF':{
+            'n_encoder_layers': 8, # number of layers in the encoder
+            'n_decoder_layers': 8, # number of layers in the decoder
             'n_head': 8, # number of heads in the transformer
             'n_embd': 512, # number of hidden units in the transformer
+            'n_ffn_embd': 2048, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
+            'dropout_pos_enc': 0.05, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions (None uses default for FFN RELU)
             'activation': 'relu', # activation function
         },
@@ -24,11 +28,14 @@ model_config = \
     }
 model_config_toy = \
     {
-        'BERT':{
-            'n_layers': 6, # number of layers in the transformer
-            'n_head': 2, # number of heads in the transformer
-            'n_embd': 8, # number of hidden units in the transformer
-            'dropout': 0.0, # dropout rate
+        'TF':{
+            'n_encoder_layers': 3, # number of layers in the encoder
+            'n_decoder_layers': 3, # number of layers in the decoder
+            'n_head': 8, # number of heads in the transformer
+            'n_embd': 320, # number of hidden units in the transformer
+            'n_ffn_embd': 1000, # number of hidden units in the FFN
+            'dropout': 0.05, # dropout rate
+            'dropout_pos_enc': 0.05, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
         },
@@ -41,9 +48,9 @@ preprocessor_name = 'POD' # [raw, POD]
 preprocessor_config = \
     {
         'POD':{
-            'eigenvector': lambda var: f'POD_eigenvector_{var}.npy', # place to store precomputed eigenvectors in the data directory
+            'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': True, # whether to compute eigenvectors or not
+            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
         },
@@ -57,8 +64,8 @@ userparam=importlib.import_module(f'user.{user}_param')
 if userparam.param['WSL']:
     os.environ['LD_LIBRARY_PATH'] = '/usr/lib/wsl/lib'
 
-datadir = userparam.param['data_dir']
-checkpoint_dir = userparam.param['model_dir']
+datadir = os.path.abspath(userparam.param['data_dir'])
+checkpoint_dir = f"{userparam.param['model_dir']}/{model_name}"
 os.makedirs(checkpoint_dir, exist_ok=True)
 
 train_data_paths = ','.join([f"{datadir}/{tr}/data.npz" for tr in train])
@@ -169,7 +176,7 @@ cmdargs = f"--is_training {train_int} \
 --lr {lr} \
 --batch_size {batch} \
 --test_batch_size {test_batch} \
---max_iterations 20000 \
+--max_iterations {max_iterations} \
 --display_interval 1000 \
 --test_interval 10 \
 --snapshot_interval 2000 \
@@ -182,19 +189,20 @@ parser = run2.make_parser()
 args = parser.parse_args(cmdargs.split())
 if preprocessor_name != 'raw':
     preprocessor_args = preprocessor_config[preprocessor_name]
-    preprocessor_args['data_dir'] = datadir
-    preprocessor_args['train_data_paths'] = train_data_paths
-    preprocessor_args['valid_data_paths'] = valid_data_paths
+    preprocessor_args['datadir'] = datadir
+    preprocessor_args['train_data_paths'] = train_data_paths.split(',')
+    preprocessor_args['valid_data_paths'] = valid_data_paths.split(',')
     preprocessor_args['n_var'] = img_channel
     preprocessor_args['shapex'] = shp[1]
     preprocessor_args['shapey'] = shp[2]
     args.preprocessor = \
         importlib.import_module(f'core.preprocessors.{preprocessor_name}') \
         .Preprocessor(preprocessor_args)
+args.preprocessor_name = preprocessor_name
 if model_name != 'predrnn_v2':
     if weather_prediction:
         model_args = model_config[model_name]
     else:
         model_args = model_config_toy[model_name]
-    args.model = model_args
+    args.model_args = model_args
 run2.main(args)

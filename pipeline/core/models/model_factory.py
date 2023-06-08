@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, trphysx_tf
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF
 import wandb
 import gc
 
@@ -16,7 +16,7 @@ class Model(object):
             'predrnn_v2': predrnn_v2.RNN,
             'action_cond_predrnn': action_cond_predrnn.RNN,
             'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
-            'POD_TF': trphysx_tf.POD,
+            'TF': TF.TF,
         }
 
         if configs.model_name in networks_map:
@@ -37,7 +37,7 @@ class Model(object):
         wandb.config.opt = self.configs.opt
         wandb.config.lr = self.configs.lr
         wandb.config.batch_size = 1
-
+        wandb.config.preprocessor = self.configs.preprocessor_name
 
     def save(self, itr):
         stats = {}
