@@ -54,10 +54,6 @@ class BaseModel(nn.Module):
     def core_forward(self, seq_in, istrain):
         """This method should contain the actual forward pass of your model. Runs on each timestep in the forward() loop"""
         abstractmethod(__name__)
-        loss_pred = torch.tensor(0.0)
-        decouple_loss = torch.tensor(0.0)
-        seq_out = seq_in
-        return loss_pred, decouple_loss, seq_out
 
         
     def forward(self, frames_tensor, mask_true=None, istrain=True):

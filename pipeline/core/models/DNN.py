@@ -8,6 +8,7 @@ class DNN(BaseModel):
     
     def __init__(self, num_layers, num_hidden, configs):
         super(DNN, self).__init__(num_layers, num_hidden, configs)
+        # torch.autograd.set_detect_anomaly(True)
         self.preprocessor = configs.preprocessor
         self.model_args = configs.model_args
         assert self.preprocessor is not None, "Preprocessor is None, please check config! Cannot operate on raw data."
@@ -51,8 +52,9 @@ class DNN(BaseModel):
         #                  initialization=self.model_args['initialization'],
         #                  activation=self.model_args['activation'])
         
+        nlayers = len(self.layers)
         for i,layer in enumerate(self.layers):
-            self.init_FFN_weights(layer, layer_num=i)
+            self.init_FFN_weights(layer, layer_num=i, nlayers=nlayers)
         
     def edit_config(self,configs):
         if configs.patch_size != 1:
@@ -61,18 +63,22 @@ class DNN(BaseModel):
         return configs
     
             
-    def init_FFN_weights(self,tf_encoder_layer, layer_num=0):
+    def init_FFN_weights(self,tf_encoder_layer, layer_num=0, nlayers=3):
         # initialize the weights of the feed-forward network (assuming RELU)
         # TODO need to add option if using sine activation
         fan_in = self.z[layer_num]
+        fan_out = self.z[layer_num+1]
         if self.initialization not in [None,[]]:
             self.initialization(tf_encoder_layer.weight, layer_num)
+            nn.init.zeros_(tf_encoder_layer.bias)
+            return
         elif layer_num == 0:
-            initrange = 3* math.sqrt(1 / fan_in)
-            nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
-        else:
             initrange = math.sqrt(3 / fan_in)
-            nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
+        # elif layer_num == nlayers-1:
+        #     initrange = math.sqrt(1 / fan_in)
+        else:
+            initrange = math.sqrt(6 / (fan_in + fan_out)) # GLOROT for ReLU
+        nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
         nn.init.zeros_(tf_encoder_layer.bias)
         
     def core_forward(self, seq_total, istrain=True):
@@ -88,15 +94,18 @@ class DNN(BaseModel):
         predicted = []
         last_predicted_value = test[:,inl,:].unsqueeze(1)
         
+        
         for i in range(self.predict_length):
 
             # Make prediction
-            x = last_predicted_value.detach()
+            x0 = last_predicted_value.detach().requires_grad_(True)
+            x= x0
             for i,layer in enumerate(self.layers):
                 y = layer(x)
                 if i < len(self.layers)-1:
                     x = self.act[i](y)
-                    
+            y = y + x0 # residual connection, 
+       
             last_predicted_value = y
 
             # print(f"last_predicted_value shape: {last_predicted_value.size()}")
@@ -107,6 +116,11 @@ class DNN(BaseModel):
             # print(f"tgt shape: {tgt.size()}")
             
             tc = test[:,inl+i+1,:].unsqueeze(1)            
+            
+            # loss_Test = torch.nn.functional.mse_loss(last_predicted_value[2], tc[2]) # loss on batch 2
+            # loss_Test.backward()
+            # assert x0.grad[0].abs().sum().item() == 0, "Gradient for incorrect loss should be zero"
+            
             loss_pred += torch.nn.functional.mse_loss(last_predicted_value, tc)
             
             predicted.append(last_predicted_value)

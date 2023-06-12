@@ -106,10 +106,10 @@ class TF(BaseModel):
             # print(f"tgt shape: {tgt.size()}")
             if istrain:
                 # teacher forcing
-                tgt = torch.cat((tgt, test[:,inl+i+1,:].unsqueeze(1)), 1)
+                tgt = torch.cat((tgt, test[:,inl+i+1,:].unsqueeze(1).requires_grad_(True)), 1)
             else:
                 # self-generated reasoning chain
-                tgt = torch.cat((tgt, last_predicted_value.detach()), 1)
+                tgt = torch.cat((tgt, last_predicted_value.detach().requires_grad_(True)), 1)
         
         # print("OUTPUTSIZE", outpt.size())
 
@@ -118,7 +118,7 @@ class TF(BaseModel):
         # loss_pred = torch.nn.functional.mse_loss(out[:,self.configs.input_length:], seq_total[:,self.configs.input_length:])
         loss_decouple = torch.tensor(0.0)
 
-        return loss_pred, loss_decouple, out
+        return loss_pred, loss_decouple, torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
 
     
         
@@ -354,7 +354,7 @@ class TimeSeriesTransformer(nn.Module):
             self.initialization(tf_encoder_layer.linear1.weight, layer_num)
             self.initialization(tf_encoder_layer.linear2.weight, layer_num)
         else:
-            initrange = math.sqrt(3 / self.ninp)
+            initrange = math.sqrt(3 / (self.dim_val)) # GLOROT for ReLU
             nn.init.uniform_(tf_encoder_layer.linear1.weight, -initrange, initrange)
             nn.init.uniform_(tf_encoder_layer.linear2.weight, -initrange, initrange)
         nn.init.zeros_(tf_encoder_layer.linear1.bias)

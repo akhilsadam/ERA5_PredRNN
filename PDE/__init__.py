@@ -1,6 +1,8 @@
-import numpy
+import numpy as np
 from matplotlib import pyplot as plt
 import pde
+from numpy.random import default_rng
+rng = default_rng()
 
 def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     if logger is None:
@@ -23,7 +25,16 @@ def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     logger.info('Generating data...')
 
     grid = pde.UnitGrid(gshape, periodic=[True, True]) # generate grid
-    state = pde.ScalarField.random_uniform(grid)  # generate initial condition
+    
+    a = rng.standard_normal(gshape)
+    kernel = np.array([1.0,2.0,1.0]) # Here you would insert your actual kernel of any size
+    a = np.apply_along_axis(lambda x: np.convolve(x, kernel, mode='same'), 0, a)
+    a = np.apply_along_axis(lambda x: np.convolve(x, kernel, mode='same'), 1, a)
+    a = np.where(a > 0, 1.0, -1.0)
+    a *= 0.5
+    a += rng.standard_normal(gshape) * 0.1
+    
+    state = pde.ScalarField(grid,data=a)  # generate initial condition
 
     # # set boundary conditions `bc` for all axes
     # bc_x_left = "periodic" #{"value": "-0.1*sin(y / 2)"}
@@ -33,12 +44,14 @@ def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     # bc_x = [bc_x_left, bc_x_right]
     # bc_y =  [bc_y_left, bc_y_right]# "auto_periodic_neumann" #
     bc_x = "periodic"
-    bc_y = "anti-periodic"
+    bc_y = "periodic" # anti-periodic is nice, but not related to meteorology
     bc=[bc_x, bc_y]
 
 
     # eq = pde.DiffusionPDE(diffusivity=0.1) 
-    eq = pde.PDE({'c': '0.25*(laplace(c**3 - c - laplace(c)) + 0.25*d_dy(c) + 0.05*d_dx(c))'}, bc=bc)
+    # eq = pde.PDE({'c': '0.25*(laplace(c**3 - c - laplace(c)) + 0.25*d_dy(c) + 0.05*d_dx(c))'}, bc=bc)
+    
+    eq = pde.PDE({"c": "0.1*(laplace(c) - 0.1*d_dx(c*x))"}, bc=bc)  # diffusion equation with velocity field (0.1*x,0)
     # eq = pde.PDE({"u": "-gradient_squared(u) / 2 - laplace(u + laplace(u))"}, bc=bc) # define the pde
     storage = pde.MemoryStorage()
 
@@ -48,7 +61,7 @@ def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     pde.movie(storage, f'{data_path}/movie.mp4') # create a movie
     ############################################## Make data
     logger.info('Making data...')
-    data = numpy.zeros(data_shape)
+    data = np.zeros(data_shape)
     for i, (time, field) in enumerate(storage.items()):
         data[i,0,:,:] = field.data
     return data

@@ -5,7 +5,7 @@ import os, sys
 import param, normalize
 
 
-def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, input_length=20, total_length=40):
+def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, input_length=20, total_length=40, **kwargs):
     if logger is None:
         import logging
         logger = logging.getLogger()

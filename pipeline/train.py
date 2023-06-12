@@ -1,15 +1,16 @@
-import os, importlib, numpy as np, subprocess, sys
+import os, importlib, numpy as np, subprocess, sys, logging
+logger = logging.getLogger(__name__)
 # change these params
-training=True
+training=False
 max_iterations = 100000
-train = ['PDE_1b0ed7df-0651-4f9a-85a5-4c6a6b534898','PDE_55fbd98b-cd2f-4045-ab3f-3af6ddae531b',
-         'PDE_14a60c9a-6f59-43cc-9519-c45bd8720cc2','PDE_ccfa2cb4-6622-4a57-9b02-68bb00696a4c',
-         'PDE_b6893217-e82f-4ef1-8dfd-5531a19f7522','PDE_fcd3a352-00a1-4a8f-b3ee-c79846497236']
-valid = ['PDE_063698fc-15d0-43d2-9098-8da521dd6b4c',]
-pretrain_name=None #'model_best_mse.ckpt' # None if no pretrained model
-save_test_output=False
+pretrain_name='model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+save_test_output=True # save test output to file
+weather_prediction=False # use PDE_* data or CDS_* data
+n_valid = 1 # number of validation datasets to use
 ###############################################
-model_name = 'DNN' # [DNN,TF, predrnn_v2]
+from torch.optim import ASGD, Adam
+###############################################
+model_name = 'TF' # [DNN,TF, predrnn_v2]
 model_config = \
     {
         'TF':{
@@ -22,12 +23,14 @@ model_config = \
             'dropout_pos_enc': 0.05, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions (None uses default for FFN RELU)
             'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=y) # [None, Adam, ASGD,...]'
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
         'DNN':{
             'hidden': [], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=y) # [None, Adam, ASGD,...]'
         },
 
     }
@@ -43,23 +46,25 @@ model_config_toy = \
             'dropout_pos_enc': 0.00, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
         'DNN':{
-            'hidden': [320,320,320], # number of hidden units for all layers in sequence
+            'hidden': [320], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
         },
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
-preprocessor_name = 'POD' # [raw, control, POD]
+preprocessor_name = 'control' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
 preprocessor_config = \
     {
         'POD':{
             'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
         },
@@ -79,6 +84,19 @@ datadir = os.path.abspath(userparam.param['data_dir'])
 checkpoint_dir = f"{userparam.param['model_dir']}/{model_name}/{preprocessor_name}/"
 os.makedirs(checkpoint_dir, exist_ok=True)
 
+data_key = 'PDE' if not weather_prediction else 'CDS'
+###############################################
+datasets = [
+    i
+    for i in os.listdir(datadir)
+    if not os.path.isfile(os.path.join(datadir, i)) and data_key in i
+]
+logger.info(f'Found {len(datasets)} datasets: {datasets}')
+assert len(datasets) > n_valid, logger.critical('Insufficient number of datasets found (cannot train)')
+datasets.sort()
+train = datasets[:-n_valid]
+valid = datasets[-n_valid:]
+###############################################
 train_data_paths = ','.join([f"{datadir}/{tr}/data.npz" for tr in train])
 valid_data_paths = ','.join([f"{datadir}/{vd}/data.npz" for vd in valid])
 test_path = f"{datadir}/test_{valid[0]}/"
@@ -87,8 +105,6 @@ dat = np.load(f"{datadir}/{train[0]}/data.npz")
 shp = dat['dims'][0]
 l = dat['input_raw_data'].shape[0]
 param = importlib.import_module('param',f"{datadir}/{train[0]}")
-
-weather_prediction = 'year' in param.data
 
 if weather_prediction:
 
@@ -100,8 +116,7 @@ if weather_prediction:
     patch_size = '40'
     num_hidden = '480,480,480,480,480,480'
     lr = '1e-4'
-    rss='1'
-    test_iterations = 1; # number of test iterations to run
+    rss='1'; # number of test iterations to run
 else:
     img_channel = 1 # we only have one channel for PDE data
     img_layers = '0'
@@ -112,24 +127,23 @@ else:
     num_hidden = '8,8,8,8,8,8' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
     # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
     lr = '1e-3' # learning rate
-    rss = '0' # reverse scheduled sampling - turning it off for now
-    test_iterations = 1; # number of test iterations to run
+    rss = '0' # reverse scheduled sampling - turning it off for now; # number of test iterations to run
 
+test_iterations = 1
 if training:
     save = f"--save_dir {checkpoint_dir}"
     concurrency = f'--save_dir {checkpoint_dir}'
     train_int = '1'
-    batch = '3'
     test_batch = '9'
-    test_iterations = 1; # number of test iterations to run
+    test_iterations = 100; # number of test iterations to run
 else:
     save = ''
     concurrency = '--concurent_step 1' # not sure what this does - seems to step and update tensors at the same time (unsure if this works given comment)
     train_int = '0'
-    batch = '3'
     test_batch = '3'
-    test_iterations = 100; # number of test iterations to run
+    test_iterations = 200; # number of test iterations to run
 
+batch = '3'
 if pretrain_name is None:
     pretrained = ''
 else:
@@ -190,7 +204,7 @@ cmdargs = f"--is_training {train_int} \
 --max_iterations {max_iterations} \
 --display_interval 1000 \
 --test_interval 10 \
---snapshot_interval 2000 \
+--snapshot_interval 500 \
 --conv_on_input 0 \
 --res_on_conv 0 \
 --curr_best_mse 0.03 \
@@ -216,4 +230,5 @@ if model_name != 'predrnn_v2':
     else:
         model_args = model_config_toy[model_name]
     args.model_args = model_args
+args.optim_lm = model_args['optimizer']
 run2.main(args)

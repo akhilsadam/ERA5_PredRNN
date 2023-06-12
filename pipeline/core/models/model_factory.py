@@ -28,7 +28,7 @@ class Model(object):
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
         
-        if 'predrnn' not in configs.model_name and 'pretrained_model' not in configs.__dict__:
+        if 'predrnn' not in configs.model_name :#and 'pretrained_model' not in configs.__dict__:
             try:
                 self.modelvis()
             except Exception as e:
@@ -44,7 +44,8 @@ class Model(object):
                 print("Stack trace : %s" %stack_trace)
                 
 
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr=configs.lr)
+        self.optimizer = configs.optim_lm(self.network.parameters(), configs.lr) \
+            if configs.optim_lm is not None else Adam(self.network.parameters(), lr=configs.lr)
         if self.configs.upload_run:
             self.upload_wandb()
     
