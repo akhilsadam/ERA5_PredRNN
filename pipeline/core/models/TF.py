@@ -300,13 +300,20 @@ class TimeSeriesTransformer(nn.Module):
             in_features=dim_val, 
             out_features=num_predicted_features
             )
+        
+        initrange = math.sqrt(3 / (input_size)) # GLOROT for ReLU
+        nn.init.uniform_(self.encoder_input_layer.weight, -initrange, initrange)
+        nn.init.uniform_(self.decoder_input_layer.weight, -initrange, initrange)
+        initrange = math.sqrt(6 / (dim_val + num_predicted_features)) # GLOROT for ReLU
+        nn.init.uniform_(self.linear_mapping.weight, -initrange, initrange)
+
 
         # Create positional encoder
         self.positional_encoding_layer = PositionalEncoding(
             d_model=dim_val,
             dropout=dropout_pos_enc
             )
-
+ 
         # The encoder layer used in the paper is identical to the one used by
         # Vaswani et al (2017) on which the PyTorch module is based.
         encoder_layer = nn.TransformerEncoderLayer(

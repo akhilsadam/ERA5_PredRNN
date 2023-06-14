@@ -1,16 +1,16 @@
 import os, importlib, numpy as np, subprocess, sys, logging
 logger = logging.getLogger(__name__)
 # change these params
-training=False
+training=True #False
 max_iterations = 100000
-pretrain_name='model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+pretrain_name=None #'model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=True # save test output to file
 weather_prediction=False # use PDE_* data or CDS_* data
 n_valid = 1 # number of validation datasets to use
 ###############################################
 from torch.optim import ASGD, Adam
 ###############################################
-model_name = 'TF' # [DNN,TF, predrnn_v2]
+model_name = 'TF' # [adaptDNN,DNN,TF, predrnn_v2]
 model_config = \
     {
         'TF':{
@@ -51,6 +51,12 @@ model_config_toy = \
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
         'DNN':{
             'hidden': [320], # number of hidden units for all layers in sequence
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+        },
+        'adaptDNN':{
+            'hidden': [], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN
 from torchview import draw_graph
 import traceback, sys
 import wandb
@@ -20,6 +20,7 @@ class Model(object):
             'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
             'TF': TF.TF,
             'DNN': DNN.DNN,
+            'adaptDNN': adaptDNN.adaptDNN,
         }
 
         if configs.model_name in networks_map:
