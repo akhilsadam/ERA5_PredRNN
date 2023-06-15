@@ -1,16 +1,16 @@
 import os, importlib, numpy as np, subprocess, sys, logging
 logger = logging.getLogger(__name__)
 # change these params
-training=False #True
+training=False
 max_iterations = 5025
-pretrain_name='model_5000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+pretrain_name='model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=True # save test output to file
 weather_prediction=False # use PDE_* data or CDS_* data
 n_valid = 1 # number of validation datasets to use
 ###############################################
 from torch.optim import ASGD, Adam
 ###############################################
-model_name = 'TF' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
+model_name = 'reZeroTF' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
 model_config = \
     {
         'TF':{

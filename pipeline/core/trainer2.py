@@ -54,7 +54,7 @@ def test(model, test_input_handle, configs, itr):
     test_ims_ALL = []
     img_out_ALL = []
     avg_mse = 0
-    for _ in range(configs.test_iterations):
+    for i in range(configs.test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
             
@@ -75,7 +75,7 @@ def test(model, test_input_handle, configs, itr):
 
         except Exception as e:
             break
-    avg_mse /= configs.test_iterations
+    avg_mse /= (i+1)
 
 
     # real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)
