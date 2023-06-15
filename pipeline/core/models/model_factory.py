@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN, BERT, rBERT, RZTX
 from torchview import draw_graph
 import traceback, sys
 import wandb
@@ -21,11 +21,15 @@ class Model(object):
             'TF': TF.TF,
             'DNN': DNN.DNN,
             'adaptDNN': adaptDNN.adaptDNN,
+            'BERT': BERT.BERT,
+            'rBERT': rBERT.rBERT,
+            'reZeroTF': RZTX.RZTX,
         }
+    
 
         if configs.model_name in networks_map:
-            Network = networks_map[configs.model_name]
-            self.network = Network(self.num_layers, self.num_hidden, configs).to(self.configs.device)
+            self.network_handle = networks_map[configs.model_name]
+            self.init_net()
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
         
@@ -50,10 +54,14 @@ class Model(object):
         if self.configs.upload_run:
             self.upload_wandb()
     
+    def init_net(self):                
+        self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs).to(self.configs.device)
+
     def modelvis(self):
         draw_graph(self.network, input_size= \
             (self.configs.batch_size,self.configs.total_length, \
             self.configs.img_channel,self.configs.img_height,self.configs.img_width), expand_nested=False, roll=True, save_graph=True, filename=self.configs.model_name, directory=self.configs.save_dir)  
+        self.init_net()
         # model_graph.visual_graph.render(format='svg')
     
     def upload_wandb(self):
@@ -92,8 +100,16 @@ class Model(object):
         loss.backward()
         self.optimizer.step()
         if self.configs.upload_run:
-            wandb.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
-        return loss.detach().cpu().numpy()
+            try:
+                wandb.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
+            except Exception as e:
+                print (f"Could not log to wandb: {e}")
+        try:
+            nploss = loss.detach().cpu().numpy()
+        except Exception as e:
+            nploss = 0.0
+            print (f"Could not convert loss to numpy: {e}")
+        return nploss
 
     def test(self, frames_tensor, mask_tensor):
         input_length = self.configs.input_length

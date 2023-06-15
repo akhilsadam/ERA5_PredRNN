@@ -1,16 +1,16 @@
 import os, importlib, numpy as np, subprocess, sys, logging
 logger = logging.getLogger(__name__)
 # change these params
-training=True #False
-max_iterations = 100000
-pretrain_name=None #'model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+training=False #True
+max_iterations = 5025
+pretrain_name='model_5000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=True # save test output to file
 weather_prediction=False # use PDE_* data or CDS_* data
 n_valid = 1 # number of validation datasets to use
 ###############################################
 from torch.optim import ASGD, Adam
 ###############################################
-model_name = 'TF' # [adaptDNN,DNN,TF, predrnn_v2]
+model_name = 'TF' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
 model_config = \
     {
         'TF':{
@@ -37,16 +37,39 @@ model_config = \
 model_config_toy = \
     {
         'TF':{
-            'n_encoder_layers': 8, # number of layers in the encoder
-            'n_decoder_layers': 8, # number of layers in the decoder
-            'n_head': 8, # number of heads in the transformer
-            'n_embd': 320, # number of hidden units in the transformer
-            'n_ffn_embd': 1000, # number of hidden units in the FFN
-            'dropout': 0.00, # dropout rate
-            'dropout_pos_enc': 0.00, # dropout rate for positional encoding
+            'n_encoder_layers': 2, # number of layers in the encoder
+            'n_decoder_layers': 2, # number of layers in the decoder
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 32, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.05, # dropout rate
+            'dropout_pos_enc': 0.05, # dropout rate for positional encoding
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+        },
+        'BERT':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 17, # batch size
+        },
+        'rBERT':{
+            'n_layers': 2, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 200, # number of hidden units in the transformer
+            'n_ffn_embd': 200, # number of hidden units in the FFN
+            'dropout': 0.01, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 9, # batch size
+            'nstep': 8,
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
         'DNN':{
@@ -56,11 +79,23 @@ model_config_toy = \
             'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
         },
         'adaptDNN':{
-            'hidden': [], # number of hidden units for all layers in sequence
+            'hidden': [320], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
         },
+        'reZeroTF':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 9, # batch size
+        },
+        
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
@@ -236,5 +271,7 @@ if model_name != 'predrnn_v2':
     else:
         model_args = model_config_toy[model_name]
     args.model_args = model_args
-args.optim_lm = model_args['optimizer']
+    args.optim_lm = model_args['optimizer']
+    args.batch_size = model_args['batch_size'] if 'batch_size' in model_args else args.batch_size
+args.weather_prediction = weather_prediction
 run2.main(args)

@@ -321,6 +321,9 @@ class run2:
         lat = (lat[1:] + lat[:-1])*0.5
         cos_lat = torch.reshape(torch.cos(lat), (-1,1))
         args.area_weight = (cos_lat*720/torch.sum(cos_lat)).to(args.device)
+        
+        if not args.weather_prediction:
+            args.area_weight = torch.ones_like(args.area_weight).to(args.device)
 
         save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
         args.save_file = '_'.join(save_file)
