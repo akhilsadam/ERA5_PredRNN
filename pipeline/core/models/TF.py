@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn as nn
 from core.models.model_base import BaseModel
+from core.loss import loss_mixed
 
 class TF(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
@@ -58,7 +59,7 @@ class TF(BaseModel):
         inl = self.configs.input_length
         test = self.preprocessor.batched_input_transform(seq_total)
         inpt = test[:,:inl,:]
-        loss_pred = 0.0
+        # loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
             
@@ -102,7 +103,7 @@ class TF(BaseModel):
             # Detach the predicted element from the graph and concatenate with 
             # tgt in dimension 1 or 0
             
-            loss_pred += torch.nn.functional.mse_loss(last_predicted_value, test[:,inl+i,:].unsqueeze(1))
+            # loss_pred += torch.nn.functional.mse_loss(last_predicted_value, test[:,inl+i,:].unsqueeze(1))
             # print(f"tgt shape: {tgt.size()}")
             if istrain:
                 # teacher forcing
@@ -117,8 +118,11 @@ class TF(BaseModel):
             
         # loss_pred = torch.nn.functional.mse_loss(out[:,self.configs.input_length:], seq_total[:,self.configs.input_length:])
         loss_decouple = torch.tensor(0.0)
+        out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
+        
+        loss_pred = loss_mixed(out, seq_total, self.input_length)
 
-        return loss_pred, loss_decouple, torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
+        return loss_pred, loss_decouple, out
 
     
         

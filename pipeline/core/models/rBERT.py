@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn as nn
 from core.models.model_base import BaseModel
+from core.loss import loss_mixed
 
 class rBERT(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
@@ -57,7 +58,7 @@ class rBERT(BaseModel):
         
         out = self.preprocessor.batched_output_transform(outpt)
             
-        loss_pred = torch.nn.functional.mse_loss(out[:,self.input_length:,:], seq_total[:,self.input_length:,:])
+        loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
         return loss_pred, loss_decouple, out
 

@@ -33,7 +33,7 @@ class Model(object):
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
         
-        if 'predrnn' not in configs.model_name :#and 'pretrained_model' not in configs.__dict__:
+        if 'predrnn' not in configs.model_name and configs.is_training :#and 'pretrained_model' not in configs.__dict__:
             try:
                 self.modelvis()
             except Exception as e:
@@ -87,6 +87,7 @@ class Model(object):
     def load(self, checkpoint_path):
         print('load model:', checkpoint_path)
         stats = torch.load(checkpoint_path, map_location=torch.device(self.configs.device))
+        # print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
         self.network.load_state_dict(stats['net_param'])
 
     def train(self, frames, mask, istrain=True):

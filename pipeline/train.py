@@ -1,16 +1,16 @@
 import os, importlib, numpy as np, subprocess, sys, logging
 logger = logging.getLogger(__name__)
 # change these params
-training=False
-max_iterations = 5025
-pretrain_name='model_500.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+training=True #False # train or test
+max_iterations = 3025
+pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
 save_test_output=True # save test output to file
 weather_prediction=False # use PDE_* data or CDS_* data
 n_valid = 1 # number of validation datasets to use
 ###############################################
 from torch.optim import ASGD, Adam
 ###############################################
-model_name = 'reZeroTF' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
+model_name = 'TF' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
 model_config = \
     {
         'TF':{
@@ -35,7 +35,7 @@ model_config = \
 
     }
 model_config_toy = \
-    {
+    {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
         'TF':{
             'n_encoder_layers': 2, # number of layers in the encoder
             'n_decoder_layers': 2, # number of layers in the decoder
@@ -57,14 +57,14 @@ model_config_toy = \
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
-            'batch_size': 17, # batch size
+            'batch_size': 9, # batch size
         },
         'rBERT':{
-            'n_layers': 2, # number of layers in the transformer
+            'n_layers': 6, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
-            'n_embd': 200, # number of hidden units in the transformer
-            'n_ffn_embd': 200, # number of hidden units in the FFN
-            'dropout': 0.01, # dropout rate
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
@@ -79,10 +79,11 @@ model_config_toy = \
             'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
         },
         'adaptDNN':{
-            'hidden': [320], # number of hidden units for all layers in sequence
+            'hidden': [], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
-            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'nstep': 8,
         },
         'reZeroTF':{
             'n_layers': 6, # number of layers in the transformer
@@ -99,7 +100,7 @@ model_config_toy = \
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
-preprocessor_name = 'control' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
+preprocessor_name = 'POD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
 preprocessor_config = \
     {
         'POD':{
@@ -179,9 +180,9 @@ if training:
     test_iterations = 100; # number of test iterations to run
 else:
     save = ''
-    concurrency = '--concurent_step 1' # not sure what this does - seems to step and update tensors at the same time (unsure if this works given comment)
+    concurrency = '--concurent_step 1' # not sure what this does - keep it off for now
     train_int = '0'
-    test_batch = '3'
+    test_batch = '9'
     test_iterations = 200; # number of test iterations to run
 
 batch = '3'

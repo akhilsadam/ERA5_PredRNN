@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn as nn
 from core.models.model_base import BaseModel
+from core.loss import loss_mixed
 
 class adaptDNN(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
@@ -17,6 +18,8 @@ class adaptDNN(BaseModel):
         assert configs.input_length > 0, "Model requires input_length"
         assert configs.total_length > configs.input_length, "Model requires total_length"
         
+        self.steps = self.model_args['nstep'] if 'nstep' in self.model_args else 1
+        
         # transformer
         # B S E: batch, sequence, embedding (latent)
         self.preprocessor.load(device=configs.device)
@@ -30,7 +33,8 @@ class adaptDNN(BaseModel):
         self.z = self.model_args['hidden']
         self.z.insert(0, self.preprocessor.latent_dims[-1])
         self.z.append(self.preprocessor.latent_dims[-1])
-        self.channels = self.preprocessor.latent_dims[-1]
+        self.latent = self.preprocessor.latent_dims[-1]
+        self.channels = 1
         
         self.layers = torch.nn.ModuleList([
             torch.nn.Linear(
@@ -57,11 +61,17 @@ class adaptDNN(BaseModel):
         for i,layer in enumerate(self.layers):
             self.init_FFN_weights(layer, layer_num=i, nlayers=nlayers)
             
-        self.grad_filter = nn.Conv1d(self.channels, self.channels, kernel_size=3, stride=1, padding=1, bias=False, padding_mode='circular')
-        weights = torch.tensor([0.5, 0., -0.5])
-        weights = weights.view(3, 1, 1).repeat(1, 1, self.channels)
-        with torch.no_grad():
-            self.grad_filter.weight = nn.Parameter(weights)
+        # self.grad_filter = nn.Conv1d(self.channels, self.channels, kernel_size=3, stride=1, padding=1, bias=False, padding_mode='circular')
+        # weights = torch.tensor([0.5, 0., -0.5])
+        # weights = weights.view(1, 1, 3).repeat(self.channels, self.channels,1)
+        # with torch.no_grad():
+        #     self.grad_filter.weight = nn.Parameter(weights)
+            
+        self.grad_filter = nn.Linear(self.latent, self.latent, bias=False)
+        initrange = math.sqrt(3/self.latent)
+        nn.init.uniform_(self.grad_filter.weight, -initrange, initrange)
+        
+        self.resweight = nn.Parameter(torch.zeros(self.steps).to(self.device))
             
     def edit_config(self,configs):
         if configs.patch_size != 1:
@@ -69,7 +79,9 @@ class adaptDNN(BaseModel):
             configs.patch_size = 1
         return configs
     
-            
+    #https://openreview.net/forum?id=qpeAhwxTopw     
+    #https://openreview.net/pdf?id=qpeAhwxTopw
+    #https://arxiv.org/pdf/2110.12661.pdf
     def init_FFN_weights(self,tf_encoder_layer, layer_num=0, nlayers=3):
         # initialize the weights of the feed-forward network (assuming RELU)
         # TODO need to add option if using sine activation
@@ -80,12 +92,11 @@ class adaptDNN(BaseModel):
             nn.init.zeros_(tf_encoder_layer.bias)
             return
         elif layer_num == 0:
-            initrange = math.sqrt(3 / fan_in)
-        # elif layer_num == nlayers-1:
-        #     initrange = math.sqrt(1 / fan_in)
+            initrange = 0.0 #math.sqrt(3 / fan_in)
+            nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
         else:
             initrange = math.sqrt(6 / (fan_in + fan_out)) # GLOROT for ReLU
-        nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
+            nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
         nn.init.zeros_(tf_encoder_layer.bias)
         
     def get_cfl(self, a,b):
@@ -97,7 +108,7 @@ class adaptDNN(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         inl = self.configs.input_length - 1
         test = self.preprocessor.batched_input_transform(seq_total)
-        loss_pred = 0.0
+        # loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
             
@@ -107,28 +118,34 @@ class adaptDNN(BaseModel):
         predicted = []
         last_predicted_value = test[:,inl,:].unsqueeze(1)
         
-        cfls = []
+        # cfls = []
         # get CFL estimate:
-        cfl = self.get_cfl(test[:,inl-1,:].unsqueeze(1),last_predicted_value).item()
-        cmax = 0.5
+        # cfl = self.cfl #self.get_cfl(test[:,inl-1,:].unsqueeze(1),last_predicted_value).item()
+        # cmax = 0.9
         
         for i in range(self.predict_length):
 
             # Make prediction
             x0 = last_predicted_value.detach().requires_grad_(True)
             
-            cflit = int(cfl / cmax + 0.5)
+            # cflit = int(cfl / cmax + 0.5)
             
-            for j in range(cflit):
+            for j in range(self.steps):
                 x = x0
                 for i,layer in enumerate(self.layers):
                     y = layer(x)
                     if i < len(self.layers)-1:
                         x = self.act[i](y)
-                x0 += y * cmax * self.grad_filter(x0) # residual connection, 
+                    
+                y2 = y + 1.0
+                        
+                grad = self.grad_filter(x0)
+                # print(f"grad: {grad.size()}")
+                x2 = x0 + self.resweight[j] * y2 * grad / self.steps # residual connection, 
+                x0 = x2
 
-            cfl = self.get_cfl(last_predicted_value,x0).item()
-            cfls.append(cfl)
+            # cfl = self.get_cfl(last_predicted_value,x0).item()
+            # cfls.append(cfl)
        
             last_predicted_value = x0
 
@@ -145,7 +162,7 @@ class adaptDNN(BaseModel):
             # loss_Test.backward()
             # assert x0.grad[0].abs().sum().item() == 0, "Gradient for incorrect loss should be zero"
             
-            loss_pred += torch.nn.functional.mse_loss(last_predicted_value, tc)
+            # loss_pred += torch.nn.functional.mse_loss(last_predicted_value, tc)
             
             predicted.append(last_predicted_value)
             
@@ -157,10 +174,14 @@ class adaptDNN(BaseModel):
 
         out = self.preprocessor.batched_output_transform(torch.cat(predicted,dim=1))
             
-        loss_decouple = torch.tensor(0.0)
-        # print(f"AVG CFL: {cfls}")
         
-        return loss_pred, loss_decouple, torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
+        # print(f"AVG CFL: {cfls}")
+        print(f'Resweight: {self.resweight}')
+        out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
+        loss_pred = loss_mixed(out, seq_total, self.input_length)
+        
+        loss_decouple = torch.tensor(0.0) #-loss_pred * torch.nn.functional.sigmoid(self.resweight).sum()
+        return loss_pred, loss_decouple, out
 
 
 

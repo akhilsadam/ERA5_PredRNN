@@ -54,6 +54,7 @@ def test(model, test_input_handle, configs, itr):
     test_ims_ALL = []
     img_out_ALL = []
     avg_mse = 0
+    n = 0
     for i in range(configs.test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
@@ -66,6 +67,7 @@ def test(model, test_input_handle, configs, itr):
             img_out = img_out.detach()
 
             avg_mse += torch.mean((img_out[:,-output_length:]-test_ims[:,-output_length:])**2*configs.area_weight).cpu().numpy()
+            n+=1
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
             test_ims_ALL.append(test_ims)
@@ -75,7 +77,7 @@ def test(model, test_input_handle, configs, itr):
 
         except Exception as e:
             break
-    avg_mse /= (i+1)
+    avg_mse /= n
 
 
     # real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)

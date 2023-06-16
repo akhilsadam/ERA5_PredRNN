@@ -1,0 +1,67 @@
+## PC_PredRNN_toy_control_JUNE15 (control transformers without POD)
+
+
+model_config_toy = \
+    {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
+        'TF':{
+            'n_encoder_layers': 2, # number of layers in the encoder
+            'n_decoder_layers': 2, # number of layers in the decoder
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 32, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.05, # dropout rate
+            'dropout_pos_enc': 0.05, # dropout rate for positional encoding
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+        },
+        'BERT':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 9, # batch size
+        },
+        'rBERT':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 9, # batch size
+            'nstep': 8,
+        },
+        # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
+        'DNN':{
+            'hidden': [320], # number of hidden units for all layers in sequence
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+        },
+        'adaptDNN':{
+            'hidden': [], # number of hidden units for all layers in sequence
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'nstep': 8,
+        },
+        'reZeroTF':{
+            'n_layers': 6, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.0, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'batch_size': 9, # batch size
+        },
+        
+    }

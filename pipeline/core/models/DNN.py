@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn as nn
 from core.models.model_base import BaseModel
+from core.loss import loss_mixed
 
 class DNN(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
@@ -84,7 +85,7 @@ class DNN(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         inl = self.configs.input_length
         test = self.preprocessor.batched_input_transform(seq_total)
-        loss_pred = 0.0
+        # loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
             
@@ -121,7 +122,7 @@ class DNN(BaseModel):
             # loss_Test.backward()
             # assert x0.grad[0].abs().sum().item() == 0, "Gradient for incorrect loss should be zero"
             
-            loss_pred += torch.nn.functional.mse_loss(last_predicted_value, tc)
+            # loss_pred += torch.nn.functional.mse_loss(last_predicted_value, tc)
             
             predicted.append(last_predicted_value)
             
@@ -134,6 +135,8 @@ class DNN(BaseModel):
         out = self.preprocessor.batched_output_transform(torch.cat(predicted,dim=1))
             
         loss_decouple = torch.tensor(0.0)
+        
+        loss_pred = loss_mixed(out, seq_total, self.input_length)
         
         return loss_pred, loss_decouple, torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
 
