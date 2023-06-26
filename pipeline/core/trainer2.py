@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from skimage.metrics import structural_similarity as compare_ssim
 from core.utils import preprocess, metrics
-import lpips
+# import lpips
 import torch
 import wandb
 
@@ -21,7 +21,7 @@ def center_enhance(img, min_distance = 100, sigma=4, radii=np.arange(0, 20, 2),f
         res_img = ndimage.gaussian_filter(img,3)
     return res_img
 
-loss_fn_alex = lpips.LPIPS(net='alex')
+# loss_fn_alex = lpips.LPIPS(net='alex')
 
 
 def train(model, ims, real_input_flag, configs, itr):

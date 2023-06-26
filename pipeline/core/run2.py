@@ -325,19 +325,22 @@ class run2:
         if not args.weather_prediction:
             args.area_weight = torch.ones_like(args.area_weight).to(args.device)
 
-        save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
-        args.save_file = '_'.join(save_file)
+        # save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
+        # args.save_file = '_'.join(save_file)
+        if 'save_file' not in args:
+            args.save_file = ''
         if args.time_step:
             args.save_file = '_'.join((args.save_file, args.time_step))
         
-        run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', args.time_step]
-        args.run_name = '_'.join(run_name)
+        # run_name = ['bs', str(1), 'opt', args.opt, 'lr', str(args.lr), 'lr_sch', 'no', args.time_step]
+        # run_name = [args.optim_lm.__name__, 'lr', str(args.lr), 'lr_sch', 'no', args.time_step]
+        args.run_name = '' #'_'.join(run_name)
 
         len_nh = len([int(x) for x in args.num_hidden.split(',')])
         print(f"model.num_hidden length: {len_nh}")
-        if len_nh != 4:
-            args.save_file = '_'.join((args.save_file, str(len_nh)))
-            args.run_name = '_'.join((args.run_name, str(len_nh)))
+        # if len_nh != 4:
+        #     args.save_file = '_'.join((args.save_file, str(len_nh)))
+        #     args.run_name = '_'.join((args.run_name, str(len_nh)))
         print(f"args.run_name: {args.run_name}")
         if args.save_dir:
             args.save_dir = os.path.join(args.save_dir, args.save_file)

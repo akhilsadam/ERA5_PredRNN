@@ -57,7 +57,7 @@ data = \
         'pde_u',
     ],
     't_step': 1080,
-    'dt': 1e-2,
+    'dt': 5e-3,
     'nvar': 1,
     'gshape': [64, 64],
 }

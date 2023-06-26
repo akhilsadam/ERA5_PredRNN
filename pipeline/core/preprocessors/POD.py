@@ -6,6 +6,9 @@ import torch.nn as nn
 import logging
 import imageio.v3 as imageio
 from tqdm import tqdm
+
+from preprocessors.base import PreprocessorBase
+
 logger = logging.getLogger('POD-preprocessor')
 
 def simple_randomized_torch_svd(M, k=10):
@@ -24,7 +27,7 @@ def simple_randomized_torch_svd(M, k=10):
     U = (Q @ U_hat)
     return (V.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, V)
 
-class Preprocessor:
+class Preprocessor(PreprocessorBase):
     def __init__(self, config):
         cdict = {
             'datadir': 'data', # directory where data is stored
@@ -38,14 +41,10 @@ class Preprocessor:
         for k,v in cdict.items():
             setattr(self, k, v)
             
+        super().__init__(config)
+            
         self.eigenvector_path = lambda var: f"{self.datadir}/{self.eigenvector(var)}"
         self.eigenvector_vis_path =  f"{self.datadir}/eigen_vis/"
-        
-        assert self.train_data_paths not in [None,[]], "train_data_paths (training datasets) must be specified and not empty"
-        assert self.valid_data_paths not in [None,[]], "valid_data_paths (validation datasets) must be specified and not empty"
-        assert self.n_var > 0, "n_var (number of variables) must be specified and greater than 0"
-        assert self.shapex > 0, "shapex (x dimension of data) must be specified and greater than 0"
-        assert self.shapey > 0, "shapey (y dimension of data) must be specified and greater than 0"
         
         self.cmap = jpcm.get('desert')        
         with torch.no_grad():
@@ -55,22 +54,7 @@ class Preprocessor:
 
     
     def precompute(self):
-        shape = None # (time, var, shapex, shapey)
-        datasets = []
-        logger.info('Loading training datasets for precomputation (eigenvectors)...')
-        for i,trainset in tqdm(enumerate(self.train_data_paths)):
-            data = np.load(trainset, mmap_mode='r')
-            try:
-                raw = data['input_raw_data']
-                shape = raw.shape
-                assert len(raw.shape)==4, f"Raw data in {trainset} is not 4D!"
-                assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
-                assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
-                assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"
-            except Exception as e:
-                print(f'Warning: Failed to load dataset {i}! Skipping... (Exception "{e}" was thrown.)')
-            else:
-                datasets.append(raw)
+        datasets, shape, _ = super().precompute_scale(use_datasets=True)
 
         rows = shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
@@ -127,6 +111,8 @@ class Preprocessor:
         '''
         [B, T, C, H, W] -> [B, T, latent]
         '''
+        self.scale, self.shift = super().load_scale(device)
+        
         data = [np.load(self.eigenvector_path(v)) for v in range(self.n_var)]
         self.data_torch = [torch.from_numpy(d['eigenvectors']).float().to(device) for d in data]
         latent_dims = np.cumsum([data[v]['latent_dimension'] for v in range(self.n_var)]).tolist()
@@ -134,11 +120,11 @@ class Preprocessor:
         
         def in_tf(method):
             rows = method[0] 
-            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, x.reshape(x.size(0),x.size(1),rows))#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows))#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
                 
         def out_tf(eigen,a):
             out = torch.einsum('sl,btl->bts',eigen, a)
-            return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey)
+            return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
             
         
         self.latent_dims = latent_dims

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN, BERT, rBERT, RZTX
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN, BERT, rBERT, RZTX, LSTM, rLSTM
 from torchview import draw_graph
 import traceback, sys
 import wandb
@@ -24,6 +24,8 @@ class Model(object):
             'BERT': BERT.BERT,
             'rBERT': rBERT.rBERT,
             'reZeroTF': RZTX.RZTX,
+            'LSTM': LSTM.LSTM,
+            'rLSTM': rLSTM.rLSTM,
         }
     
 
@@ -51,6 +53,7 @@ class Model(object):
 
         self.optimizer = configs.optim_lm(self.network.parameters(), configs.lr) \
             if configs.optim_lm is not None else Adam(self.network.parameters(), lr=configs.lr)
+        self.scheduler = configs.scheduler(self.optimizer) if configs.scheduler is not None else None
         if self.configs.upload_run:
             self.upload_wandb()
     
@@ -68,9 +71,11 @@ class Model(object):
         # Uploading to wandb
         run_name = (
             f'{self.configs.model_name}_{self.configs.preprocessor_name}_'
-            + '_'.join((self.configs.save_file, self.configs.run_name))
+            + 'train' if self.configs.is_training else 'test'
+            + f'_{self.optimizer.__class__.__name__}_lr{self.optimizer.param_groups[0]["lr"]}'
+            # + '_'.join((self.configs.save_file, self.configs.run_name))
         )
-        wandb.init(project=self.configs.project, name=run_name)
+        wandb.init(project=self.configs.project, name=run_name, allow_val_change=True)
         wandb.config.model_name = self.configs.model_name
         wandb.config.opt = self.configs.opt
         wandb.config.lr = self.configs.lr
@@ -100,6 +105,8 @@ class Model(object):
         torch.cuda.empty_cache()
         loss.backward()
         self.optimizer.step()
+        if self.scheduler is not None:
+            self.scheduler.step()
         if self.configs.upload_run:
             try:
                 wandb.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})

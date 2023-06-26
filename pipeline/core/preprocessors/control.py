@@ -6,9 +6,12 @@ import torch.nn as nn
 import logging
 import imageio.v3 as imageio
 from tqdm import tqdm
+
+from preprocessors.base import PreprocessorBase
+
 logger = logging.getLogger('control-preprocessor')
 
-class Preprocessor:
+class Preprocessor(PreprocessorBase):
     def __init__(self, config):
         cdict = {
             'datadir': 'data', # directory where data is stored
@@ -17,22 +20,20 @@ class Preprocessor:
         for k,v in cdict.items():
             setattr(self, k, v)
         
-        assert self.train_data_paths not in [None,[]], "train_data_paths (training datasets) must be specified and not empty"
-        assert self.valid_data_paths not in [None,[]], "valid_data_paths (validation datasets) must be specified and not empty"
-        assert self.n_var > 0, "n_var (number of variables) must be specified and greater than 0"
-        assert self.shapex > 0, "shapex (x dimension of data) must be specified and greater than 0"
-        assert self.shapey > 0, "shapey (y dimension of data) must be specified and greater than 0"
-
+        super().__init__(config)
+        super().precompute_check()
         
     def load(self, device):
         '''
         [B, T, C, H, W] -> [B, T, latent]
         '''        
+        self.scale, self.shift = super().load_scale(device)
+        
         def in_tf(x):
-            return x.reshape(x.size(0),x.size(1),self.shapex*self.shapey)#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+            return x.reshape(x.size(0),x.size(1),self.shapex*self.shapey) * self.scale + self.shift#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
                 
         def out_tf(a):
-            return a.reshape(a.size(0), a.size(1), self.shapex, self.shapey)
+            return a.reshape(a.size(0), a.size(1), self.shapex, self.shapey) / self.scale - self.shift
             
         latent_dims = np.cumsum([self.shapey*self.shapex,]*self.n_var).tolist()
         latent_dims.insert(0,0)

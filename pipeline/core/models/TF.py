@@ -56,6 +56,7 @@ class TF(BaseModel):
         return configs
         
     def core_forward(self, seq_total, istrain=True):
+        
         inl = self.configs.input_length
         test = self.preprocessor.batched_input_transform(seq_total)
         inpt = test[:,:inl,:]

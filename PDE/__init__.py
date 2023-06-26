@@ -4,7 +4,7 @@ import pde
 from numpy.random import default_rng
 rng = default_rng()
 
-def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
+def gen_data(t_step, dt, nvar, gshape, data_path, logger=None, movie=False):
     if logger is None:
         import logging
         logger = logging.getLogger()
@@ -51,14 +51,21 @@ def gen_data(t_step, dt, nvar, gshape, data_path, logger=None):
     # eq = pde.DiffusionPDE(diffusivity=0.1) 
     # eq = pde.PDE({'c': '0.25*(laplace(c**3 - c - laplace(c)) + 0.25*d_dy(c) + 0.05*d_dx(c))'}, bc=bc)
     
-    eq = pde.PDE({"c": "0.1*(laplace(c) - 0.1*d_dx(c*x))"}, bc=bc)  # diffusion equation with velocity field (0.1*x,0)
+    # eq = pde.PDE({"c": "0.1*(laplace(c) - 0.1*d_dx(c*x))"}, bc=bc)  # diffusion equation with velocity field (x,0)
+    
+    eq = pde.PDE({"c": "5*(0.01*laplace(c) - 0.001*d_dx(c*y) + 0.001*d_dy(c*x) + 0.01*c*(1-c**2))"}, bc=bc)  # diffusion equation with velocity field (y,-x)
+    # aded term for Rayleigh-Benard convection from Wikipedia reaction-diffusion page, to keep constant behavior
+    
+    
     # eq = pde.PDE({"u": "-gradient_squared(u) / 2 - laplace(u + laplace(u))"}, bc=bc) # define the pde
     storage = pde.MemoryStorage()
 
     eq.solve(state, t_range=t_step-1, dt=dt, tracker=["progress", storage.tracker(1)]) # solve the pde
 
-    logger.info('Saving PDE Movie...')
-    pde.movie(storage, f'{data_path}/movie.mp4') # create a movie
+
+    if movie:
+        logger.info('Saving PDE Movie...')
+        pde.movie(storage, f'{data_path}/movie.mp4') # create a movie
     ############################################## Make data
     logger.info('Making data...')
     data = np.zeros(data_shape)

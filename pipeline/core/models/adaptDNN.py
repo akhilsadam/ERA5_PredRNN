@@ -70,8 +70,9 @@ class adaptDNN(BaseModel):
         self.grad_filter = nn.Linear(self.latent, self.latent, bias=False)
         initrange = math.sqrt(3/self.latent)
         nn.init.uniform_(self.grad_filter.weight, -initrange, initrange)
-        
-        self.resweight = nn.Parameter(torch.zeros(self.steps).to(self.device))
+        # nn.init.ones_(self.grad_filter.weight)
+        self.resweight = nn.Parameter(torch.ones(self.steps).to(self.device)*1.0)
+        self.resweight.data[1::2] = -1.0
             
     def edit_config(self,configs):
         if configs.patch_size != 1:
@@ -137,11 +138,11 @@ class adaptDNN(BaseModel):
                     if i < len(self.layers)-1:
                         x = self.act[i](y)
                     
-                y2 = y + 1.0
+                # y2 = y + 1.0
                         
                 grad = self.grad_filter(x0)
                 # print(f"grad: {grad.size()}")
-                x2 = x0 + self.resweight[j] * y2 * grad / self.steps # residual connection, 
+                x2 = x0 + self.resweight[j] * y * grad / self.steps # residual connection, 
                 x0 = x2
 
             # cfl = self.get_cfl(last_predicted_value,x0).item()
@@ -180,7 +181,7 @@ class adaptDNN(BaseModel):
         out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         
-        loss_decouple = torch.tensor(0.0) #-loss_pred * torch.nn.functional.sigmoid(self.resweight).sum()
+        loss_decouple = 100 * loss_pred * (self.resweight.sum() - self.resweight.abs().sum())**2
         return loss_pred, loss_decouple, out
 
 
