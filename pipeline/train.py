@@ -10,7 +10,7 @@ class hyperparam:
     pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'control' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
+    preprocessor_name = 'POD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
     project_name = 'toy1_control_v2' # name of wandb project
     ##
     save_test_output=True # save test output to file
@@ -23,10 +23,10 @@ class hyperparam:
 hyp = hyperparam()
 hyp.overrides.update({'n_embd': 64})
 hyp.overrides.update({'n_ffn_embd': 128})
-hyp.max_iterations = 10025
+hyp.max_iterations = 1025
 
 tr = [True, False]
-ptn = [None, 'model_10000.ckpt']
+ptn = [None, 'model_1000.ckpt']
 names = ['rBERT']#['BERT','rBERT','reZeroTF','LSTM','rLSTM']
 for n in tqdm(names):
     for t,p in zip(tr,ptn):

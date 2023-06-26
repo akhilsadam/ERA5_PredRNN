@@ -20,7 +20,7 @@ class PreprocessorBase:
         # check if scale file exists
         if not os.path.exists(self.scale_path):
             logger.info(f"Scale file {self.scale_path} does not exist! Precomputing...")
-            return self.precompute(use_datasets=False)
+            return self.precompute_scale(use_datasets=False)
     
     def precompute_scale(self, use_datasets=False):
         shape = None # (time, var, shapex, shapey)
@@ -38,8 +38,8 @@ class PreprocessorBase:
                 assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
                 assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"
                 
-                maxs.append(raw.nanmax(axis=(0,2,3)))
-                mins.append(raw.nanmin(axis=(0,2,3)))                
+                maxs.append(np.nanmax(raw, axis=(0,2,3)))
+                mins.append(np.nanmin(raw,axis=(0,2,3)))                
                 
             except Exception as e:
                 print(f'Warning: Failed to load dataset {i}! Skipping... (Exception "{e}" was thrown.)')
@@ -71,9 +71,22 @@ class PreprocessorBase:
     def load_scale(self, device):
         # load scale from text file
         try:
-            scale, shift = np.loadtxt(self.scale_path, delimiter=',')
-            scale = torch.from_numpy(scale).to(device).unsqueeze(1).unsqueeze(0)
-            shift = torch.from_numpy(shift).to(device).unsqueeze(1).unsqueeze(0)
+            norms = np.loadtxt(self.scale_path, delimiter=',')
+            if norms is None:
+                # two ints, one per line
+                with open(self.scale_path, 'r') as f:
+                    scale = float(f.readline())
+                    shift = float(f.readline())
+            elif isinstance(norms[0], np.float64):
+                scale, shift = norms
+                scale = torch.Tensor([scale]).to(device).unsqueeze(1).unsqueeze(0)
+                shift = torch.Tensor([shift]).to(device).unsqueeze(1).unsqueeze(0)
+
+            else:
+                scale, shift = norms
+                scale = torch.from_numpy(scale).to(device).unsqueeze(1).unsqueeze(0)
+                shift = torch.from_numpy(shift).to(device).unsqueeze(1).unsqueeze(0)
+            return scale, shift
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')
             return None

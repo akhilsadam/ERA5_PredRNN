@@ -7,7 +7,7 @@ import logging
 import imageio.v3 as imageio
 from tqdm import tqdm
 
-from preprocessors.base import PreprocessorBase
+from .base import PreprocessorBase
 
 logger = logging.getLogger('POD-preprocessor')
 
