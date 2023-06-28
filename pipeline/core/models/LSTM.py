@@ -3,7 +3,9 @@ import math
 import torch.nn as nn
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
-
+ 
+ #TODO UPDATE THIS to work with new input/output transforms
+  
 class LSTM(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
     

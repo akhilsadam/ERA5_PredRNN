@@ -23,10 +23,10 @@ class hyperparam:
 hyp = hyperparam()
 # hyp.overrides.update({'n_embd': 4096//4}) #64
 # hyp.overrides.update({'n_ffn_embd': 4096}) #128
-hyp.max_iterations = 10025
+hyp.max_iterations = 20025
 
 tr = [True, False]
-ptn = [None, 'model_10000.ckpt']
+ptn = [None, 'model_20000.ckpt']
 names = ['DualAttentionTransformer']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 for n in tqdm(names):
     for t,p in zip(tr,ptn):

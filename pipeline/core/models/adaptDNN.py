@@ -109,6 +109,9 @@ class adaptDNN(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         inl = self.configs.input_length - 1
         test = self.preprocessor.batched_input_transform(seq_total)
+        nc, sx, sy = test.shape[-3:]
+        test = test.reshape(test.shape[0],test.shape[1],-1)
+        
         # loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
@@ -173,7 +176,7 @@ class adaptDNN(BaseModel):
         
         # print("OUTPUTSIZE", outpt.size())
 
-        out = self.preprocessor.batched_output_transform(torch.cat(predicted,dim=1))
+        out = self.preprocessor.batched_output_transform(torch.cat(predicted,dim=1).reshape(test.shape[0], self.predict_length, nc, sx, sy))
             
         
         # print(f"AVG CFL: {cfls}")

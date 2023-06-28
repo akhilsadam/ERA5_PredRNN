@@ -15,6 +15,7 @@ from core.loss import loss_mixed
 # (aka a Swin Transformer)
 # Then we can do a reZero-style skip connection to the next layer, and then do a temporal attention layer.
 
+# also partially changed to BatchNorm from LayerNorm
 
 class DAT(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
@@ -36,22 +37,32 @@ class DAT(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
+    
+        patch_x = self.preprocessor.patch_x
+        patch_y = self.preprocessor.patch_y
         
-        d_space_original = self.preprocessor.latent_dims[-1]
+        d_space_original = self.preprocessor.latent_dims[-1] * patch_x * patch_y
         d_space = self.model_args['n_embd']
         d_time_original = configs.input_length
         
         if d_space != d_space_original:
             print (f"Warning: n_embd is {d_space} but should be {d_space_original} for TF model. Setting to {d_space_original}.")
             d_space = d_space_original
+            
+        windows = self.model_args['windows']
+        shifts = self.model_args['shifts']
+        assert len(windows) == len(shifts), "windows and shifts must be same length"
 
         self.model = DualAttentionTransformer( \
+                         windows = windows,
+                         shifts = shifts,
+                         latent=self.preprocessor.latent_dims[-1],
                          d_time_original=d_time_original,
                          d_space_original=d_space_original,
                          d_space=d_space,
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
-                         nlayers=self.model_args['n_layers'],
+                         nlayers=len(windows),
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
                          activation=self.model_args['activation'])
@@ -68,7 +79,7 @@ class DAT(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
-        
+               
         predictions = []
         for i in range(self.predict_length):
             outpt = self.model(inpt)
@@ -76,7 +87,7 @@ class DAT(BaseModel):
             predictions.append(out.unsqueeze(1))
             inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
         
-        outpt = torch.cat(predictions,dim=1)        
+        outpt = torch.cat(predictions,dim=1)
         out = self.preprocessor.batched_output_transform(outpt)
         out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
                     
@@ -133,13 +144,13 @@ class PositionalEncoding(nn.Module):
 class DualAttentionTransformer(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, d_time_original, d_space_original, d_space, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu'):
+    def __init__(self, windows, shifts, latent, d_time_original, d_space_original, d_space, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu'):
         super(DualAttentionTransformer, self).__init__()
 
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(d_space, dropout)
-        self.layers = ModuleList([DualAttentionTransformerLayer(d_time_original, d_space, nhead, nhid, dropout, activation, batch_first=True)]*nlayers)
+        self.layers = ModuleList([DualAttentionTransformerLayer(w, s, latent, d_time_original, d_space, nhead, nhid, dropout, activation, batch_first=True) for w,s in zip(windows,shifts)])
         # self.encoder = nn.Linear(d_space_original, d_space)
         self.d_space = d_space
         self.d_space_original = d_space_original
@@ -199,40 +210,50 @@ from torch.nn.modules.container import ModuleList
 from torch.nn.init import xavier_uniform_
 from torch.nn.modules.dropout import Dropout
 from torch.nn.modules.linear import Linear
-from torch.nn import TransformerEncoder
+from torchvision.models.swin_transformer import ShiftedWindowAttentionV2
 import torch.nn.functional as F
-from torch.nn import LayerNorm
+from torch.nn import LayerNorm, BatchNorm1d, BatchNorm2d
 
 class DualAttentionTransformerLayer(Module):
 
-    def __init__(self, d_time, d_space, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', kdim_time=None, vdim_time=None, kdim_space=None, vdim_space=None, batch_first=True, **factory_kwargs):
+    def __init__(self, window, shift, latent, d_time, d_space, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', kdim_time=None, vdim_time=None, kdim_space=None, vdim_space=None, batch_first=True, **factory_kwargs):
         super().__init__()
         
         if kdim_time is None:
-            kdim_time = d_time
+            kdim_time = d_time * latent
         if vdim_time is None:
-            vdim_time = d_time
+            vdim_time = d_time * latent
         if kdim_space is None:
-            kdim_space = d_space
+            kdim_space = d_space * latent
         if vdim_space is None:
-            vdim_space = d_space
+            vdim_space = d_space * latent
+        
+        self.d_time = d_time
+        self.d_space = d_space
+        
+        qdim_time = d_time * latent
+        qdim_space = d_space * latent    
             
         self.batch_first = batch_first
+        assert batch_first, "batch_first must be True - otherwise yet unsupported"
             
-        #    batch first ->  B S E: batch, sequence, spatial embedding (latent)
-        #not batch first -> S B E: sequence, batch, spatial embedding (latent)
-        # - either way spatial embedding is last dimension
+        #    batch first ->  B S E: batch, sequence, embedding (latent), sx, sy
+        #not batch first -> S B E: sequence, batch, embedding (latent), sx, sy
+        # - either way spatial embedding is last two dimensions
 
         layer_norm_eps = 1e-5 
-        self.attn_space = MultiheadAttention(d_time, nhead, dropout=dropout, kdim=kdim_time, vdim=vdim_time, batch_first=False, **factory_kwargs)
-        self.attn_time = MultiheadAttention(d_space, nhead, dropout=dropout, kdim=kdim_space, vdim=vdim_space, batch_first=batch_first, **factory_kwargs)
+        # self.attn_space = MultiheadAttention(d_time, nhead, dropout=dropout, kdim=kdim_time, vdim=vdim_time, batch_first=False, **factory_kwargs)
+        self.attn_space = ShiftedWindowAttentionV2(dim=qdim_time, window_size=window, shift_size=shift, num_heads=nhead, attention_dropout=dropout, dropout=dropout, qkv_bias=True, **factory_kwargs)
+        self.attn_time = MultiheadAttention(qdim_space, nhead, dropout=dropout, kdim=kdim_space, vdim=vdim_space, batch_first=batch_first, **factory_kwargs)
         # Implementation of Feedforward model
         self.linear1 = Linear(d_space, dim_feedforward)
-        self.dropout = Dropout(dropout)
         self.linear2 = Linear(dim_feedforward, d_space)
-        self.norm0 = LayerNorm(d_time, eps=layer_norm_eps, **factory_kwargs)
-        self.norm1 = LayerNorm(d_space, eps=layer_norm_eps, **factory_kwargs)
-        self.norm2 = LayerNorm(d_space, eps=layer_norm_eps, **factory_kwargs)
+        self.norm0 = BatchNorm2d(qdim_time, eps=layer_norm_eps, **factory_kwargs)
+        # self.norm1 = BatchNorm1d(d_time, eps=layer_norm_eps, **factory_kwargs)
+        # self.norm2 = BatchNorm1d(d_time, eps=layer_norm_eps, **factory_kwargs)
+        self.norm1 = LayerNorm(qdim_space, eps=layer_norm_eps, **factory_kwargs)
+        self.norm2 = LayerNorm(qdim_space, eps=layer_norm_eps, **factory_kwargs)
+        self.dropout0 = Dropout(dropout)
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
         self.resweight = nn.Parameter(torch.Tensor([0]))
@@ -261,27 +282,21 @@ class DualAttentionTransformerLayer(Module):
         # self-attention layer in space
         ##########
         # permute
-        if self.batch_first:
-            src2 = src.permute(2,0,1) # get spatial dimension first, so we have Spatial, Batch, Temporal
-        else:
-            src2 = src.permute(2,1,0) # get spatial dimension first, so we have Spatial, Batch, Temporal
-        att_out = src2 + self.dropout1(self.attn_space(src2, src2, src2)[0])
-        # att_out = src[...,:src2.size(-1)] + self.dropout1(src2) # workaround for decoder
-        # normalization
-        att_out = self.norm0(att_out)
+        # currently B, T, C, H, W
+        # want B, H, W, C*T
+        src2 = src.reshape(src.size(0),src.size(3),src.size(4),-1)
+            
+        att_out = src2 + self.norm0(self.attn_space(src2).permute(0,3,1,2)).permute(0,2,3,1)
+
+        spatial_out = att_out.permute(0,3,1,2).reshape(src.size())
         # permute back
-        if self.batch_first:
-            spatial_out = att_out.permute(1,2,0) # get batch dimension first, so we have Batch, Temporal, Spatial
-        else:   
-            spatial_out = att_out.permute(2,1,0) # get temporal dimension first, so we have Temporal, Batch, Spatial
+        
         ##########
         # self-attention layer in time
         ##########
-        src2 = spatial_out
-        src2 = self.attn_time(src2, src2, src2, attn_mask=src_mask,
-                              key_padding_mask=src_key_padding_mask)
-        src2 = src2[0] # no attention weights
-        att_out = spatial_out + self.dropout1(src2)
+        src2 = spatial_out.reshape(spatial_out.size(0),spatial_out.size(1),-1) # B, T, C*H*W
+        att_out = src2 + self.dropout0(self.attn_time(src2, src2, src2, attn_mask=src_mask,
+                              key_padding_mask=src_key_padding_mask)[0])
         # temporal_out = src[...,:src2.size(-1)] + self.dropout1(src2) # workaround for decode
         # normalization
         temporal_out = self.norm1(att_out)
@@ -289,11 +304,13 @@ class DualAttentionTransformerLayer(Module):
         # Pointwise FF Layer
         ##########
         src2 = temporal_out       
-        src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+        src2 = self.linear2(self.dropout1(self.activation(self.linear1(src2))))
         # src2 = src2 * self.resweight
-        src = temporal_out + self.dropout2(src2)
+        src2 = temporal_out + self.dropout2(src2)
         
         # normalization again
-        norm_out_2 = self.norm2(src) * self.resweight
+        norm_out_2 = self.norm2(src2) * self.resweight
+        
+        final = norm_out_2.reshape(src.size())
         ##########
-        return norm_out_2
+        return final

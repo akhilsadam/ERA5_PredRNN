@@ -4,7 +4,7 @@ import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, LSTM, rLSTM, ViT_LDM, \
-    DAT
+    DAT_v2
     
 from torchview import draw_graph
 import traceback, sys
@@ -27,7 +27,7 @@ class Model(object):
             'BERT': BERT.BERT,
             'BERT_v2': BERT_v2.BERT,
             "BERT_v3": BERT_v3.BERT,
-            "DualAttentionTransformer": DAT.DAT,
+            "DualAttentionTransformer": DAT_v2.DAT,
             'rBERT': rBERT.rBERT,
             'reZeroTF': RZTX.RZTX,
             'LSTM': LSTM.LSTM,

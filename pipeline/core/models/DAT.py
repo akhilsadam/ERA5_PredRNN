@@ -32,7 +32,10 @@ class DAT(BaseModel):
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
         
-        d_space_original = self.preprocessor.latent_dims[-1]
+        patch_x = self.preprocessor.patch_x
+        patch_y = self.preprocessor.patch_y
+        
+        d_space_original = self.preprocessor.latent_dims[-1] * patch_x * patch_y
         d_space = self.model_args['n_embd']
         d_time_original = configs.input_length
         
@@ -64,6 +67,9 @@ class DAT(BaseModel):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
+        nc, sx, sy = inpt.shape[-3:]
+        inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
+        
         predictions = []
         for i in range(self.predict_length):
             outpt = self.model(inpt)
@@ -72,6 +78,7 @@ class DAT(BaseModel):
             inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
         
         outpt = torch.cat(predictions,dim=1)        
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
         out = self.preprocessor.batched_output_transform(outpt)
         out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
                     

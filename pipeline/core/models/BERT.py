@@ -47,6 +47,9 @@ class BERT(BaseModel):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
+        nc, sx, sy = inpt.shape[-3:]
+        inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)        
+        
         predictions = []
         for i in range(self.predict_length):
             outpt = self.model(inpt)
@@ -54,12 +57,15 @@ class BERT(BaseModel):
             predictions.append(out.unsqueeze(1))
             inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
         
-        outpt = torch.cat(predictions,dim=1)        
+        outpt = torch.cat(predictions,dim=1)     
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)       
         out = self.preprocessor.batched_output_transform(outpt)
         out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
                     
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
+        
+        out = out.reshape(out.shape[0],out.shape[1],nc,sx,sy)
         return loss_pred, loss_decouple, out
 
     

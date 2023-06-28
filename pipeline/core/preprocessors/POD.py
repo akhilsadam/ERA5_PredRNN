@@ -109,7 +109,7 @@ class Preprocessor(PreprocessorBase):
         
     def load(self, device):
         '''
-        [B, T, C, H, W] -> [B, T, latent]
+        [B, T, C, H, W] -> [B, T, latent, H, W]
         '''
         self.scale, self.shift = super().load_scale(device)
         
@@ -120,15 +120,16 @@ class Preprocessor(PreprocessorBase):
         
         def in_tf(method):
             rows = method[0] 
-            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows))#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
                 
         def out_tf(eigen,a):
             out = torch.einsum('sl,btl->bts',eigen, a)
             return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
             
-        
+        self.patch_x = 1
+        self.patch_y = 1
         self.latent_dims = latent_dims
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
+        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2).unsqueeze(-1).unsqueeze(-1)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1]]) for v in range(self.n_var)],dim=2)
+        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1]],0,0) for v in range(self.n_var)],dim=2)

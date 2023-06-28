@@ -1,3 +1,4 @@
+import copy
 import os, importlib, numpy as np, subprocess, sys, logging
 from adabound import AdaBound as adb
 logger = logging.getLogger(__name__)
@@ -54,11 +55,12 @@ model_config_toy = \
             'optimizer' :  lambda x,y : ASGD(x,lr=50*y) # [None, Adam, ASGD,...]'
         },
         'DualAttentionTransformer':{
-            'n_layers': 1, # number of layers in the transformer
+            'windows': [[16,16],[2,2],[2,2]], # list of window sizes for the shifted attention
+            'shifts': [[0,0],[0,0],[1,1]], # list of shifts for the shifted attention
             'n_head': 1, # number of heads in the transformer
             'n_embd': 4096, # number of hidden units in the transformer
             'n_ffn_embd': 4096, # number of hidden units in the FFN
-            'dropout': 0.5, # dropout rate
+            'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
@@ -318,7 +320,8 @@ def operate_loop(hyp):
     parser = run2.make_parser()
     args = parser.parse_args(cmdargs.split())
     if hyp.preprocessor_name != 'raw':
-        preprocessor_args = preprocessor_config[hyp.preprocessor_name]
+        preprocessor_args = copy.deepcopy(args.__dict__)
+        preprocessor_args.update(preprocessor_config[hyp.preprocessor_name],allow_override=True)
         preprocessor_args['datadir'] = datadir
         preprocessor_args['train_data_paths'] = train_data_paths.split(',')
         preprocessor_args['valid_data_paths'] = valid_data_paths.split(',')
@@ -330,10 +333,11 @@ def operate_loop(hyp):
             .Preprocessor(preprocessor_args)
     args.preprocessor_name = hyp.preprocessor_name
     if hyp.model_name != 'predrnn_v2':
+        cmodel_config = copy.deepcopy(args.__dict__)
         if hyp.weather_prediction:
-            cmodel_config = model_config
+            cmodel_config.update(model_config,allow_override=True)
         else:
-            cmodel_config = model_config_toy
+            cmodel_config.update(model_config_toy,allow_override=True)
             
         nm = hyp.model_name + '_' + hyp.preprocessor_name
         # model_args = cmodel_config[nm] if nm in cmodel_config else cmodel_config[hyp.model_name] 
