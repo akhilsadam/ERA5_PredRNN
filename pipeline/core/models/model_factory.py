@@ -2,7 +2,10 @@ import os
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, TF, DNN, adaptDNN, BERT, rBERT, RZTX, LSTM, rLSTM
+from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, \
+    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, LSTM, rLSTM, ViT_LDM, \
+    DAT
+    
 from torchview import draw_graph
 import traceback, sys
 import wandb
@@ -22,10 +25,14 @@ class Model(object):
             'DNN': DNN.DNN,
             'adaptDNN': adaptDNN.adaptDNN,
             'BERT': BERT.BERT,
+            'BERT_v2': BERT_v2.BERT,
+            "BERT_v3": BERT_v3.BERT,
+            "DualAttentionTransformer": DAT.DAT,
             'rBERT': rBERT.rBERT,
             'reZeroTF': RZTX.RZTX,
             'LSTM': LSTM.LSTM,
             'rLSTM': rLSTM.rLSTM,
+            'ViT_LDM': ViT_LDM.ViT_LDM,
         }
     
 

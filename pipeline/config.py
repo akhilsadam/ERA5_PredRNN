@@ -53,16 +53,29 @@ model_config_toy = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : ASGD(x,lr=50*y) # [None, Adam, ASGD,...]'
         },
-        'BERT':{
-            'n_layers': 6, # number of layers in the transformer
-            'n_head': 2, # number of heads in the transformer
-            'n_embd': 8, # number of hidden units in the transformer
-            'n_ffn_embd': 8, # number of hidden units in the FFN
-            'dropout': 0.0, # dropout rate
+        'DualAttentionTransformer':{
+            'n_layers': 1, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 4096, # number of hidden units in the transformer
+            'n_ffn_embd': 4096, # number of hidden units in the FFN
+            'dropout': 0.5, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'batch_size': 9, # batch size
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
+        },
+        'BERT':{
+            'n_layers': 2, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 4096, # number of hidden units in the transformer
+            'n_ffn_embd': 4096, # number of hidden units in the FFN
+            'dropout': 0.01, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
         },
         'BERT_POD':{
             'n_layers': 6, # number of layers in the transformer
@@ -83,9 +96,9 @@ model_config_toy = \
             'dropout': 0.01, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
-            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 9, # batch size
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 3, # batch size
             'nstep': 8,
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
@@ -128,6 +141,21 @@ model_config_toy = \
             'optimizer' :  lambda x,y : Adam(x,lr=y), # [None, Adam, ASGD,...]'
             'batch_size': 9, # batch size
         },
+        'ViT_LDM':{
+            'n_layers': 6, # number of layers
+            'n_head': 2,
+            'n_ffn_embd': 2000,
+            'att_embd': 32, # matrix attention dim
+            'n_latent_encode': 640, # latent dim for encoder
+            'n_embd': 8, # number of hidden units
+            'diffusion_steps': 1000,
+            'dropout': 0.0, # dropout rate
+            'activation': 'relu',
+            'initialization': None,
+            'optimizer' : lambda x,y : Adam(x, lr=5e-5), # [None, Adam, ASGD,...]'
+            # 'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 9, # batch size
+        },
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
@@ -136,7 +164,7 @@ preprocessor_config = \
         'POD':{
             'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
         },
@@ -308,7 +336,21 @@ def operate_loop(hyp):
             cmodel_config = model_config_toy
             
         nm = hyp.model_name + '_' + hyp.preprocessor_name
-        model_args = cmodel_config[nm] if nm in cmodel_config else cmodel_config[hyp.model_name] 
+        # model_args = cmodel_config[nm] if nm in cmodel_config else cmodel_config[hyp.model_name] 
+        if nm in cmodel_config:
+            key = nm
+        elif hyp.model_name in cmodel_config:
+            key = hyp.model_name
+        elif '_v' in hyp.model_name:
+            hnm = hyp.model_name.split('_v')[0]
+            nm = hnm + '_' + hyp.preprocessor_name
+            if nm in cmodel_config:
+                key = nm
+            else:
+                key = hnm
+        
+        model_args = cmodel_config[key]
+            
         for k,v in hyp.overrides.items():
             if k in model_args:
                 model_args[k] = v

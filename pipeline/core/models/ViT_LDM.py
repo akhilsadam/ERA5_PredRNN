@@ -29,7 +29,7 @@ class ViT_LDM(BaseModel):
         
         self.n_embd = self.model_args['n_embd'] # latent embedding
         self.att_embd = self.model_args['att_embd'] # attention embedding - determines size of attention matrix (should be divisible by n_embd)
-        self.ntoken=self.preprocessor.latent_dims[-1],
+        self.ntoken = self.preprocessor.latent_dims[-1]
         self.encode = self.model_args['n_latent_encode'] # latent encoding size (should be large enough to accomodate transfer to attention embedding)
         
         self.steps = self.model_args['diffusion_steps'] # number of diffusion steps
@@ -64,7 +64,7 @@ class ViT_LDM(BaseModel):
         
         
     # https://arxiv.org/pdf/2305.08891.pdf
-    def enforce_zero_terminal_snr(betas):
+    def enforce_zero_terminal_snr(self,betas):
         # Convert betas to alphas_bar_sqrt
         alphas=1-betas
         alphas_bar=alphas.cumprod(0)
@@ -118,23 +118,23 @@ class ViT_LDM(BaseModel):
         query_frames = query_frames_flat.reshape(query_frames_flat.size(0),query_frames_flat.size(1), self.att_embd, self.n_embd) # now batch, seq-1, att, embd
 
         if istrain:
-            loss_pred = torch.tensor(0.0)
+            loss_pred = torch.tensor(0.0, device=self.device)
             for i in range(self.total_length-1):   
                 
                 query_frame = query_frames[:,i]
                 
-                e_frame = torch.randn_like(query_frame) # X_T (the final noise frame)
+                e_frame = torch.randn_like(query_frame, device=self.device) # X_T (the final noise frame)
                 
                 loss = self.ddpm_train(noise=e_frame, query=query_frame, target=del_frames[:,i])    
-                loss_pred += loss
+                loss_pred += loss / self.total_length-1
             
-            loss += torch.nn.functional.mse(self.decoder(query_frames_flat), total[:,:-1,:]) # autoencoder loss
+            loss_pred += torch.nn.functional.mse_loss(self.decoder(query_frames_flat), total[:,:-1,:]) # autoencoder loss
             
             out = self.preprocessor.batched_output_transform(total)
 
         else:
-            loss_pred = torch.tensor(0.0)
-            e_frame = torch.randn_like(query_frame) # X_T (the final noise frame)
+            loss_pred = torch.tensor(0.0, device=self.device)
+            e_frame = torch.randn_like(query_frame, device=self.device) # X_T (the final noise frame)
             current_frame = query_frames[:,self.input_length-1]
             predictions = []
             for i in range(self.input_length-1, self.total_length):
@@ -157,8 +157,8 @@ class ViT_LDM(BaseModel):
         nn.init.uniform_(self.encoder1.weight, -initrange, initrange)
         nn.init.uniform_(self.decoder1.weight, -initrange, initrange)
         initrange = math.sqrt(6 / (self.encode + self.ntoken))
-        nn.init.uniform_(self.encoder.weight0, -initrange, initrange)
-        nn.init.uniform_(self.decoder.weight0, -initrange, initrange)
+        nn.init.uniform_(self.encoder0.weight, -initrange, initrange)
+        nn.init.uniform_(self.decoder0.weight, -initrange, initrange)
         nn.init.zeros_(self.decoder0.bias)
         nn.init.zeros_(self.encoder0.bias)
         nn.init.zeros_(self.decoder1.bias)
@@ -239,7 +239,9 @@ class UNet(nn.Module):
 
         self.initialization = initialization
 
-        for i,tf_encoder_layer in enumerate(self.transformer_encoder.layers):
+        for i,tf_encoder_layer in enumerate(self.en_layers):
+            self.init_FFN_weights(tf_encoder_layer,i)
+        for i,tf_encoder_layer in enumerate(self.de_layers):
             self.init_FFN_weights(tf_encoder_layer,i)
 
     def init_FFN_weights(self,tf_encoder_layer, layer_num=0):
@@ -309,10 +311,15 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu'):
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', kdim=None, vdim=None):
         super().__init__()
+        
+        if kdim is None:
+            kdim = d_model
+        if vdim is None:
+            vdim = d_model
 
-        self.cross_attn = MultiheadAttention(d_model, nhead, dropout=dropout)
+        self.cross_attn = MultiheadAttention(d_model, nhead, dropout=dropout, kdim=kdim, vdim=vdim)
         # Implementation of Feedforward model
         self.linear1 = Linear(d_model, dim_feedforward)
         self.dropout = Dropout(dropout)
@@ -347,10 +354,14 @@ class RZTXEncoderLayer(Module):
                               key_padding_mask=src_key_padding_mask)
         src2 = src2[0] # no attention weights
         src2 = src2 * self.resweight
-        src = src + self.dropout1(src2)
+        att_out = src[...,:src2.size(-1)] + self.dropout1(src2) # workaround for decoder
+
+
+
 
         # Pointiwse FF Layer
-        src2 = src            
+        src = att_out
+        src2 = att_out       
         src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
         src2 = src2 * self.resweight
         src = src + self.dropout2(src2)

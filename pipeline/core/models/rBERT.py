@@ -47,17 +47,26 @@ class rBERT(BaseModel):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
-        cpt = inpt
-        for _ in range(self.nstep):   
-            apt = self.model(cpt)
-            cpt = cpt + apt / self.nstep
+        predictions = []
+        for i in range(self.predict_length):
             
-        outpt = cpt
+                    
+            cpt = inpt
+            for _ in range(self.nstep):   
+                apt = self.model(cpt)
+                cpt = cpt + apt / self.nstep
                 
-        outpt = torch.cat((inpt,outpt),dim=1)
-        
-        out = self.preprocessor.batched_output_transform(outpt)
+            outpt = cpt
             
+            
+            out = outpt.mean(dim=1)
+            predictions.append(out.unsqueeze(1))
+            inpt = torch.cat((inpt[:,1-self.input_length:,:],out.unsqueeze(1)),dim=1)
+        
+        outpt = torch.cat(predictions,dim=1)                      
+        out = self.preprocessor.batched_output_transform(outpt)
+        out = torch.cat((seq_in,out),dim=1)
+        
         loss_pred = loss_mixed(out, seq_total, self.input_length) #+ 0.1*loss_perceptual(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
         return loss_pred, loss_decouple, out

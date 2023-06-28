@@ -46,12 +46,18 @@ class BERT(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
-            
-        outpt = self.model(inpt)
-        outpt = torch.cat((inpt,outpt),dim=1)
         
+        predictions = []
+        for i in range(self.predict_length):
+            outpt = self.model(inpt)
+            out = outpt.mean(dim=1)
+            predictions.append(out.unsqueeze(1))
+            inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
+        
+        outpt = torch.cat(predictions,dim=1)        
         out = self.preprocessor.batched_output_transform(outpt)
-            
+        out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
+                    
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
         return loss_pred, loss_decouple, out
