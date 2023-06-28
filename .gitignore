@@ -8,3 +8,5 @@ git-secret/
 **.pyc
 **.mp4
 **/wandb/
+.vscode/
+model_ls6/

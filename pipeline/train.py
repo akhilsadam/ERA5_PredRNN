@@ -30,11 +30,11 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 4096}) #128
 hyp.max_iterations = 1505
 
-# tr = [True, False]
-tr=[False]
-# ptn = [None, 'model_1500.ckpt']
-ptn = ['model_1500.ckpt']
-names = ['DualAttentionTransformer']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
+tr = [True, False]
+# tr=[False]
+ptn = [None, 'model_3000.ckpt']
+# ptn = ['model_1500.ckpt']
+names = ['BERT_v3']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 
 if __name__ == '__main__':
     for n in tqdm(names):
