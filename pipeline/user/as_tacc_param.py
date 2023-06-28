@@ -1,8 +1,8 @@
 param=\
 {# installation directory, working directory, and data directories, respectively
-    'install_dir': r'$WORK/phoices/era5_predrnn',
-    'work_dir': r'$SCRATCH/phoices/era5_predrnn',
-    'data_dir': r'$SCRATCH/phoices/era5_predrnn/data',
-    'model_dir': r'$WORK/phoices/era5_predrnn/model',
+    'install_dir': r'WORK/WeatherPrediction/',
+    'work_dir': r'SCRATCH/WeatherPrediction',
+    'data_dir': r'SCRATCH/WeatherPrediction/data',
+    'model_dir': r'WORK/WeatherPrediction/model',
     'WSL': False,
 }
