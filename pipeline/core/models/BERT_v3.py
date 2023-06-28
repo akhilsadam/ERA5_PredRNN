@@ -27,8 +27,11 @@ class BERT(BaseModel):
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
         
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        
         ntoken = self.preprocessor.latent_dims[-1]
-        ninp = self.model_args['n_embd']
+        ninp = self.model_args['n_embd'] * shapex * shapey
         
         if ninp != ntoken:
             print (f"Warning: n_embd is {ninp} but should be {ntoken} for TF model. Setting to {ntoken}.")
