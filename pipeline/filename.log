@@ -1018,3 +1018,1255 @@
 23-06-22 12:44 convert      INFO     Making clips...
 23-06-22 12:44 convert      INFO     Saving data...
 23-06-22 12:44 convert      INFO     Done!
+23-06-28 10:41 __main__     INFO     User: as_tacc
+23-06-28 10:41 __main__     INFO     UID: ca3c5871-778b-4d73-b70a-4d9e0a385d0a
+23-06-28 10:41 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-06-28 10:41 __main__     INFO     Operating PDE API ... will save to $SCRATCH/phoices/era5_predrnn/data/PDE_ca3c5871-778b-4d73-b70a-4d9e0a385d0a/
+23-06-28 10:41 pde          INFO     Generating data...
+23-06-28 10:41 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:41 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:41 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:41 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:41 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:41 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:41 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:41 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:41 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:41 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:41 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:41 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:41 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:42 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:42 pde          INFO     Saving PDE Movie...
+23-06-28 10:52 __main__     INFO     User: as_tacc
+23-06-28 10:52 __main__     INFO     UID: 96c3e78c-1be0-4bc0-a20b-bfb22adc018d
+23-06-28 10:52 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-06-28 10:52 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_96c3e78c-1be0-4bc0-a20b-bfb22adc018d/
+23-06-28 10:52 pde          INFO     Generating data...
+23-06-28 10:52 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:52 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:52 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:52 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:52 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:52 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:52 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:52 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:52 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:52 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:52 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:52 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:53 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:53 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:53 pde          INFO     Making data...
+23-06-28 10:53 convert      INFO     Loading data...
+23-06-28 10:53 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:53 convert      INFO     Making clips...
+23-06-28 10:53 convert      INFO     Saving data...
+23-06-28 10:53 convert      INFO     Done!
+23-06-28 10:53 __main__     INFO     User: as_tacc
+23-06-28 10:53 __main__     INFO     UID: 2b04be94-9f3d-4c0b-8fd2-04085f8bee87
+23-06-28 10:53 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_2b04be94-9f3d-4c0b-8fd2-04085f8bee87/
+23-06-28 10:53 pde          INFO     Generating data...
+23-06-28 10:53 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:53 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:53 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:53 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:53 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:53 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:53 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:53 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:53 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:53 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:53 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:53 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:54 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:54 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:54 pde          INFO     Making data...
+23-06-28 10:54 convert      INFO     Loading data...
+23-06-28 10:54 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:54 convert      INFO     Making clips...
+23-06-28 10:54 convert      INFO     Saving data...
+23-06-28 10:54 convert      INFO     Done!
+23-06-28 10:54 __main__     INFO     User: as_tacc
+23-06-28 10:54 __main__     INFO     UID: 74bbcd0b-46df-4a74-b471-029101dbe4c6
+23-06-28 10:54 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_74bbcd0b-46df-4a74-b471-029101dbe4c6/
+23-06-28 10:54 pde          INFO     Generating data...
+23-06-28 10:54 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:54 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:54 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:54 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:54 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:54 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:54 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:54 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:54 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:54 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:54 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:54 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:55 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:55 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:55 pde          INFO     Making data...
+23-06-28 10:55 convert      INFO     Loading data...
+23-06-28 10:55 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:55 convert      INFO     Making clips...
+23-06-28 10:55 convert      INFO     Saving data...
+23-06-28 10:55 convert      INFO     Done!
+23-06-28 10:55 __main__     INFO     User: as_tacc
+23-06-28 10:55 __main__     INFO     UID: 70e677f5-56e7-49f0-981a-989b7decd69f
+23-06-28 10:55 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_70e677f5-56e7-49f0-981a-989b7decd69f/
+23-06-28 10:55 pde          INFO     Generating data...
+23-06-28 10:55 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:55 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:55 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:55 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:55 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:55 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:55 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:55 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:55 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:55 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:55 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:55 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:56 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:56 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:56 pde          INFO     Making data...
+23-06-28 10:56 convert      INFO     Loading data...
+23-06-28 10:56 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:56 convert      INFO     Making clips...
+23-06-28 10:56 convert      INFO     Saving data...
+23-06-28 10:56 convert      INFO     Done!
+23-06-28 10:56 __main__     INFO     User: as_tacc
+23-06-28 10:56 __main__     INFO     UID: f5f312be-26b6-4a82-a509-ae3064513eca
+23-06-28 10:56 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_f5f312be-26b6-4a82-a509-ae3064513eca/
+23-06-28 10:56 pde          INFO     Generating data...
+23-06-28 10:56 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:56 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:56 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:56 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:56 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:56 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:56 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:56 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:56 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:56 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:56 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:56 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:57 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:57 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:57 pde          INFO     Making data...
+23-06-28 10:57 convert      INFO     Loading data...
+23-06-28 10:57 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:57 convert      INFO     Making clips...
+23-06-28 10:57 convert      INFO     Saving data...
+23-06-28 10:57 convert      INFO     Done!
+23-06-28 10:57 __main__     INFO     User: as_tacc
+23-06-28 10:57 __main__     INFO     UID: 9f8c9846-d276-4d53-9af9-91d79e67b3a9
+23-06-28 10:57 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_9f8c9846-d276-4d53-9af9-91d79e67b3a9/
+23-06-28 10:57 pde          INFO     Generating data...
+23-06-28 10:57 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:57 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:57 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:57 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:57 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:57 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:57 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:57 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:57 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:57 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:57 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:57 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:58 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:58 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:58 pde          INFO     Making data...
+23-06-28 10:58 convert      INFO     Loading data...
+23-06-28 10:58 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:58 convert      INFO     Making clips...
+23-06-28 10:58 convert      INFO     Saving data...
+23-06-28 10:58 convert      INFO     Done!
+23-06-28 10:58 __main__     INFO     User: as_tacc
+23-06-28 10:58 __main__     INFO     UID: 69f818bb-f986-449b-abd7-8af49d913f41
+23-06-28 10:58 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_69f818bb-f986-449b-abd7-8af49d913f41/
+23-06-28 10:58 pde          INFO     Generating data...
+23-06-28 10:58 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:58 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:58 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:58 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:58 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:58 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:58 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:58 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:58 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:58 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:58 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:59 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 10:59 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 10:59 pde          INFO     Making data...
+23-06-28 10:59 convert      INFO     Loading data...
+23-06-28 10:59 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 10:59 convert      INFO     Making clips...
+23-06-28 10:59 convert      INFO     Saving data...
+23-06-28 10:59 convert      INFO     Done!
+23-06-28 10:59 __main__     INFO     User: as_tacc
+23-06-28 10:59 __main__     INFO     UID: 1748c19a-ee80-464a-95c3-4dac858b4f9e
+23-06-28 10:59 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_1748c19a-ee80-464a-95c3-4dac858b4f9e/
+23-06-28 10:59 pde          INFO     Generating data...
+23-06-28 10:59 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:59 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:59 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:59 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 10:59 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:59 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 10:59 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 10:59 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 10:59 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 10:59 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 10:59 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 10:59 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:00 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:00 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:00 pde          INFO     Making data...
+23-06-28 11:00 convert      INFO     Loading data...
+23-06-28 11:00 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:00 convert      INFO     Making clips...
+23-06-28 11:00 convert      INFO     Saving data...
+23-06-28 11:00 convert      INFO     Done!
+23-06-28 11:00 __main__     INFO     User: as_tacc
+23-06-28 11:00 __main__     INFO     UID: 2d305908-06a9-4c86-9726-163ca8b836fa
+23-06-28 11:00 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_2d305908-06a9-4c86-9726-163ca8b836fa/
+23-06-28 11:00 pde          INFO     Generating data...
+23-06-28 11:00 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:00 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:00 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:00 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:00 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:00 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:00 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:00 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:00 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:00 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:00 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:00 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:00 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:01 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:01 pde          INFO     Making data...
+23-06-28 11:01 convert      INFO     Loading data...
+23-06-28 11:01 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:01 convert      INFO     Making clips...
+23-06-28 11:01 convert      INFO     Saving data...
+23-06-28 11:01 convert      INFO     Done!
+23-06-28 11:01 __main__     INFO     User: as_tacc
+23-06-28 11:01 __main__     INFO     UID: ecc2dbf7-9f1b-44ec-8fbb-96874783e74f
+23-06-28 11:01 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_ecc2dbf7-9f1b-44ec-8fbb-96874783e74f/
+23-06-28 11:01 pde          INFO     Generating data...
+23-06-28 11:01 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:01 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:01 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:01 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:01 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:01 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:01 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:01 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:01 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:01 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:01 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:01 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:01 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:02 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:02 pde          INFO     Making data...
+23-06-28 11:02 convert      INFO     Loading data...
+23-06-28 11:02 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:02 convert      INFO     Making clips...
+23-06-28 11:02 convert      INFO     Saving data...
+23-06-28 11:02 convert      INFO     Done!
+23-06-28 11:02 __main__     INFO     User: as_tacc
+23-06-28 11:02 __main__     INFO     UID: 28374969-3476-4666-9bbf-871f8d0e999c
+23-06-28 11:02 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_28374969-3476-4666-9bbf-871f8d0e999c/
+23-06-28 11:02 pde          INFO     Generating data...
+23-06-28 11:02 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:02 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:02 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:02 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:02 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:02 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:02 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:02 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:02 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:02 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:02 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:02 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:02 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:03 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:03 pde          INFO     Making data...
+23-06-28 11:03 convert      INFO     Loading data...
+23-06-28 11:05 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:05 convert      INFO     Making clips...
+23-06-28 11:05 convert      INFO     Saving data...
+23-06-28 11:05 convert      INFO     Done!
+23-06-28 11:05 __main__     INFO     User: as_tacc
+23-06-28 11:05 __main__     INFO     UID: 01f28865-08fb-47a8-bb94-6a16612b4a95
+23-06-28 11:05 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_01f28865-08fb-47a8-bb94-6a16612b4a95/
+23-06-28 11:05 pde          INFO     Generating data...
+23-06-28 11:05 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:05 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:05 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:05 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:05 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:05 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:05 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:05 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:05 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:05 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:05 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:05 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:06 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:06 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:06 pde          INFO     Making data...
+23-06-28 11:06 convert      INFO     Loading data...
+23-06-28 11:06 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:06 convert      INFO     Making clips...
+23-06-28 11:06 convert      INFO     Saving data...
+23-06-28 11:06 convert      INFO     Done!
+23-06-28 11:06 __main__     INFO     User: as_tacc
+23-06-28 11:06 __main__     INFO     UID: 14bef206-595a-446e-bc2e-00cb3f785389
+23-06-28 11:06 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_14bef206-595a-446e-bc2e-00cb3f785389/
+23-06-28 11:06 pde          INFO     Generating data...
+23-06-28 11:06 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:06 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:06 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:06 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:06 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:06 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:06 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:06 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:06 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:06 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:06 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:06 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:07 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:07 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:07 pde          INFO     Making data...
+23-06-28 11:07 convert      INFO     Loading data...
+23-06-28 11:07 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:07 convert      INFO     Making clips...
+23-06-28 11:07 convert      INFO     Saving data...
+23-06-28 11:07 convert      INFO     Done!
+23-06-28 11:07 __main__     INFO     User: as_tacc
+23-06-28 11:07 __main__     INFO     UID: 63526ae7-c1e5-43d8-a392-fd02466da3f0
+23-06-28 11:07 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_63526ae7-c1e5-43d8-a392-fd02466da3f0/
+23-06-28 11:07 pde          INFO     Generating data...
+23-06-28 11:07 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:07 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:07 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:07 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:07 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:07 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:07 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:07 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:07 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:07 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:07 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:07 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:08 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:08 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:08 pde          INFO     Making data...
+23-06-28 11:08 convert      INFO     Loading data...
+23-06-28 11:08 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:08 convert      INFO     Making clips...
+23-06-28 11:08 convert      INFO     Saving data...
+23-06-28 11:08 convert      INFO     Done!
+23-06-28 11:08 __main__     INFO     User: as_tacc
+23-06-28 11:08 __main__     INFO     UID: c7264782-dc3e-42df-9f08-b6c4a6034120
+23-06-28 11:08 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_c7264782-dc3e-42df-9f08-b6c4a6034120/
+23-06-28 11:08 pde          INFO     Generating data...
+23-06-28 11:08 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:08 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:08 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:08 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:08 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:08 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:08 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:08 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:08 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:08 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:08 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:08 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:09 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:09 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:09 pde          INFO     Making data...
+23-06-28 11:09 convert      INFO     Loading data...
+23-06-28 11:09 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:09 convert      INFO     Making clips...
+23-06-28 11:09 convert      INFO     Saving data...
+23-06-28 11:09 convert      INFO     Done!
+23-06-28 11:09 __main__     INFO     User: as_tacc
+23-06-28 11:09 __main__     INFO     UID: d8e149e9-566a-4548-9bb4-fb0a3531b5bf
+23-06-28 11:09 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_d8e149e9-566a-4548-9bb4-fb0a3531b5bf/
+23-06-28 11:09 pde          INFO     Generating data...
+23-06-28 11:09 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:09 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:09 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:09 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:09 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:09 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:09 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:09 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:09 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:09 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:09 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:09 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:10 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:10 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:10 pde          INFO     Making data...
+23-06-28 11:10 convert      INFO     Loading data...
+23-06-28 11:10 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:10 convert      INFO     Making clips...
+23-06-28 11:10 convert      INFO     Saving data...
+23-06-28 11:10 convert      INFO     Done!
+23-06-28 11:10 __main__     INFO     User: as_tacc
+23-06-28 11:10 __main__     INFO     UID: f0e4c187-e45c-4e9c-a338-9cd3bb1bc672
+23-06-28 11:10 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_f0e4c187-e45c-4e9c-a338-9cd3bb1bc672/
+23-06-28 11:10 pde          INFO     Generating data...
+23-06-28 11:10 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:10 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:10 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:10 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:10 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:10 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:10 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:10 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:10 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:10 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:10 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:10 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:11 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:11 pde          INFO     Making data...
+23-06-28 11:11 convert      INFO     Loading data...
+23-06-28 11:11 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:11 convert      INFO     Making clips...
+23-06-28 11:11 convert      INFO     Saving data...
+23-06-28 11:11 convert      INFO     Done!
+23-06-28 11:11 __main__     INFO     User: as_tacc
+23-06-28 11:11 __main__     INFO     UID: df9acf81-6934-4268-8e04-fb6cc6074ba6
+23-06-28 11:11 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_df9acf81-6934-4268-8e04-fb6cc6074ba6/
+23-06-28 11:11 pde          INFO     Generating data...
+23-06-28 11:11 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:11 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:11 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:11 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:11 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:11 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:11 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:11 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:11 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:11 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:11 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:11 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:11 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:12 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:12 pde          INFO     Making data...
+23-06-28 11:12 convert      INFO     Loading data...
+23-06-28 11:12 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:12 convert      INFO     Making clips...
+23-06-28 11:12 convert      INFO     Saving data...
+23-06-28 11:12 convert      INFO     Done!
+23-06-28 11:12 __main__     INFO     User: as_tacc
+23-06-28 11:12 __main__     INFO     UID: 47ad6bbe-254b-41dd-8c76-5fbe3d66327e
+23-06-28 11:12 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_47ad6bbe-254b-41dd-8c76-5fbe3d66327e/
+23-06-28 11:12 pde          INFO     Generating data...
+23-06-28 11:12 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:12 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:12 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:12 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:12 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:12 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:12 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:12 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:12 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:12 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:12 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:12 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:12 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:13 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:13 pde          INFO     Making data...
+23-06-28 11:13 convert      INFO     Loading data...
+23-06-28 11:13 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:13 convert      INFO     Making clips...
+23-06-28 11:13 convert      INFO     Saving data...
+23-06-28 11:13 convert      INFO     Done!
+23-06-28 11:13 __main__     INFO     User: as_tacc
+23-06-28 11:13 __main__     INFO     UID: 8df05a4a-90ab-4825-a52b-9fa51efa072a
+23-06-28 11:13 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_8df05a4a-90ab-4825-a52b-9fa51efa072a/
+23-06-28 11:13 pde          INFO     Generating data...
+23-06-28 11:13 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:13 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:13 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:13 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:13 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:13 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:13 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:13 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:13 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:13 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:13 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:13 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:13 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:14 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:14 pde          INFO     Making data...
+23-06-28 11:14 convert      INFO     Loading data...
+23-06-28 11:14 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:14 convert      INFO     Making clips...
+23-06-28 11:14 convert      INFO     Saving data...
+23-06-28 11:14 convert      INFO     Done!
+23-06-28 11:14 __main__     INFO     User: as_tacc
+23-06-28 11:14 __main__     INFO     UID: 4224c00e-3ffc-400d-acf0-bfd22f18811c
+23-06-28 11:14 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_4224c00e-3ffc-400d-acf0-bfd22f18811c/
+23-06-28 11:14 pde          INFO     Generating data...
+23-06-28 11:14 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:14 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:14 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:14 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:14 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:14 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:14 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:14 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:14 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:14 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:14 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:14 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:14 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:15 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:15 pde          INFO     Making data...
+23-06-28 11:15 convert      INFO     Loading data...
+23-06-28 11:15 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:15 convert      INFO     Making clips...
+23-06-28 11:15 convert      INFO     Saving data...
+23-06-28 11:15 convert      INFO     Done!
+23-06-28 11:15 __main__     INFO     User: as_tacc
+23-06-28 11:15 __main__     INFO     UID: d610ab8f-c9b5-4805-92c9-f0b2c88d719d
+23-06-28 11:15 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_d610ab8f-c9b5-4805-92c9-f0b2c88d719d/
+23-06-28 11:15 pde          INFO     Generating data...
+23-06-28 11:15 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:15 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:15 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:15 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:15 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:15 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:15 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:15 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:15 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:15 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:15 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:15 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:15 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:16 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:16 pde          INFO     Making data...
+23-06-28 11:16 convert      INFO     Loading data...
+23-06-28 11:16 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:16 convert      INFO     Making clips...
+23-06-28 11:16 convert      INFO     Saving data...
+23-06-28 11:16 convert      INFO     Done!
+23-06-28 11:16 __main__     INFO     User: as_tacc
+23-06-28 11:16 __main__     INFO     UID: 0afaa402-d374-42d2-8cb0-cf6d2f82d9d4
+23-06-28 11:16 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_0afaa402-d374-42d2-8cb0-cf6d2f82d9d4/
+23-06-28 11:16 pde          INFO     Generating data...
+23-06-28 11:16 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:16 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:16 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:16 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:16 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:16 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:16 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:16 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:16 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:16 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:16 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:16 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:16 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:17 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:17 pde          INFO     Making data...
+23-06-28 11:17 convert      INFO     Loading data...
+23-06-28 11:17 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:17 convert      INFO     Making clips...
+23-06-28 11:17 convert      INFO     Saving data...
+23-06-28 11:17 convert      INFO     Done!
+23-06-28 11:17 __main__     INFO     User: as_tacc
+23-06-28 11:17 __main__     INFO     UID: b8c0ac47-eea6-415c-ad54-7dfbd777e769
+23-06-28 11:17 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_b8c0ac47-eea6-415c-ad54-7dfbd777e769/
+23-06-28 11:17 pde          INFO     Generating data...
+23-06-28 11:17 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:17 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:17 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:17 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:17 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:17 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:17 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:17 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:17 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:17 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:17 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:17 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:17 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:18 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:18 pde          INFO     Making data...
+23-06-28 11:18 convert      INFO     Loading data...
+23-06-28 11:18 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:18 convert      INFO     Making clips...
+23-06-28 11:18 convert      INFO     Saving data...
+23-06-28 11:18 convert      INFO     Done!
+23-06-28 11:18 __main__     INFO     User: as_tacc
+23-06-28 11:18 __main__     INFO     UID: a3455ec8-a710-4663-a61a-f24e0daec4b3
+23-06-28 11:18 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_a3455ec8-a710-4663-a61a-f24e0daec4b3/
+23-06-28 11:18 pde          INFO     Generating data...
+23-06-28 11:18 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:18 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:18 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:18 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:18 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:18 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:18 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:18 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:18 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:18 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:18 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:18 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:18 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:19 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:19 pde          INFO     Making data...
+23-06-28 11:19 convert      INFO     Loading data...
+23-06-28 11:19 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:19 convert      INFO     Making clips...
+23-06-28 11:19 convert      INFO     Saving data...
+23-06-28 11:19 convert      INFO     Done!
+23-06-28 11:19 __main__     INFO     User: as_tacc
+23-06-28 11:19 __main__     INFO     UID: 7b4ecb33-887b-4e66-8b1a-6d97d6d4924d
+23-06-28 11:19 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_7b4ecb33-887b-4e66-8b1a-6d97d6d4924d/
+23-06-28 11:19 pde          INFO     Generating data...
+23-06-28 11:19 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:19 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:19 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:19 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:19 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:19 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:19 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:19 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:19 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:19 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:19 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:19 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:19 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:20 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:20 pde          INFO     Making data...
+23-06-28 11:20 convert      INFO     Loading data...
+23-06-28 11:20 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:20 convert      INFO     Making clips...
+23-06-28 11:20 convert      INFO     Saving data...
+23-06-28 11:20 convert      INFO     Done!
+23-06-28 11:20 __main__     INFO     User: as_tacc
+23-06-28 11:20 __main__     INFO     UID: 90525bb1-3919-4eba-b4ec-ef1551b3202f
+23-06-28 11:20 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_90525bb1-3919-4eba-b4ec-ef1551b3202f/
+23-06-28 11:20 pde          INFO     Generating data...
+23-06-28 11:20 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:20 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:20 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:20 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:20 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:20 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:20 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:20 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:20 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:20 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:20 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:20 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:20 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:21 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:21 pde          INFO     Making data...
+23-06-28 11:21 convert      INFO     Loading data...
+23-06-28 11:21 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:21 convert      INFO     Making clips...
+23-06-28 11:21 convert      INFO     Saving data...
+23-06-28 11:21 convert      INFO     Done!
+23-06-28 11:21 __main__     INFO     User: as_tacc
+23-06-28 11:21 __main__     INFO     UID: 8f9342e6-cf5f-4f29-83e6-3772525ffe8f
+23-06-28 11:21 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_8f9342e6-cf5f-4f29-83e6-3772525ffe8f/
+23-06-28 11:21 pde          INFO     Generating data...
+23-06-28 11:21 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:21 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:21 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:21 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:21 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:21 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:21 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:21 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:21 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:21 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:21 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:21 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:21 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:22 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:22 pde          INFO     Making data...
+23-06-28 11:22 convert      INFO     Loading data...
+23-06-28 11:22 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:22 convert      INFO     Making clips...
+23-06-28 11:22 convert      INFO     Saving data...
+23-06-28 11:22 convert      INFO     Done!
+23-06-28 11:22 __main__     INFO     User: as_tacc
+23-06-28 11:22 __main__     INFO     UID: 25487b38-f05f-45f7-bd82-e86a06fe8d05
+23-06-28 11:22 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_25487b38-f05f-45f7-bd82-e86a06fe8d05/
+23-06-28 11:22 pde          INFO     Generating data...
+23-06-28 11:22 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:22 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:22 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:22 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:22 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:22 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:22 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:22 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:22 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:22 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:22 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:22 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:22 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:23 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:23 pde          INFO     Making data...
+23-06-28 11:23 convert      INFO     Loading data...
+23-06-28 11:23 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:23 convert      INFO     Making clips...
+23-06-28 11:23 convert      INFO     Saving data...
+23-06-28 11:23 convert      INFO     Done!
+23-06-28 11:23 __main__     INFO     User: as_tacc
+23-06-28 11:23 __main__     INFO     UID: 94880389-9215-43e6-8274-0058609fa420
+23-06-28 11:23 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_94880389-9215-43e6-8274-0058609fa420/
+23-06-28 11:23 pde          INFO     Generating data...
+23-06-28 11:23 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:23 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:23 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:23 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:23 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:23 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:23 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:23 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:23 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:23 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:23 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:23 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:23 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:24 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:24 pde          INFO     Making data...
+23-06-28 11:24 convert      INFO     Loading data...
+23-06-28 11:24 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:24 convert      INFO     Making clips...
+23-06-28 11:24 convert      INFO     Saving data...
+23-06-28 11:24 convert      INFO     Done!
+23-06-28 11:24 __main__     INFO     User: as_tacc
+23-06-28 11:24 __main__     INFO     UID: db12d712-e6bd-4f04-a104-33c23a7d2173
+23-06-28 11:24 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_db12d712-e6bd-4f04-a104-33c23a7d2173/
+23-06-28 11:24 pde          INFO     Generating data...
+23-06-28 11:24 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:24 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:24 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:24 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:24 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:24 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:24 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:24 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:24 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:24 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:24 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:24 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:24 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:25 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:25 pde          INFO     Making data...
+23-06-28 11:25 convert      INFO     Loading data...
+23-06-28 11:25 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:25 convert      INFO     Making clips...
+23-06-28 11:25 convert      INFO     Saving data...
+23-06-28 11:25 convert      INFO     Done!
+23-06-28 11:25 __main__     INFO     User: as_tacc
+23-06-28 11:25 __main__     INFO     UID: ac44d94b-43c1-4eed-b392-e667dec11382
+23-06-28 11:25 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_ac44d94b-43c1-4eed-b392-e667dec11382/
+23-06-28 11:25 pde          INFO     Generating data...
+23-06-28 11:25 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:25 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:25 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:25 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:25 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:25 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:25 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:25 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:25 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:25 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:25 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:25 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:25 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:26 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:26 pde          INFO     Making data...
+23-06-28 11:26 convert      INFO     Loading data...
+23-06-28 11:26 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:26 convert      INFO     Making clips...
+23-06-28 11:26 convert      INFO     Saving data...
+23-06-28 11:26 convert      INFO     Done!
+23-06-28 11:26 __main__     INFO     User: as_tacc
+23-06-28 11:26 __main__     INFO     UID: cc4b1806-c93a-47f1-9bca-98a914232d27
+23-06-28 11:26 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_cc4b1806-c93a-47f1-9bca-98a914232d27/
+23-06-28 11:26 pde          INFO     Generating data...
+23-06-28 11:26 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:26 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:26 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:26 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:26 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:26 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:26 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:26 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:26 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:26 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:26 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:26 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:26 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:27 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:27 pde          INFO     Making data...
+23-06-28 11:27 convert      INFO     Loading data...
+23-06-28 11:27 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:27 convert      INFO     Making clips...
+23-06-28 11:27 convert      INFO     Saving data...
+23-06-28 11:27 convert      INFO     Done!
+23-06-28 11:27 __main__     INFO     User: as_tacc
+23-06-28 11:27 __main__     INFO     UID: 795cf692-d509-44c6-94e6-fa9d4ec0bcd4
+23-06-28 11:27 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_795cf692-d509-44c6-94e6-fa9d4ec0bcd4/
+23-06-28 11:27 pde          INFO     Generating data...
+23-06-28 11:27 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:27 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:27 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:27 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:27 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:27 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:27 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:27 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:27 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:27 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:27 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:27 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:27 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-06-28 11:28 Controller   INFO     Simulation finished at t=1079.0.
+23-06-28 11:28 pde          INFO     Making data...
+23-06-28 11:28 convert      INFO     Loading data...
+23-06-28 11:28 convert      INFO     Making variable snapshots (at timestamp 540)...
+23-06-28 11:28 convert      INFO     Making clips...
+23-06-28 11:28 convert      INFO     Saving data...
+23-06-28 11:28 convert      INFO     Done!
+23-06-28 11:28 __main__     INFO     User: as_tacc
+23-06-28 11:28 __main__     INFO     UID: e2701b27-0f6c-49de-86d1-4206d781eda1
+23-06-28 11:28 __main__     INFO     Operating PDE API ... will save to SCRATCH/WeatherPrediction/data/PDE_e2701b27-0f6c-49de-86d1-4206d781eda1/
+23-06-28 11:28 pde          INFO     Generating data...
+23-06-28 11:28 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:28 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:28 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:28 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-06-28 11:28 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:28 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-06-28 11:28 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:28 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-06-28 11:28 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-06-28 11:28 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-06-28 11:28 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-06-28 11:28 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-06-28 11:28 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
