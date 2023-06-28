@@ -30,8 +30,8 @@ class BERT(BaseModel):
         shapex = self.preprocessor.patch_x
         shapey = self.preprocessor.patch_y
         
-        ntoken = self.preprocessor.latent_dims[-1]
-        ninp = self.model_args['n_embd'] * shapex * shapey
+        ntoken = self.preprocessor.latent_dims[-1] * shapex * shapey
+        ninp = self.model_args['n_embd'] 
         
         if ninp != ntoken:
             print (f"Warning: n_embd is {ninp} but should be {ntoken} for TF model. Setting to {ntoken}.")
