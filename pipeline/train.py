@@ -34,7 +34,7 @@ tr = [True, False]
 # tr=[False]
 ptn = [None, 'model_2000.ckpt']
 # ptn = ['model_1500.ckpt']
-names = ['BERT_v3', 'DualAttentionTransformer']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
+names = ['BERT_v3']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 
 if __name__ == '__main__':
     for n in tqdm(names):
