@@ -92,16 +92,16 @@ model_config_toy = \
             'batch_size': 9, # batch size
         },
         'rBERT':{
-            'n_layers': 6, # number of layers in the transformer
-            'n_head': 4, # number of heads in the transformer
-            'n_embd': 8, # number of hidden units in the transformer
-            'n_ffn_embd': 8, # number of hidden units in the FFN
-            'dropout': 0.01, # dropout rate
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 4096, # number of hidden units in the transformer
+            'n_ffn_embd': 4096, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
-            'batch_size': 3, # batch size
+            'batch_size': 16, # batch size
             'nstep': 8,
         },
         # https://pytorch.org/docs/stable/generated/torch.nn.Transformer.html
@@ -131,19 +131,20 @@ model_config_toy = \
             'batch_size': 16, # batch size
         },
         'LSTM':{
-            'n_layers': 8, # number of layers 
-            'n_embd': 8, # number of hidden units
-            'dropout': 0.0, # dropout rate
-            'optimizer' :  lambda x,y : Adam(x,lr=1e-3), # [None, Adam, ASGD,...]'
-            # 'scheduler' : lambda x : CyclicLR(x, base_lr=1e-6, max_lr=5e-5, cycle_momentum=False, step_size_up=20),
-            'batch_size': 9, # batch size
+            'n_layers': 4, # number of layers 
+            'n_embd': 4096, # number of hidden units
+            'dropout': 0.1, # dropout rate
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
         },
         'rLSTM':{
-            'n_layers': 6, # number of layers 
-            'n_embd': 8, # number of hidden units
-            'dropout': 0.0, # dropout rate
-            'optimizer' :  lambda x,y : Adam(x,lr=y), # [None, Adam, ASGD,...]'
-            'batch_size': 9, # batch size
+            'n_layers': 4, # number of layers 
+            'n_embd': 4096, # number of hidden units
+            'dropout': 0.1, # dropout rate
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
         },
         'ViT_LDM':{
             'n_layers': 6, # number of layers
