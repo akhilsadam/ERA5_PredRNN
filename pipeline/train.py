@@ -2,7 +2,7 @@ from tqdm import tqdm
 import traceback
 import torch
 import subprocess,argparse,sys,os,numpy as np, threading
-import signal
+import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
 parser.add_argument("--hyperthreading", help="Run # threads per GPU", type=int, default=1)
@@ -70,11 +70,15 @@ if __name__ == '__main__':
         global queue, busy_threads, running
         while running:
             if busy_threads[gpu_id,thread_id] == 0: # need to check if busy, so not using queue.consume
-                job = queue.pop(0) # wait for 1 second
-                if job is not None:
-                    run_job(gpu_id,thread_id, job)
+                if len(queue) > 0:
+                    job = queue.pop(0) # wait for 1 second
+                    time.sleep(0.1)
+                    if job is not None:
+                        run_job(gpu_id,thread_id, job)
+                    else:
+                        break    
                 else:
-                    break    
+                    break
         
     def run(name, device):
         skip = False
@@ -113,3 +117,6 @@ if __name__ == '__main__':
             t.start()
 
     print("Started workers.\nPlease kill with Ctrl-C if necessary.")
+    
+    for t in threads:
+        t.join()
