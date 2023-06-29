@@ -4,8 +4,6 @@ import torch.nn as nn
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
 
- #TODO UPDATE THIS to work with new input/output transforms
-
 class RZTX(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
     
@@ -26,9 +24,16 @@ class RZTX(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
+        
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        
+        ntoken = self.preprocessor.latent_dims[-1] * shapex * shapey
+        ninp = self.model_args['n_embd'] 
+        
         self.model = ReZero_base( \
-                         ntoken=self.preprocessor.latent_dims[-1],
-                         ninp=self.model_args['n_embd'],
+                         ntoken=ntoken,
+                         ninp=ninp,
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
                          nlayers=self.model_args['n_layers'],
@@ -49,15 +54,24 @@ class RZTX(BaseModel):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
-        torch.permute(inpt, (1,0,2))
-        outpt = self.model(inpt)
-        torch.permute(outpt, (1,0,2))
+        nc, sx, sy = inpt.shape[-3:]
+        inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
         
-        outpt = torch.cat((inpt,outpt),dim=1)       
+        predictions = []
+        for i in range(self.predict_length):
+            outpt = self.model(inpt)
+            out = outpt.mean(dim=1)
+            predictions.append(out.unsqueeze(1))
+            inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
+        
+        outpt = torch.cat(predictions,dim=1)        
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
         out = self.preprocessor.batched_output_transform(outpt)
-            
+        out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
+                    
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
+
         return loss_pred, loss_decouple, out
 
     
@@ -102,7 +116,7 @@ class PositionalEncoding(nn.Module):
             >>> output = pos_encoder(x)
         """
 
-        x = x + self.pe[:x.size(0), :,:]
+        x = x + self.pe[:, :x.size(1), :]
         return self.dropout(x)
     
 class ReZero_base(nn.Module):
@@ -117,8 +131,8 @@ class ReZero_base(nn.Module):
                               'lower.') from e
         self.model_type = 'Transformer'
         self.src_mask = None
-        self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation) #batch_first=False 
+        # self.pos_encoder = PositionalEncoding(ninp, dropout)
+        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True) #batch_first=False 
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.encoder = nn.Linear(ntoken, ninp)
         self.ninp = ninp
@@ -208,10 +222,10 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu'):
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True):
         super().__init__()
 
-        self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout)
+        self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout, batch_first=batch_first)
         # Implementation of Feedforward model
         self.linear1 = Linear(d_model, dim_feedforward)
         self.dropout = Dropout(dropout)
