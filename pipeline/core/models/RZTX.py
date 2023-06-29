@@ -183,7 +183,7 @@ class ReZero_base(nn.Module):
             self.src_mask = None
 
         src = self.encoder(src) * math.sqrt(self.ninp)
-        src = self.pos_encoder(src)
+        # src = self.pos_encoder(src)
         output = self.transformer_encoder(src, self.src_mask)
         output = self.decoder(output)
         return output
