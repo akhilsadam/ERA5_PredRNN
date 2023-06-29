@@ -174,13 +174,13 @@ class ReZero_base(nn.Module):
         nn.init.zeros_(tf_encoder_layer.linear2.bias)
 
     def forward(self, src, has_mask=True):
-        if has_mask:
-            device = src.device
-            if self.src_mask is None or self.src_mask.size(0) != len(src):
-                mask = self._generate_square_subsequent_mask(len(src)).to(device)
-                self.src_mask = mask
-        else:
-            self.src_mask = None
+        # if has_mask:
+        #     device = src.device
+        #     if self.src_mask is None or self.src_mask.size(0) != len(src):
+        #         mask = self._generate_square_subsequent_mask(len(src)).to(device)
+        #         self.src_mask = mask
+        # else:
+        #     self.src_mask = None
 
         src = self.encoder(src) * math.sqrt(self.ninp)
         # src = self.pos_encoder(src)
