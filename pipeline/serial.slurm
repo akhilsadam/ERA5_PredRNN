@@ -26,7 +26,7 @@
 #SBATCH -e weather_prediction.e%j       # Name of stderr error file
 #SBATCH -p gpu-a100-dev          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes (must be 1 for serial)
-#SBATCH -n 8               # Total # of mpi tasks (should be 1 for serial)
+#SBATCH -n 1               # Total # of mpi tasks (should be 1 for serial)
 #SBATCH -t 01:30:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
 ### #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
@@ -38,6 +38,6 @@ pwd
 date
 
 # Launch serial code...
-export OMP_NUM_THREADS=128 # 128 threads per node
+### export OMP_NUM_THREADS=128 # 128 threads per node
 source ../venv/bin/activate
 python3 train.py      # Do not use ibrun or any other MPI launcher
