@@ -26,8 +26,12 @@ class BERT(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
+        
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        
         self.model = BERT_base( \
-                         ntoken=self.preprocessor.latent_dims[-1],
+                         ntoken=self.preprocessor.latent_dims[-1] * shapex * shapey,
                          ninp=self.model_args['n_embd'],
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],

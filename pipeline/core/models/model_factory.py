@@ -1,15 +1,18 @@
 import os
+import threading
 import numpy as np
 import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, LSTM, rLSTM, ViT_LDM, \
     DAT_v2
-    
+from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
 import wandb
 import gc
+
+os.environ["WANDB_SILENT"] = "true"
 
 class Model(object):
     def __init__(self, configs):
@@ -34,6 +37,11 @@ class Model(object):
             'rLSTM': rLSTM.rLSTM,
             'ViT_LDM': ViT_LDM.ViT_LDM,
         }
+        
+        device = configs.device
+        thread = threading.current_thread().name
+        name = configs.model_name
+        self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
     
 
         if configs.model_name in networks_map:
@@ -48,14 +56,14 @@ class Model(object):
             except Exception as e:
                 ex_type, ex_value, ex_traceback = sys.exc_info()
                 trace_back = traceback.extract_tb(ex_traceback)
-                print(f"Is graphviz installed? Could not visualize model: {e}")
+                self.print(f"Is graphviz installed? Could not visualize model: {e}")
                     # Format stacktrace
                 stack_trace = []
                 for trace in trace_back:
                     stack_trace.append("File : %s , Line : %d, Func.Name : %s, Message : %s" % (trace[0], trace[1], trace[2], trace[3]))
-                print("Exception type : %s " % ex_type.__name__)
-                print("Exception message : %s" %ex_value)
-                print("Stack trace : %s" %stack_trace)
+                self.print("Exception type : %s " % ex_type.__name__)
+                self.print("Exception message : %s" %ex_value)
+                self.print("Stack trace : %s" %stack_trace)
                 
 
         self.optimizer = configs.optim_lm(self.network.parameters(), configs.lr) \
@@ -82,24 +90,29 @@ class Model(object):
             + f'_{self.optimizer.__class__.__name__}_lr{self.optimizer.param_groups[0]["lr"]}'
             # + '_'.join((self.configs.save_file, self.configs.run_name))
         )
-        wandb.init(project=self.configs.project, name=run_name, allow_val_change=True)
-        wandb.config.model_name = self.configs.model_name
-        wandb.config.opt = self.configs.opt
-        wandb.config.lr = self.configs.lr
-        wandb.config.batch_size = 1
-        wandb.config.preprocessor = self.configs.preprocessor_name
+        self.wrun = wandb.init(project=self.configs.project, name=run_name, allow_val_change=True, \
+        config={
+            'model_name': self.configs.model_name,
+            'opt' : self.optimizer.__class__.__name__,
+            'lr' : self.optimizer.param_groups[0]["lr"],
+            'batch_size' : self.configs.model_args['batch_size'],
+            'preprocessor' : self.configs.preprocessor_name,
+        })
+        
+    def finish(self):
+        self.wrun.finish()
 
     def save(self, itr):
         stats = {}
         stats['net_param'] = self.network.state_dict()
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(itr)+'.ckpt')
         torch.save(stats, checkpoint_path)
-        print("save model to %s" % checkpoint_path)
+        self.print("save model to %s" % checkpoint_path)
 
     def load(self, checkpoint_path):
-        print('load model:', checkpoint_path)
+        self.print('load model:', checkpoint_path)
         stats = torch.load(checkpoint_path, map_location=torch.device(self.configs.device))
-        # print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
+        # self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
         self.network.load_state_dict(stats['net_param'])
 
     def train(self, frames, mask, istrain=True):
@@ -116,14 +129,14 @@ class Model(object):
             self.scheduler.step()
         if self.configs.upload_run:
             try:
-                wandb.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
+                self.wrun.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
             except Exception as e:
-                print (f"Could not log to wandb: {e}")
+                self.print (f"Could not log to wandb: {e}")
         try:
             nploss = loss.detach().cpu().numpy()
         except Exception as e:
             nploss = 0.0
-            print (f"Could not convert loss to numpy: {e}")
+            self.print (f"Could not convert loss to numpy: {e}")
         return nploss
 
     def test(self, frames_tensor, mask_tensor):
@@ -134,10 +147,10 @@ class Model(object):
         if self.configs.concurent_step > 1:
             # I have not modified it to make it work.
             for i in range(self.configs.concurent_step):
-                print(i)
+                self.print(i)
                 with torch.no_grad():
                     next_frames, loss, loss_pred, decouple_loss= self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], mask_tensor, istrain=False)
-                print(f"next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
+                self.print(f"next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
                 frames_tensor[:,input_length*i+input_length:input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
                 final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())
                 del next_frames

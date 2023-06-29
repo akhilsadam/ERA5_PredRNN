@@ -1,4 +1,7 @@
 {
     "workbench.colorCustomizations": {},
-    "workbench.preferredDarkColorTheme": "Neon Shimmer / Alpha"
+    "workbench.preferredDarkColorTheme": "Neon Shimmer / Alpha",
+    "python.analysis.extraPaths": [
+        "./pipeline/core"
+    ]
 }

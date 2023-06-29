@@ -4,8 +4,6 @@ import torch.nn as nn
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
 
- #TODO UPDATE THIS to work with new input/output transforms
-
 class rLSTM(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
     
@@ -27,8 +25,10 @@ class rLSTM(BaseModel):
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
         
-        self.encoder = nn.Linear(self.preprocessor.latent_dims[-1], self.model_args['n_embd'])
-        self.decoder = nn.Linear(self.model_args['n_embd'], self.preprocessor.latent_dims[-1])
+        in_dim = self.preprocessor.latent_dims[-1] * self.preprocessor.patch_x * self.preprocessor.patch_y
+        
+        self.encoder = nn.Linear(in_dim, self.model_args['n_embd'])
+        self.decoder = nn.Linear(self.model_args['n_embd'], in_dim)
         nlayers=self.model_args['n_layers']
         dropout=self.model_args['dropout']
         self.lstm = nn.LSTM(self.model_args['n_embd'], self.model_args['n_embd'], nlayers, batch_first=True, dropout=dropout, bidirectional=False)  
@@ -55,6 +55,9 @@ class rLSTM(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
+        
+        nc, sx, sy = inpt.shape[-3:]
+        inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
             
         inpt_encoded = self.encoder(inpt)
             
@@ -69,7 +72,8 @@ class rLSTM(BaseModel):
             outpt_encoded, (h1,c1) = self.lstm(outpt_encoded,(h1,c1))
                 
         outpt = self.decoder(outpt_encoded)
-        
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
+
         outpt = torch.cat((inpt,outpt),dim=1)
         
         out = self.preprocessor.batched_output_transform(outpt)

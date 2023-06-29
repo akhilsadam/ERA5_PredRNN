@@ -374,6 +374,8 @@ class run2:
             train_wrapper(model)
         else:
             test_wrapper(model)
+        
+        model.finish()
 
 
 if __name__ == '__main__':

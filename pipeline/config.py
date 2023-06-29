@@ -5,6 +5,7 @@ logger = logging.getLogger(__name__)
 from torch.optim import ASGD, Adam, SGD
 from torch.optim.lr_scheduler import CyclicLR
 ###############################################
+GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
 model_config = \
     {
         'TF':{
@@ -178,7 +179,7 @@ preprocessor_config = \
 ###############################################
 
 
-def operate_loop(hyp):
+def operate_loop(hyp, device):
     ########## DO NOT EDIT BELOW THIS LINE ########
     ###############################################
     user=os.popen('whoami').read().replace('\n','')
@@ -268,7 +269,7 @@ def operate_loop(hyp):
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --device cuda:0 \
+    --device {device} \
     --dataset_name mnist \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \

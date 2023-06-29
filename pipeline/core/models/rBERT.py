@@ -24,8 +24,12 @@ class rBERT(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
+        
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        
         self.model = BERT_base( \
-                         ntoken=self.preprocessor.latent_dims[-1],
+                         ntoken=self.preprocessor.latent_dims[-1] * shapex * shapey,
                          ninp=self.model_args['n_embd'],
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
@@ -47,6 +51,9 @@ class rBERT(BaseModel):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
+        nc, sx, sy = inpt.shape[-3:]
+        inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
+        
         predictions = []
         for i in range(self.predict_length):
             
@@ -63,7 +70,8 @@ class rBERT(BaseModel):
             predictions.append(out.unsqueeze(1))
             inpt = torch.cat((inpt[:,1-self.input_length:,:],out.unsqueeze(1)),dim=1)
         
-        outpt = torch.cat(predictions,dim=1)                      
+        outpt = torch.cat(predictions,dim=1)         
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)                 
         out = self.preprocessor.batched_output_transform(outpt)
         out = torch.cat((seq_in,out),dim=1)
         
