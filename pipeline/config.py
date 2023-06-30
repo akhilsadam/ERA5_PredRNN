@@ -294,7 +294,7 @@ def operate_loop(hyp, device):
         total_length = 40 #'4' # (complete sequence length?)
         layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
         patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-        num_hidden = '400,400,400,400' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
+        num_hidden = '100,100,100,100' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
         # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
         lr = '1e-3' # learning rate
         rss = '0' # reverse scheduled sampling - turning it off for now; # number of test iterations to run
