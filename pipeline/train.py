@@ -1,11 +1,14 @@
 from tqdm import tqdm
 import traceback
 import torch
-import subprocess,argparse,sys,os,numpy as np, threading
+import subprocess,argparse,sys,os,numpy as np
+import multiprocessing
+multiprocessing.set_start_method('spawn', True)
+from multiprocessing import Process
 import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
-parser.add_argument("--hyperthreading", help="Run # threads per GPU", type=int, default=1)
+parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int, default=1)
 args = parser.parse_args()
 hyt = args.hyperthreading
 ###############################################
@@ -46,77 +49,80 @@ ptn = [None]
 # ptn = ['model_1500.ckpt']
 names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 
+########################
+
+queue = names.copy()
+running = True    
+devices = [f'cuda:{i}' for i in range(torch.cuda.device_count())]
+n_gpus = len(devices)
+busy_processes = np.zeros((n_gpus,hyt))
+    
+def run_job(gpu_id, thread_id, name):
+    global busy_processes
+    busy_processes[gpu_id,thread_id] = 1
+    
+    device = devices[gpu_id]
+    print(f"Running {name} on {device} thread {thread_id}")
+    run(name, device)
+
+    busy_processes[gpu_id,thread_id] = 0
+
+def worker(gpu_id, thread_id):
+    global queue, busy_processes, running
+    while running:
+        if busy_processes[gpu_id,thread_id] == 0: # need to check if busy, so not using queue.consume
+            if len(queue) > 0:
+                job = queue.pop(0) # wait for 1 second
+                time.sleep(0.1)
+                if job is not None:
+                    run_job(gpu_id,thread_id, job)
+                else:
+                    break    
+            else:
+                break
+    
+def run(name, device):
+    skip = False
+    for t,p in zip(tr,ptn):
+        hyp.training = t
+        hyp.pretrain_name = p
+        hyp.model_name = name
+        try:
+            operate_loop(hyp, device)
+        except Exception as e:
+            print(f'Error: {e} for {name} {"Training" if t else "Test"} generated from {p}')
+            print(traceback.format_exc())
+            print('Skipping...')
+            skip = True
+            break
+    if visualize and not skip:
+        viz(hyp)
+
+def signal_handler(sig, frame):
+    print('\nResting workers...')     
+    global processes, running
+    running = False
+    for t in processes:
+        t.join()
+    print('Done.')
+                
 
 
 if __name__ == '__main__':
     
-    queue = names.copy()
-    running = True    
-    devices = [f'cuda:{i}' for i in range(torch.cuda.device_count())]
-    n_gpus = len(devices)
-    busy_threads = np.zeros((n_gpus,hyt))
-        
-    def run_job(gpu_id, thread_id, name):
-        global busy_threads
-        busy_threads[gpu_id,thread_id] = 1
-        
-        device = devices[gpu_id]
-        print(f"Running {name} on {device} thread {thread_id}")
-        run(name, device)
     
-        busy_threads[gpu_id,thread_id] = 0
-
-    def worker(gpu_id, thread_id):
-        global queue, busy_threads, running
-        while running:
-            if busy_threads[gpu_id,thread_id] == 0: # need to check if busy, so not using queue.consume
-                if len(queue) > 0:
-                    job = queue.pop(0) # wait for 1 second
-                    time.sleep(0.1)
-                    if job is not None:
-                        run_job(gpu_id,thread_id, job)
-                    else:
-                        break    
-                else:
-                    break
-        
-    def run(name, device):
-        skip = False
-        for t,p in zip(tr,ptn):
-            hyp.training = t
-            hyp.pretrain_name = p
-            hyp.model_name = name
-            try:
-                operate_loop(hyp, device)
-            except Exception as e:
-                print(f'Error: {e} for {name} {"Training" if t else "Test"} generated from {p}')
-                print(traceback.format_exc())
-                print('Skipping...')
-                skip = True
-                break
-        if visualize and not skip:
-            viz(hyp)
-            
     # start workers
-    threads = []
-    
-    def signal_handler(sig, frame):
-        print('\nResting workers...')     
-        global threads, running
-        running = False
-        for t in threads:
-            t.join()
-        print('Done.')
-        
+    processes = []
+
     signal.signal(signal.SIGINT, signal_handler)
     
     for gpu_id in range(n_gpus):
         for thread in range(hyt):
-            t = threading.Thread(target=worker, args=(gpu_id,thread))
-            threads.append(t)
+            t = Process(target=worker, args=(gpu_id,thread))
+            processes.append(t)
             t.start()
 
     print("Started workers.\nPlease kill with Ctrl-C if necessary.")
     
-    for t in threads:
+    for t in processes:
         t.join()

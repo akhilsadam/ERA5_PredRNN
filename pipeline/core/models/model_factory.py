@@ -39,6 +39,7 @@ class Model(object):
         }
         
         device = configs.device
+        self.device = device
         thread = threading.current_thread().name
         name = configs.model_name
         self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
@@ -73,7 +74,7 @@ class Model(object):
             self.upload_wandb()
     
     def init_net(self):                
-        self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs).to(self.configs.device)
+        self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs).to(self.device)
 
     def modelvis(self):
         draw_graph(self.network, input_size= \
@@ -111,15 +112,15 @@ class Model(object):
 
     def load(self, checkpoint_path):
         self.print('load model:', checkpoint_path)
-        stats = torch.load(checkpoint_path, map_location=torch.device(self.configs.device))
+        stats = torch.load(checkpoint_path, map_location=torch.device(self.device))
         # self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
         self.network.load_state_dict(stats['net_param'])
 
     def train(self, frames, mask, istrain=True):
         gc.collect()
         torch.cuda.empty_cache()
-        frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
-        mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
+        frames_tensor = torch.FloatTensor(frames).to(self.device)
+        mask_tensor = torch.FloatTensor(mask).to(self.device)
         self.optimizer.zero_grad()
         loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
         torch.cuda.empty_cache()
