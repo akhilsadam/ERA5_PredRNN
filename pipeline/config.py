@@ -199,8 +199,12 @@ model_config_toy = \
             'initialization': None,
             'optimizer' : lambda x,y : Adam(x, lr=5e-5), # [None, Adam, ASGD,...]'
             # 'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 9, # batch size
+            'batch_size': 16, # batch size
         },
+        'predrnn_v2':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+        }
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
@@ -290,7 +294,7 @@ def operate_loop(hyp, device):
         total_length = 40 #'4' # (complete sequence length?)
         layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
         patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-        num_hidden = '8,8,8,8,8,8' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
+        num_hidden = '400,400,400,400' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
         # (use 64 if you want 1.5M parameters-this is similar to 1.8M on the full problem)
         lr = '1e-3' # learning rate
         rss = '0' # reverse scheduled sampling - turning it off for now; # number of test iterations to run
@@ -392,35 +396,35 @@ def operate_loop(hyp, device):
             importlib.import_module(f'core.preprocessors.{hyp.preprocessor_name}') \
             .Preprocessor(preprocessor_args)
     args.preprocessor_name = hyp.preprocessor_name
-    if hyp.model_name != 'predrnn_v2':
-        cmodel_config = copy.deepcopy(args.__dict__)
-        if hyp.weather_prediction:
-            cmodel_config.update(model_config,allow_override=True)
-        else:
-            cmodel_config.update(model_config_toy,allow_override=True)
-            
-        nm = hyp.model_name + '_' + hyp.preprocessor_name
-        # model_args = cmodel_config[nm] if nm in cmodel_config else cmodel_config[hyp.model_name] 
+    
+    cmodel_config = copy.deepcopy(args.__dict__)
+    if hyp.weather_prediction:
+        cmodel_config.update(model_config,allow_override=True)
+    else:
+        cmodel_config.update(model_config_toy,allow_override=True)
+        
+    nm = hyp.model_name + '_' + hyp.preprocessor_name
+    # model_args = cmodel_config[nm] if nm in cmodel_config else cmodel_config[hyp.model_name] 
+    if nm in cmodel_config:
+        key = nm
+    elif hyp.model_name in cmodel_config:
+        key = hyp.model_name
+    elif '_v' in hyp.model_name:
+        hnm = hyp.model_name.split('_v')[0]
+        nm = hnm + '_' + hyp.preprocessor_name
         if nm in cmodel_config:
             key = nm
-        elif hyp.model_name in cmodel_config:
-            key = hyp.model_name
-        elif '_v' in hyp.model_name:
-            hnm = hyp.model_name.split('_v')[0]
-            nm = hnm + '_' + hyp.preprocessor_name
-            if nm in cmodel_config:
-                key = nm
-            else:
-                key = hnm
+        else:
+            key = hnm
+    
+    model_args = cmodel_config[key]
         
-        model_args = cmodel_config[key]
-            
-        for k,v in hyp.overrides.items():
-            if k in model_args:
-                model_args[k] = v
-        args.model_args = model_args
-        args.optim_lm = model_args['optimizer']
-        args.scheduler = model_args['scheduler'] if 'scheduler' in model_args else None
-        args.batch_size = model_args['batch_size'] if 'batch_size' in model_args else args.batch_size
+    for k,v in hyp.overrides.items():
+        if k in model_args:
+            model_args[k] = v
+    args.model_args = model_args
+    args.optim_lm = model_args['optimizer']
+    args.scheduler = model_args['scheduler'] if 'scheduler' in model_args else None
+    args.batch_size = model_args['batch_size'] if 'batch_size' in model_args else args.batch_size
     args.weather_prediction = hyp.weather_prediction
     run2.main(args)
