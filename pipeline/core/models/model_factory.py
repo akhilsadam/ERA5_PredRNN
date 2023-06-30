@@ -74,7 +74,8 @@ class Model(object):
             self.upload_wandb()
     
     def init_net(self):                
-        self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs).to(self.device)
+        self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs)
+        self.network = torch.nn.DataParallel(self.network,device_ids=[self.device,]).to(self.device)
 
     def modelvis(self):
         draw_graph(self.network, input_size= \
