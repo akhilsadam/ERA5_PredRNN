@@ -39,8 +39,8 @@ class hyperparam:
 
 
 hyp = hyperparam()
-hyp.overrides.update({'n_embd': 400}) #64
-hyp.overrides.update({'n_ffn_embd': 400}) #128
+# hyp.overrides.update({'n_embd': 400}) #64
+# hyp.overrides.update({'n_ffn_embd': 400}) #128
 hyp.max_iterations = 2005
 
 tr = [True, False]
