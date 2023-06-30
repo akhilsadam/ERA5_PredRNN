@@ -33,12 +33,12 @@ class Preprocessor(PreprocessorBase):
     def __init__(self, config):
         cdict = {
             'datadir': 'data', # directory where data is stored
-            'eigenvector': lambda var: f'POD_v2_eigenvector_{var}.npz', # place to store precomputed eigenvectors
+            'eigenvector': lambda var: f'POD_v3_eigenvector_{var}.npz', # place to store precomputed eigenvectors
             'make_eigenvector': True, # whether to compute eigenvectors or not
             'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
             'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
-            'n_patch': 8,
+            'n_patch': 1,
         }
         cdict.update(config)
         for k,v in cdict.items():
@@ -47,7 +47,7 @@ class Preprocessor(PreprocessorBase):
         super().__init__(config)
             
         self.eigenvector_path = lambda var: f"{self.datadir}/{self.eigenvector(var)}"
-        self.eigenvector_vis_path =  f"{self.datadir}/POD_v2_eigen_vis/"
+        self.eigenvector_vis_path =  f"{self.datadir}/POD_v3_eigen_vis/"
         
         self.cmap = jpcm.get('desert')        
         with torch.no_grad():
@@ -152,8 +152,8 @@ class Preprocessor(PreprocessorBase):
             return torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x_diff[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
         def batched_output_transform(x):
-            a = torch.cumsum(x,dim=1) + self.first_frame.unsqueeze(1)
-            return torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1],:,:]) for v in range(self.n_var)],dim=2)
+            a = torch.cumsum(x,dim=1)
+            return torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1],:,:]) for v in range(self.n_var)],dim=2) + self.first_frame.unsqueeze(1)
         
         self.batched_input_transform = batched_input_transform
         self.batched_output_transform = batched_output_transform
