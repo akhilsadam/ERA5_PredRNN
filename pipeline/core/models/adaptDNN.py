@@ -184,7 +184,7 @@ class adaptDNN(BaseModel):
         out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         
-        loss_decouple = 100 * loss_pred * (self.resweight.sum() - self.resweight.abs().sum())**2
+        loss_decouple = 0.05 * loss_pred * (self.resweight.sum() - self.resweight.abs().sum())**2
         return loss_pred, loss_decouple, out
 
 
