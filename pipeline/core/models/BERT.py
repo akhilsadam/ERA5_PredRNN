@@ -35,7 +35,7 @@ class BERT(BaseModel):
                          nlayers=self.model_args['n_layers'],
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
-                         activation=self.model_args['activation']).to(self.device)
+                         activation=self.model_args['activation'], device=self.device).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
@@ -90,16 +90,17 @@ class PositionalEncoding(nn.Module):
         >>> pos_encoder = PositionalEncoding(d_model)
     """
 
-    def __init__(self, d_model, dropout=0.1, max_len=5000):
+    def __init__(self, d_model, dropout=0.1, max_len=5000, device=None):
         super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
+        self.device = device
+        self.dropout = nn.Dropout(p=dropout).to(self.device)
 
-        pe = torch.zeros(max_len, d_model)
+        pe = torch.zeros(max_len, d_model).to(self.device)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)) 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0)#.transpose(0, 1)
+        pe = pe.unsqueeze(0).to(self.device)#.transpose(0, 1)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
@@ -120,22 +121,23 @@ class PositionalEncoding(nn.Module):
 class BERT_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu'):
+    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', device=None):
         super(BERT_base, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
         except BaseException as e:
             raise ImportError('TransformerEncoder module does not exist in PyTorch 1.1 or '
                               'lower.') from e
+        self.device = device
         self.model_type = 'Transformer'
         self.src_mask = None
-        self.pos_encoder = PositionalEncoding(ninp, dropout)
+        self.pos_encoder = PositionalEncoding(ninp, dropout, device)
         encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.encoder = nn.Linear(ntoken, ninp)
+        self.encoder = nn.Linear(ntoken, ninp).to(self.device)
         self.ninp = ninp
         self.ntoken = ntoken
-        self.decoder = nn.Linear(ninp, ntoken)
+        self.decoder = nn.Linear(ninp, ntoken).to(self.device)
         self.initialization = initialization
 
         self.init_weights()

@@ -4,7 +4,7 @@ import torch
 import subprocess,argparse,sys,os,numpy as np
 import multiprocessing
 multiprocessing.set_start_method('spawn', True)
-from multiprocessing import Process
+from multiprocessing import Process, Value
 import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
@@ -67,13 +67,15 @@ def run_job(gpu_id, thread_id, name):
 
     busy_processes[gpu_id,thread_id] = 0
 
-def worker(gpu_id, thread_id):
+def worker(gpu_id, thread_id, value):
     global queue, busy_processes, running
     while running:
         if busy_processes[gpu_id,thread_id] == 0: # need to check if busy, so not using queue.consume
-            if len(queue) > 0:
-                job = queue.pop(0) # wait for 1 second
-                time.sleep(0.1)
+            time.sleep(0.01)
+            cvalue = value.value
+            if len(queue) > cvalue:
+                value.value += 1
+                job = queue[cvalue] # wait for 1 second
                 if job is not None:
                     run_job(gpu_id,thread_id, job)
                 else:
@@ -115,12 +117,13 @@ if __name__ == '__main__':
     processes = []
 
     signal.signal(signal.SIGINT, signal_handler)
-    
+    value = Value('i', 0)
     for gpu_id in range(n_gpus):
         for thread in range(hyt):
-            t = Process(target=worker, args=(gpu_id,thread))
+            t = Process(target=worker, args=(gpu_id,thread,value))
             processes.append(t)
             t.start()
+            time.sleep(0.01)
 
     print("Started workers.\nPlease kill with Ctrl-C if necessary.")
     

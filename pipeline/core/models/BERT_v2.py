@@ -134,10 +134,10 @@ class BERT_base(nn.Module):
         self.pos_encoder = PositionalEncoding(ninp, dropout)
         encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.encoder = nn.Linear(ntoken, ninp)
+        self.encoder = nn.Linear(ntoken, ninp).to(self.device)
         self.ninp = ninp
         self.ntoken = ntoken
-        self.decoder = nn.Linear(ninp, ntoken)
+        self.decoder = nn.Linear(ninp, ntoken).to(self.device)
         self.initialization = initialization
 
         self.init_weights()
