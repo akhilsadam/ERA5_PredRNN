@@ -7,6 +7,8 @@ import logging
 import imageio.v3 as imageio
 from tqdm import tqdm
 
+# Patch-based POD
+
 from .base import PreprocessorBase
 
 logger = logging.getLogger('POD_v2-preprocessor')
@@ -36,6 +38,7 @@ class Preprocessor(PreprocessorBase):
             'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
             'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
+            'n_patch': 8,
         }
         cdict.update(config)
         for k,v in cdict.items():
@@ -56,8 +59,13 @@ class Preprocessor(PreprocessorBase):
     def precompute(self):
         datasets, shape, _ = super().precompute_scale(use_datasets=True)
 
-        rows = shape[-2]*shape[-1]
-        cols = sum(d.shape[0] for d in datasets)
+        assert shape[-2] // self.n_patch == shape[-2] / self.n_patch, f"Patch size {self.n_patch} does not divide evenly into shape {shape[-2]}"
+        assert shape[-1] // self.n_patch == shape[-1] / self.n_patch, f"Patch size {self.n_patch} does not divide evenly into shape {shape[-1]}"
+
+        rows = shape[-2]*shape[-1] // self.n_patch**2
+        cols = sum(d.shape[0] for d in datasets) * self.n_patch**2
+        
+        datasets = [d.reshape(d.shape[0],d.shape[1],-1,self.n_patch,self.n_patch) for d in datasets]
         
         approx_mem_req = (8/1024**3) * (rows*cols + cols**2 + rows**2 + rows)
         if approx_mem_req > 2:
@@ -83,7 +91,7 @@ class Preprocessor(PreprocessorBase):
             else:
                 logger.info(f'PVE threshold {self.PVE_threshold} reached at {loc} eigenvectors.')
             # truncate
-            eigenvectors = V[:loc,:].cpu().numpy().T # input transformation is a = U.T @ x, output transformation is y = U @ a
+            eigenvectors = U[:,:loc].cpu().numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
             latent_dimension = loc.item()
             
             # save eigenvectors
@@ -120,16 +128,16 @@ class Preprocessor(PreprocessorBase):
         
         def in_tf(method):
             rows = method[0] 
-            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+            return lambda eigen,x: torch.einsum('sl,btsxy->btlxy',eigen.expand(), (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows, self.n_patch, self.n_patch))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
                 
         def out_tf(eigen,a):
-            out = torch.einsum('sl,btl->bts',eigen, a)
+            out = torch.einsum('sl,btlxy->btsxy',eigen, a)
             return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
             
-        self.patch_x = 1
-        self.patch_y = 1
+        self.patch_x = self.n_patch
+        self.patch_y = self.n_patch
         self.latent_dims = latent_dims
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2).unsqueeze(-1).unsqueeze(-1)
+        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1],0,0]) for v in range(self.n_var)],dim=2)
+        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1],:,:]) for v in range(self.n_var)],dim=2)

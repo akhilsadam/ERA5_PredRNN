@@ -207,6 +207,7 @@ preprocessor_config = \
             'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'n_patch': 8, # x,y patch number (so 8x8 of patches = full image)
         },
         'control':{
         },
