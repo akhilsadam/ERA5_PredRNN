@@ -69,10 +69,9 @@ class LSTM(BaseModel):
                 
         outpt = self.decoder(outpt_encoded)
         outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
-                
-        outpt = torch.cat((inpt,outpt),dim=1)
-        
         out = self.preprocessor.batched_output_transform(outpt)
+        out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
+
             
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
