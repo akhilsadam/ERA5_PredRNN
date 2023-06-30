@@ -114,7 +114,7 @@ model_config_toy = \
             'batch_size': 16, # batch size
         },
         'adaptDNN':{
-            'hidden': [], # number of hidden units for all layers in sequence
+            'hidden': [320], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'

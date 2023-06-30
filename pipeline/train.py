@@ -9,8 +9,10 @@ import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
 parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int, default=1)
+parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 args = parser.parse_args()
 hyt = args.hyperthreading
+names = args.models
 ###############################################
 from config import operate_loop
 ###############################################
@@ -47,13 +49,13 @@ tr = [True, False]
 ptn = [None, 'model_2000.ckpt']
 # ptn = [None]
 # ptn = ['model_1500.ckpt']
-names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
+# names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 
 ########################
 
 queue = names.copy()
 running = True    
-devices = [f'cuda:{i}' for i in range(torch.cuda.device_count())]
+devices = ['cuda:0'] #[f'cuda:{i}' for i in range(torch.cuda.device_count())] #TODO make this work
 n_gpus = len(devices)
 busy_processes = np.zeros((n_gpus,hyt))
     

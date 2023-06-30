@@ -90,17 +90,16 @@ class PositionalEncoding(nn.Module):
         >>> pos_encoder = PositionalEncoding(d_model)
     """
 
-    def __init__(self, d_model, dropout=0.1, max_len=5000, device=None):
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
         super(PositionalEncoding, self).__init__()
-        self.device = device
-        self.dropout = nn.Dropout(p=dropout).to(self.device)
+        self.dropout = nn.Dropout(p=dropout)
 
-        pe = torch.zeros(max_len, d_model).to(self.device)
+        pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)) 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).to(self.device)#.transpose(0, 1)
+        pe = pe.unsqueeze(0)#.transpose(0, 1)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
@@ -131,7 +130,7 @@ class BERT_base(nn.Module):
         self.device = device
         self.model_type = 'Transformer'
         self.src_mask = None
-        self.pos_encoder = PositionalEncoding(ninp, dropout, device)
+        self.pos_encoder = PositionalEncoding(ninp, dropout)
         encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.encoder = nn.Linear(ntoken, ninp).to(self.device)
