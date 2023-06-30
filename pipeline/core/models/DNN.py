@@ -23,6 +23,9 @@ class DNN(BaseModel):
         # transformer
         # B S E: batch, sequence, embedding (latent)
         self.preprocessor.load(device=configs.device)
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        
         self.device = configs.device
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
@@ -30,9 +33,11 @@ class DNN(BaseModel):
         
         self.initialization = self.model_args['initialization'] if 'initialization' in self.model_args else None
 
+        in_dim = self.preprocessor.latent_dims[-1] * shapex * shapey
+
         self.z = self.model_args['hidden']
-        self.z.insert(0, self.preprocessor.latent_dims[-1])
-        self.z.append(self.preprocessor.latent_dims[-1])
+        self.z.insert(0, in_dim)
+        self.z.append(in_dim)
         
         self.layers = torch.nn.ModuleList([
             torch.nn.Linear(
@@ -87,6 +92,11 @@ class DNN(BaseModel):
     def core_forward(self, seq_total, istrain=True):
         inl = self.configs.input_length
         test = self.preprocessor.batched_input_transform(seq_total)
+        
+        nc, sx, sy = test.shape[-3:]
+        test = test.reshape(test.shape[0],test.shape[1],-1)
+
+        
         # loss_pred = 0.0
             
         # print("INPUTSIZE", inpt.size())
@@ -133,8 +143,11 @@ class DNN(BaseModel):
                 last_predicted_value = tc
         
         # print("OUTPUTSIZE", outpt.size())
+        outpt = torch.cat(predicted,dim=1)
+        
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
 
-        out = self.preprocessor.batched_output_transform(torch.cat(predicted,dim=1))
+        out = self.preprocessor.batched_output_transform(outpt)
             
         loss_decouple = torch.tensor(0.0)
         out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)

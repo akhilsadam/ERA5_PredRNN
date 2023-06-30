@@ -65,7 +65,7 @@ class DAT(BaseModel):
                          nlayers=len(windows),
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
-                         activation=self.model_args['activation'])
+                         activation=self.model_args['activation']).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)

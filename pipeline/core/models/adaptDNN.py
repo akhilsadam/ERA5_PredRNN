@@ -31,10 +31,10 @@ class adaptDNN(BaseModel):
         self.initialization = self.model_args['initialization'] if 'initialization' in self.model_args else None
 
         self.z = self.model_args['hidden']
-        self.z.insert(0, self.preprocessor.latent_dims[-1])
-        self.z.append(self.preprocessor.latent_dims[-1])
-        self.latent = self.preprocessor.latent_dims[-1]
-        self.channels = 1
+        self.latent = self.preprocessor.latent_dims[-1] * self.preprocessor.patch_x * self.preprocessor.patch_y
+        self.z.insert(0, self.latent)
+        self.z.append(self.latent)
+        # self.channels = 1
         
         self.layers = torch.nn.ModuleList([
             torch.nn.Linear(

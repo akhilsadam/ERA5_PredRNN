@@ -109,14 +109,18 @@ model_config_toy = \
             'hidden': [320], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
-            'optimizer' :  lambda x,y : ASGD(x,lr=100*y) # [None, Adam, ASGD,...]'
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
         },
         'adaptDNN':{
             'hidden': [], # number of hidden units for all layers in sequence
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
-            'optimizer' :  lambda x,y : ASGD(x,lr=500*y), # [None, Adam, ASGD,...]'
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
             'nstep': 8,
+            'batch_size': 16, # batch size
         },
         'reZeroTF':{
             'n_layers': 4, # number of layers in the transformer

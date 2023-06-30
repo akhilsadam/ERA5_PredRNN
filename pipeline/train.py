@@ -39,15 +39,15 @@ class hyperparam:
 hyp = hyperparam()
 # hyp.overrides.update({'n_embd': 4096//4}) #64
 # hyp.overrides.update({'n_ffn_embd': 4096}) #128
-hyp.max_iterations = 2
+hyp.max_iterations = 2005
 
-# tr = [True, False]
-tr = [True]
+tr = [True, False]
+# tr = [True]
 # tr=[False]
-# ptn = [None, 'model_2000.ckpt']
-ptn = [None]
+ptn = [None, 'model_2000.ckpt']
+# ptn = [None]
 # ptn = ['model_1500.ckpt']
-names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
+names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 
 ########################
 

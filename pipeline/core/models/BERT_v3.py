@@ -45,7 +45,7 @@ class BERT(BaseModel):
                          nlayers=self.model_args['n_layers'],
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
-                         activation=self.model_args['activation'])
+                         activation=self.model_args['activation']).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)

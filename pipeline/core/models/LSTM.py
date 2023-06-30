@@ -28,17 +28,17 @@ class LSTM(BaseModel):
         in_dim = self.preprocessor.latent_dims[-1] * self.preprocessor.patch_x * self.preprocessor.patch_y
 
         
-        self.encoder = nn.Linear(in_dim, self.model_args['n_embd'])
-        self.decoder = nn.Linear(self.model_args['n_embd'], in_dim)
+        self.encoder = nn.Linear(in_dim, self.model_args['n_embd']).to(self.device)
+        self.decoder = nn.Linear(self.model_args['n_embd'], in_dim).to(self.device)
         nlayers=self.model_args['n_layers']
         dropout=self.model_args['dropout']
-        self.lstm = nn.LSTM(self.model_args['n_embd'], self.model_args['n_embd'], nlayers, batch_first=True, dropout=dropout, bidirectional=False)  
+        self.lstm = nn.LSTM(self.model_args['n_embd'], self.model_args['n_embd'], nlayers, batch_first=True, dropout=dropout, bidirectional=False).to(self.device)
         
                         #  nhead=self.model_args['n_head'],
                         #  nhid=self.model_args['n_ffn_embd'],
                         
-        self.H0 = nn.Parameter(torch.zeros(nlayers, 1, self.model_args['n_embd']))
-        self.C0 = nn.Parameter(torch.zeros(nlayers, 1, self.model_args['n_embd']))
+        self.H0 = nn.Parameter(torch.zeros(nlayers, 1, self.model_args['n_embd']).to(self.device))
+        self.C0 = nn.Parameter(torch.zeros(nlayers, 1, self.model_args['n_embd']).to(self.device))
                          
         #  
         # initialization=self.model_args['initialization'],
