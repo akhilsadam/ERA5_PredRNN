@@ -158,6 +158,18 @@ model_config_toy = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
         },
+        'reZeroTF_POD_v3':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 800, # number of hidden units in the transformer
+            'n_ffn_embd': 800, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
+        },
         'LSTM':{
             'n_layers': 4, # number of layers 
             'n_embd': 4096, # number of hidden units
@@ -204,10 +216,18 @@ preprocessor_config = \
         'POD_v2':{
             'eigenvector': lambda var: f'POD_v2_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
             'n_patch': 8, # x,y patch number (so 8x8 of patches = full image)
+        },
+        'POD_v3':{
+            'eigenvector': lambda var: f'POD_v2_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
+            # (var is the variable name)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
+            'max_n_eigenvectors': 1000, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
         },
         'control':{
         },
