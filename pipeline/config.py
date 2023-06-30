@@ -137,8 +137,8 @@ model_config_toy = \
         'reZeroTF_POD':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
-            'n_embd': 400, # number of hidden units in the transformer
-            'n_ffn_embd': 400, # number of hidden units in the FFN
+            'n_embd': 800, # number of hidden units in the transformer
+            'n_ffn_embd': 800, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
