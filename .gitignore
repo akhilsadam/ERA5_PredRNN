@@ -10,3 +10,4 @@ git-secret/
 **/wandb/
 .vscode/
 model_ls6/
+data_ls6/

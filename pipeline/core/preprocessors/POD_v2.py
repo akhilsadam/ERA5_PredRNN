@@ -63,6 +63,8 @@ class Preprocessor(PreprocessorBase):
         assert shape[-1] // self.n_patch == shape[-1] / self.n_patch, f"Patch size {self.n_patch} does not divide evenly into shape {shape[-1]}"
 
         rows = shape[-2]*shape[-1] // self.n_patch**2
+        patch_x = shape[-2] // self.n_patch
+        patch_y = shape[-1] // self.n_patch
         cols = sum(d.shape[0] for d in datasets) * self.n_patch**2
         
         datasets = [d.reshape(d.shape[0],d.shape[1],-1,self.n_patch,self.n_patch) for d in datasets]
@@ -107,7 +109,7 @@ class Preprocessor(PreprocessorBase):
             for i in tqdm(range(latent_dimension)):
                 os.makedirs(f"{self.eigenvector_vis_path}/{v}/", exist_ok=True)
                 # convert colormap
-                imc = self.cmap(eigenvectors[:,i]).reshape(shape[-2],shape[-1],4)[:,:,:3]
+                imc = self.cmap(eigenvectors[:,i]).reshape(patch_x,patch_y,4)[:,:,:3]
                 imc /= np.max(imc)
                 imc = (imc*255).astype(np.uint8)                
                 imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/_{i}.png", imc, format='JPEG')
@@ -128,7 +130,7 @@ class Preprocessor(PreprocessorBase):
         
         def in_tf(method):
             rows = method[0] 
-            return lambda eigen,x: torch.einsum('sl,btsxy->btlxy',eigen.expand(), (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows, self.n_patch, self.n_patch))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
+            return lambda eigen,x: torch.einsum('sl,btsxy->btlxy',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows, self.n_patch, self.n_patch))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
                 
         def out_tf(eigen,a):
             out = torch.einsum('sl,btlxy->btsxy',eigen, a)
