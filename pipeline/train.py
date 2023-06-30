@@ -53,7 +53,7 @@ names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM']#['ViT_LDM','BERT','rBERT','reZ
 
 queue = names.copy()
 running = True    
-devices = [f'cuda:{i}' for i in range(torch.cuda.device_count())]
+devices = ['cuda:2'] #[f'cuda:{i}' for i in range(torch.cuda.device_count())]
 n_gpus = len(devices)
 busy_processes = np.zeros((n_gpus,hyt))
     
