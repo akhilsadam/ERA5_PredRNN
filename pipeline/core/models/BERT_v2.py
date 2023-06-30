@@ -38,7 +38,7 @@ class BERT(BaseModel):
                          nlayers=self.model_args['n_layers'],
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
-                         activation=self.model_args['activation']).to(self.device)
+                         activation=self.model_args['activation'], device=self.device).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
@@ -122,7 +122,7 @@ class PositionalEncoding(nn.Module):
 class BERT_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu'):
+    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', device=None):
         super(BERT_base, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
