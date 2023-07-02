@@ -70,7 +70,7 @@ if args.project_names is None:
     project_names = [hyp.project_name]*len(names)
     pstrs = ["" for _ in names]
 else:
-    assert len(args.project_name) == len(names), "Must provide project_name for each model"
+    assert len(args.project_names) == len(names), "Must provide project_name for each model"
     project_names = args.project_names
     pstrs = [f"_pn_{pn}" for pn in project_names]
 ########################
