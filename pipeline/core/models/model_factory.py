@@ -89,8 +89,9 @@ class Model(object):
         # Uploading to wandb
         run_name = (
             f'{self.configs.model_name}_{self.configs.preprocessor_name}_'
-            + 'train' if self.configs.is_training else 'test'
-            + f'_{self.optimizer.__class__.__name__}_lr{self.optimizer.param_groups[0]["lr"]}'
+            + ('train' if self.configs.is_training else 'test')
+            + '_il_' + str(self.configs.input_length)
+        
             # + '_'.join((self.configs.save_file, self.configs.run_name))
         )
         self.wrun = wandb.init(project=self.configs.project, name=run_name, allow_val_change=True, \
