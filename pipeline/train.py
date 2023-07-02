@@ -74,7 +74,7 @@ busy_processes = Array('i', np.zeros((n_gpus*hyt), dtype='int32'), lock=False) #
 arr_lock = Lock()
 
 def run_job(gpu_id, thread_id,i):    
-    device = f'cuda:{gpu_id}'
+    device = f'cuda:0'
     print(f"Running {queue[i]} on {device} thread {thread_id}")
     run(i, device)
 
