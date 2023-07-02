@@ -157,6 +157,8 @@ class run2:
         if args.multigpu:
             from core.models.model_factory_multiGPU import Model
         else:
+            args.gpu_num = int(args.device.split(':')[1])
+            torch.cuda.set_device(args.gpu_num)
             from core.models.model_factory import Model
 
 

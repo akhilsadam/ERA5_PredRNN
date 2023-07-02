@@ -74,7 +74,7 @@ busy_processes = Array('i', np.zeros((n_gpus*hyt), dtype='int32'), lock=False) #
 arr_lock = Lock()
 
 def run_job(gpu_id, thread_id,i):    
-    device = f'cuda:0'
+    device = f'cuda:{gpu_id}'
     print(f"Running {queue[i]} on {device} thread {thread_id}")
     run(i, device)
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     for gpu_id in gpus:
         for thread in range(hyt):
             env = os.environ.copy()
-            env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
+            # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
             t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
             processes.append(t)
             t.start()
