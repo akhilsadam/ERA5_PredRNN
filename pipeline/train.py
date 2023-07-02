@@ -94,7 +94,7 @@ def worker(gpu_id, thread_id, value, env, queue, busy_processes_buffer, lock, ru
                     with lock:
                         busy_processes[gpu_id,thread_id] = 1
                     # print(gpu_id, thread_id, queue[job], input_lengths[job])
-                    run_job(gpu_id, thread_id, job, busy_processes, lock)
+                    run_job(gpu_id, thread_id, job)
                     #time.sleep(6)
                     with lock:
                         busy_processes[gpu_id,thread_id] = 0
