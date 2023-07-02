@@ -47,14 +47,14 @@ class hyperparam:
 hyp = hyperparam()
 # hyp.overrides.update({'n_embd': 400}) #64
 # hyp.overrides.update({'n_ffn_embd': 400}) #128
-hyp.max_iterations = 2005
+hyp.max_iterations = 20005
 
 # hyp.overrides.update({'n_embd': 400}) #64
 
 tr = [True, False]
 # tr = [True]
 # tr=[False]
-ptn = [None, 'model_2000.ckpt']
+ptn = [None, 'model_20000.ckpt']
 # ptn = [None]
 # ptn = ['model_1500.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
