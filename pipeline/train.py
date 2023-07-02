@@ -11,7 +11,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int, default=1)
 parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
-parser.add_argument('-pn','--project_name', nargs='+', help='Wandb project name', required=False)
+parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -66,7 +66,7 @@ else:
     assert len(args.input_lengths) == len(names), "Must provide input_lengths for each model"
     input_lengths = args.input_lengths
     ilstrs = [f"_il_{il}" for il in input_lengths]
-if args.project_name is None:
+if args.project_names is None:
     project_names = [hyp.project_name]*len(names)
     pstrs = ["" for _ in names]
 else:
