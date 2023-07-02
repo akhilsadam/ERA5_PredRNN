@@ -76,7 +76,7 @@ class DAT(BaseModel):
             configs.patch_size = 1
         return configs
         
-    def core_forward(self, seq_total, istrain=True):
+    def core_forward(self, seq_total, istrain=True, **kwargs):
         seq_in = seq_total[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
                

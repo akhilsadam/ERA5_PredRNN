@@ -11,6 +11,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int, default=1)
 parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
+parser.add_argument('-pn','--project_name', nargs='+', help='Wandb project name', required=False)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -60,10 +61,18 @@ ptn = [None, 'model_20000.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 if args.input_lengths is None:
     input_lengths = [hyp.input_length]*len(names)
+    ilstrs = ["" for _ in names]
 else:
     assert len(args.input_lengths) == len(names), "Must provide input_lengths for each model"
     input_lengths = args.input_lengths
-    makestr = True
+    ilstrs = [f"_il_{il}" for il in input_lengths]
+if args.project_name is None:
+    project_names = [hyp.project_name]*len(names)
+    pstrs = ["" for _ in names]
+else:
+    assert len(args.project_name) == len(names), "Must provide project_name for each model"
+    project_names = args.project_names
+    pstrs = [f"_pn_{pn}" for pn in project_names]
 ########################
 
 queue = names # thread immutable
@@ -111,8 +120,8 @@ def run(i, device):
         hyp.model_name = queue[i]
         il = input_lengths[i]
         hyp.input_length = il
-        if makestr:
-            hyp.opt_str = f"_il_{il}"
+        hyp.project_name = project_names[i]
+        hyp.opt_str = f"{ilstrs[i]}{pstrs[i]}"
         try:
             operate_loop(hyp, device)
         except Exception as e:

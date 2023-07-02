@@ -89,7 +89,7 @@ class DNN(BaseModel):
         nn.init.uniform_(tf_encoder_layer.weight, -initrange, initrange)
         nn.init.zeros_(tf_encoder_layer.bias)
         
-    def core_forward(self, seq_total, istrain=True):
+    def core_forward(self, seq_total, istrain=True, **kwargs):
         inl = self.configs.input_length
         test = self.preprocessor.batched_input_transform(seq_total)
         

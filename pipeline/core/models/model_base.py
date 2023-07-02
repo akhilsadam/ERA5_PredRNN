@@ -20,10 +20,9 @@ class BaseModel(nn.Module):
     
     def __init__(self, num_layers, num_hidden, configs):
         super(BaseModel, self).__init__()
-        
-        configs = self.edit_config(configs)
 
-        self.configs = configs
+        self.configs = self.edit_config(configs) 
+        
         self.visual = self.configs.visual
         self.visual_path = self.configs.visual_path
         self.skip_time = self.configs.skip_time
@@ -32,17 +31,17 @@ class BaseModel(nn.Module):
         self.num_layers = num_layers
         self.num_hidden = num_hidden
        
-        self.patch_size = configs.patch_size
-        height = configs.img_height // self.patch_size
-        width = configs.img_width // self.patch_size
+        self.patch_size = self.configs.patch_size
+        height = self.configs.img_height // self.patch_size
+        width = self.configs.img_width // self.patch_size
         # print(self.frame_channel)
         self.frame_channel = self.configs.img_channel*self.patch_size**2
         self.img_channel = self.configs.img_channel
         # print(f"self.configs.img_channel:{self.configs.img_channel}, self.frame_channel: {self.frame_channel}")
         self.cur_height = height
         self.cur_width = width
-        self.img_height = configs.img_height
-        self.img_width = configs.img_width
+        self.img_height = self.configs.img_height
+        self.img_width = self.configs.img_width
     
     @abc.abstractmethod
     def edit_config(self,configs):
@@ -51,7 +50,7 @@ class BaseModel(nn.Module):
         return configs
     
     @abc.abstractmethod
-    def core_forward(self, seq_in, istrain):
+    def core_forward(self, seq_in, istrain, **kwargs):
         """This method should contain the actual forward pass of your model. Runs on each timestep in the forward() loop"""
         abstractmethod(__name__)
 
@@ -60,7 +59,7 @@ class BaseModel(nn.Module):
         '''
         frames_tensor shape: [batch, length, channel, height, width]
         '''
-        loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor, istrain)
+        loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor, istrain, mask_true=mask_true)
             
         print(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
         loss = loss_pred + self.configs.decouple_beta*decouple_loss

@@ -106,7 +106,7 @@ class adaptDNN(BaseModel):
         delta_mean = delta.abs().mean()
         return delta_mean / grad_mean
         
-    def core_forward(self, seq_total, istrain=True):
+    def core_forward(self, seq_total, istrain=True, **kwargs):
         inl = self.configs.input_length - 1
         test = self.preprocessor.batched_input_transform(seq_total)
         nc, sx, sy = test.shape[-3:]

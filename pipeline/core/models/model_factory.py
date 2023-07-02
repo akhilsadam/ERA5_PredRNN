@@ -3,7 +3,7 @@ import threading
 import numpy as np
 import torch
 from torch.optim import Adam
-from core.models import predrnn, predrnn_v2, action_cond_predrnn, action_cond_predrnn_v2, \
+from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, LSTM, rLSTM, ViT_LDM, \
     DAT_v2
 from core.utils.ext import prefixprint
@@ -20,10 +20,10 @@ class Model(object):
         self.num_hidden = [int(x) for x in configs.num_hidden.split(',')]
         self.num_layers = len(self.num_hidden)
         networks_map = {
-            'predrnn': predrnn.RNN,
-            'predrnn_v2': predrnn_v2.RNN,
-            'action_cond_predrnn': action_cond_predrnn.RNN,
-            'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
+            # 'predrnn': predrnn.RNN,
+            'predrnn_v2': predrnn_v2_adj.RNN,
+            # 'action_cond_predrnn': action_cond_predrnn.RNN,
+            # 'action_cond_predrnn_v2': action_cond_predrnn_v2.RNN,
             'TF': TF.TF,
             'DNN': DNN.DNN,
             'adaptDNN': adaptDNN.adaptDNN,
