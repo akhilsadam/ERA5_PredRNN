@@ -251,7 +251,8 @@ def operate_loop(hyp, device):
         os.environ['LD_LIBRARY_PATH'] = '/usr/lib/wsl/lib'
 
     datadir = os.path.abspath(userparam.param['data_dir'])
-    checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}/"
+    options=hyp.opt_str
+    checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     data_key = 'PDE' if not hyp.weather_prediction else 'CDS'
@@ -290,8 +291,8 @@ def operate_loop(hyp, device):
     else:
         img_channel = 1 # we only have one channel for PDE data
         img_layers = '0'
-        input_length = 20 #'2' # (length of input sequence?)
-        total_length = 40 #'4' # (complete sequence length?)
+        input_length = hyp.input_length #'2' # (length of input sequence?)
+        total_length = hyp.total_length #'4' # (complete sequence length?)
         layer_need_enhance = '0' # not sure what the enhancement is on that variable - some sort of renormalization..
         patch_size = '1' # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         num_hidden = '1,1,1,1' # number of hidden units in each layer per patch (so 64**2 * 16 = 65536 parameters per layer, or 393216 parameters total) 
