@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import jpcm
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib.ticker as mticker
 
 def visualize(hyp):
     user=os.popen('whoami').read().replace('\n','')
@@ -10,6 +11,7 @@ def visualize(hyp):
     try:
         modelname = hyp.model_name
         preprocessor = hyp.preprocessor_name
+        input_length = hyp.input_length
         model = f"{modelname}/{preprocessor}/" #WV_0_PC_0_EH_0_PS_1
 
         spec = importlib.util.spec_from_file_location("module.name", f'./user/{user}_param.py')
@@ -46,7 +48,7 @@ def visualize(hyp):
                     a = bq % gt.shape[1]
                     for stepi in sps:
 
-                        stepd = 19 # last true frame
+                        stepd = input_length-1 # last true frame
 
                         fig, axs = plt.subplots(2,3, figsize=(15,10))
                         ax0 = axs[0,0]
@@ -98,49 +100,95 @@ def visualize(hyp):
                         plt.close()
                         # plt.show()
 
-            fig,axs = plt.subplots(1,2, figsize=(10,5))
+                    # fig,axs = plt.subplots(1,6, figsize=(15,6))
+
+            total_length = gt.shape[2]
+            fig = plt.figure(figsize=(15,6), constrained_layout=True)
+            gs = fig.add_gridspec(1, 6,  width_ratios=(4, 1,4,1,4,1))
+            axs = []
+            for i in range(3):
+                axs.append(fig.add_subplot(gs[0, 2*i]))
+                axs.append(fig.add_subplot(gs[0, 2*i+1], sharey=axs[-1]))
             cmap = jpcm.get('desert')
             cs = cmap.resampled(gt.shape[0]).colors
             avg = 0.0
+            ravg = 0.0
+            k = 0
+            allmeans = []
+            allrelmeans = []
+            allspmeans = []
             for ba in range(gt.shape[0]*gt.shape[1]): # for each batch (i.e. each general section of time)
                 b = ba // gt.shape[1]
                 a = ba % gt.shape[1]
                 means = []
                 relMeans = []
+                spMeans = []
                 for f in range(gt.shape[2]-shift-1): # for each frame (i.e. each time step in the batch)
                     d = gt[b,a,shift+f,var,:,:]-pd[b,a,f,var,:,:]
-                    d0 = gt[b,a,shift+f+1,var,:,:]-gt[b,a,shift+f,var,:,:]
+                    g = gt[b,a,shift+f,var,:,:]
+                    g0 = gt[b,a,shift+f+1,var,:,:]-gt[b,a,shift+f,var,:,:]
+                    d0 = pd[b,a,f+1,var,:,:]-pd[b,a,f,var,:,:]
                     meanMse = np.mean(d**2)
-                    meanShiftMse = np.mean(d0**2)
-                    means.append(meanMse) # average over minibatch
-                    relMeans.append(100*meanMse/meanShiftMse) # average over minibatch
+                    # meanShiftMse = np.mean(d0**2)
+                    meang = np.mean(g**2)
+                    means.append(meanMse)
+                    relMeans.append(meanMse/meang)
+                    spMeans.append(np.mean(d0**2) / np.mean(g0**2))
 
-                axs[0].plot(means, color=cs[b], label=f'Batch {b}')
-                axs[1].plot(relMeans, color=cs[b], label=f'Batch {b}')
+                axs[0].plot(means, color=cs[b], label=f'Timestep Batch {b}')
+                axs[2].plot(relMeans, color=cs[b], label=f'Timestep Batch {b}')
+                spMeans[stepd] = np.nan
+                axs[4].plot(spMeans, color=cs[b], label=f'Timestep Batch {b}')
                 avg += np.mean(means)
-            avg /= gt.shape[0]*gt.shape[1]
-            avg *= 2 # because we only have half the frames
+                ravg += np.mean(relMeans)
+                k+=1
+                allmeans.extend(means)
+                allrelmeans.extend(relMeans)
+                allspmeans.extend(spMeans)
+            avg /= k
+            avg *= total_length/(total_length-input_length)
+            ravg /= k
+            ravg *= total_length/(total_length-input_length)
             # plt.plot(medians, label='Median')
             axs[0].set_xlabel('        Lead Time (in frames, first half is known data, second half is testing)')
             axs[0].set_title(f'MSE (absolute) = {avg:.4f}')
             axs[0].set_yscale('log')
-            axs[1].set_yscale('log')
-            axs[1].set_title('Relative MSE (as compared to frame stepping MSE) %')
-            divider = make_axes_locatable(axs[1])
-            cax = divider.append_axes('right', size='5%', pad=0.05)
+            axs[2].set_yscale('log')
+            # axs[2].set_yscale('log')
+            axs[2].set_title(f'Relative MSE = {ravg:.4f} :\n(MSE / frame magnitude)')
+            axs[4].set_title('Scale (rel.MSE of frame delta) :\n (pred.frame-to-frame MSE / frame-to-frame MSE)')
+            allmeansa = np.array(allmeans)
+            allmeansa = allmeansa[np.where(allmeansa > 0)]
+            allrelmeansa = np.array(allrelmeans)
+            allrelmeansa = allrelmeansa[np.where(allrelmeansa > 0)]
+            allspmeansa = np.array(allspmeans)
+            allspmeansa = allspmeansa[np.where(allspmeansa > 1)]
+            axs[1].hist(allmeansa, bins=100, color='k', orientation='horizontal')
+            axs[3].hist(allrelmeansa, bins=100, color='k', orientation='horizontal')
+            axs[5].hist(allspmeansa, bins=100, color='k', orientation='horizontal')
+
+
+            divider = make_axes_locatable(axs[5])
+            cax = divider.append_axes('right', size='20%', pad=0.05)
             fig.colorbar(
                 mpl.cm.ScalarMappable(
                     norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap
                 ),
                 cax=cax,
                 orientation='vertical',
-                label=f'Batch Start Time (every {gt.shape[2]} frames)',
+                label=f'Timestep Start Time (every {gt.shape[2]} frames)',
                 # ticks=np.arange(0, gt.shape[0] * gt.shape[1] * gt.shape[2], gt.shape[2]).tolist(),
             )
             # plt.legend()/
+            [ax.yaxis.set_major_locator(plt.MaxNLocator(10)) for ax in axs[::2]]
+            [ax.yaxis.set_major_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
+            [ax.yaxis.set_minor_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
+            [ax.get_yaxis().set_visible(False) for ax in axs[1::2]]
+
             plt.suptitle(f'{modelname} MSE')
+            # plt.tight_layout()
             plt.savefig(f'{result_path}mse.png'.replace('/mnt/c','C:'))
-            plt.close()
+            plt.show()
             
         make_plots(gt,pd)
         
