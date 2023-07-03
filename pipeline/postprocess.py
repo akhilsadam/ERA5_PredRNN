@@ -4,6 +4,7 @@ import jpcm
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.ticker as mticker
+import traceback
 
 def visualize(hyp):
     user=os.popen('whoami').read().replace('\n','')
@@ -196,3 +197,4 @@ def visualize(hyp):
         
     except Exception as e:
         print(f'Error: {e} for {model}, skipping...')
+        print(traceback.format_exc())
