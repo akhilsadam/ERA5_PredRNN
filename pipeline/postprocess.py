@@ -143,7 +143,7 @@ def visualize(hyp):
 
                 axs[0].plot(means, color=cs[b], label=f'Timestep Batch {b}')
                 axs[2].plot(relMeans, color=cs[b], label=f'Timestep Batch {b}')
-                spMeans[:stepd] = 1.0 + 0.0*spMeans[:stepd]
+                spMeans[:stepd] = [1.0]*stepd
                 spMeans[stepd] = np.nan
                 axs[4].plot(spMeans, color=cs[b], label=f'Timestep Batch {b}')
                 avg += np.mean(means[stepd+1:])
