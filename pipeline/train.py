@@ -12,7 +12,7 @@ parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int
 parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
 parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
-parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, default='t2',)
+parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, default=0,)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -54,10 +54,10 @@ hyp.max_iterations = 20005
 
 # hyp.overrides.update({'n_embd': 400}) #64
 
-if mode == 't2':
+if mode == 0:
     tr = [True, False]
     ptn = [None, 'last']
-elif mode == 'train':
+elif mode == 1:
     tr = [True]
     ptn = [None]
 else:
