@@ -109,12 +109,12 @@ def visualize(hyp):
 
             total_length = gt.shape[2]
             fig = plt.figure(figsize=(18,6), constrained_layout=True)
-            gs = fig.add_gridspec(1, 7,  width_ratios=(8,2,8,2,8,2,1))
+            gs = fig.add_gridspec(1, 6,  width_ratios=(8,2,8,2,8,3))
             axs = []
             for i in range(3):
                 axs.append(fig.add_subplot(gs[0, 2*i]))
                 axs.append(fig.add_subplot(gs[0, 2*i+1], sharey=axs[-1]))
-            axs.append(fig.add_subplot(gs[0, 6]))
+            # axs.append(fig.add_subplot(gs[0, 6]))
             cmap = jpcm.get('desert')
             cs = cmap.resampled(gt.shape[0]).colors
             avg = 0.0
@@ -176,12 +176,15 @@ def visualize(hyp):
             axs[3].set_title(f'med={np.median(allrelmeansa):.4f}\niqr={np.quantile(allrelmeansa,0.75)-np.quantile(allrelmeansa,0.25):.4f}')
             axs[5].hist(allspmeansa, bins=100, color='k', orientation='horizontal')
             axs[5].set_title(f'med={np.median(allspmeansa):.4f}\niqr={np.quantile(allspmeansa,0.75)-np.quantile(allspmeansa,0.25):.4f}')
-
+            
+            divider = make_axes_locatable(axs[5])
+            cax = divider.append_axes('right', size='23%', pad=0.10)
+            
             fig.colorbar(
                 mpl.cm.ScalarMappable(
                     norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap
                 ),
-                cax=axs[6],
+                cax=cax,
                 orientation='vertical',
                 label=f'Timestep Start Time (every {gt.shape[2]} frames)',
                 # ticks=np.arange(0, gt.shape[0] * gt.shape[1] * gt.shape[2], gt.shape[2]).tolist(),
