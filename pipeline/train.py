@@ -120,22 +120,23 @@ def worker(gpu_id, thread_id, value, env, queue, busy_processes_buffer, lock, ru
     
 def run(i, device):
     skip = False
-    for t,p in zip(tr,ptn):
-        hyp.training = t
-        hyp.pretrain_name = p
-        hyp.model_name = queue[i]
-        il = input_lengths[i]
-        hyp.input_length = il
-        hyp.project_name = project_names[i]
-        hyp.opt_str = f"{ilstrs[i]}"
-        try:
-            operate_loop(hyp, device)
-        except Exception as e:
-            print(f'Error: {e} for {hyp.model_name} {"Training" if t else "Test"} generated from {p}')
-            print(traceback.format_exc())
-            print('Skipping...')
-            skip = True
-            break
+    hyp.model_name = queue[i]
+    il = input_lengths[i]
+    hyp.input_length = il
+    hyp.project_name = project_names[i]
+    hyp.opt_str = f"{ilstrs[i]}"
+    if mode < 3:
+        for t,p in zip(tr,ptn):
+            hyp.training = t
+            hyp.pretrain_name = p
+            try:
+                operate_loop(hyp, device)
+            except Exception as e:
+                print(f'Error: {e} for {hyp.model_name} {"Training" if t else "Test"} generated from {p}')
+                print(traceback.format_exc())
+                print('Skipping...')
+                skip = True
+                break
     if visualize and not skip:
         viz(hyp)
 

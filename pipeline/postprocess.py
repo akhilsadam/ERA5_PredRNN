@@ -109,7 +109,7 @@ def visualize(hyp):
 
             total_length = gt.shape[2]
             fig = plt.figure(figsize=(18,6), constrained_layout=True)
-            gs = fig.add_gridspec(1, 6,  width_ratios=(8,2,8,2,8,2,1))
+            gs = fig.add_gridspec(1, 7,  width_ratios=(8,2,8,2,8,2,1))
             axs = []
             for i in range(3):
                 axs.append(fig.add_subplot(gs[0, 2*i]))
