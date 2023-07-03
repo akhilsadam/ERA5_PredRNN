@@ -114,6 +114,7 @@ def visualize(hyp):
             for i in range(3):
                 axs.append(fig.add_subplot(gs[0, 2*i]))
                 axs.append(fig.add_subplot(gs[0, 2*i+1], sharey=axs[-1]))
+            axs.append(fig.add_subplot(gs[0, 6]))
             cmap = jpcm.get('desert')
             cs = cmap.resampled(gt.shape[0]).colors
             avg = 0.0
