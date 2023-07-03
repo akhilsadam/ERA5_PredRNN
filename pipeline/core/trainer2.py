@@ -76,6 +76,7 @@ def test(model, test_input_handle, configs, itr):
             test_input_handle.next()
 
         except Exception as e:
+            print(f"Error: {e}")
             break
     avg_mse /= n
 

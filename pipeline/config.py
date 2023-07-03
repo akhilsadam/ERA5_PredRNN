@@ -204,6 +204,7 @@ model_config_toy = \
         'predrnn_v2':{
             "optimizer": None, # uses default Adam as configured below
             'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
     }
@@ -277,6 +278,7 @@ def operate_loop(hyp, device):
     shp = dat['dims'][0]
     l = dat['input_raw_data'].shape[0]
     param = importlib.import_module('param',f"{datadir}/{train[0]}")
+    snapshot = hyp.snapshot_interval
 
     if hyp.weather_prediction:
 
@@ -382,7 +384,7 @@ def operate_loop(hyp, device):
     --max_iterations {hyp.max_iterations} \
     --display_interval 1000 \
     --test_interval 10 \
-    --snapshot_interval 500 \
+    --snapshot_interval {snapshot} \
     --conv_on_input 0 \
     --res_on_conv 0 \
     --curr_best_mse 0.03 \
@@ -433,5 +435,7 @@ def operate_loop(hyp, device):
     args.optim_lm = model_args['optimizer']
     args.scheduler = model_args['scheduler'] if 'scheduler' in model_args else None
     args.batch_size = model_args['batch_size'] if 'batch_size' in model_args else args.batch_size
+    if 'test_batch_size' in model_args:
+        args.test_batch_size = model_args['test_batch_size']
     args.weather_prediction = hyp.weather_prediction
     run2.main(args)

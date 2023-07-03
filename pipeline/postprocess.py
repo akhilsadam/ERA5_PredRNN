@@ -25,8 +25,8 @@ def visualize(hyp):
 
         result_path = f"{checkpoint_dir}test_result/"
         
-        gt = np.load(f'{result_path}true_data.npy'.replace('/mnt/c','C:'))
-        pd = np.load(f'{result_path}pred_data.npy'.replace('/mnt/c','C:'))
+        gt = np.load(f'{result_path}true_data.npy')#.replace('/mnt/c','C:'))
+        pd = np.load(f'{result_path}pred_data.npy')#.replace('/mnt/c','C:'))
         
         def make_plots(gt, pd):
             # stepi = 5
@@ -98,14 +98,14 @@ def visualize(hyp):
                             y=0.5)
                         nm = f'frame_{stepi}_from_batch_{b*gt.shape[1] + a}_var_{var}'
                         plt.suptitle(nm)
-                        plt.savefig(f'{result_path}{nm}.png'.replace('/mnt/c','C:'))
+                        plt.savefig(f'{result_path}{nm}.png')#.replace('/mnt/c','C:'))
                         plt.close()
                         # plt.show()
 
                     # fig,axs = plt.subplots(1,6, figsize=(15,6))
 
             total_length = gt.shape[2]
-            fig = plt.figure(figsize=(15,6), constrained_layout=True)
+            fig = plt.figure(figsize=(18,6), constrained_layout=True)
             gs = fig.add_gridspec(1, 6,  width_ratios=(4, 1,4,1,4,1))
             axs = []
             for i in range(3):
@@ -148,9 +148,9 @@ def visualize(hyp):
                 allrelmeans.extend(relMeans)
                 allspmeans.extend(spMeans)
             avg /= k
-            avg *= total_length/(total_length-input_length)
+            # avg *= total_length/(total_length-input_length)
             ravg /= k
-            ravg *= total_length/(total_length-input_length)
+            # ravg *= total_length/(total_length-input_length)
             # plt.plot(medians, label='Median')
             axs[0].set_xlabel('        Lead Time (in frames, first half is known data, second half is testing)')
             axs[0].set_title(f'MSE (absolute) = {avg:.4f}')
@@ -189,7 +189,7 @@ def visualize(hyp):
 
             plt.suptitle(f'{modelname} MSE')
             # plt.tight_layout()
-            plt.savefig(f'{result_path}mse.png'.replace('/mnt/c','C:'))
+            plt.savefig(f'{result_path}mse.png')#.replace('/mnt/c','C:'))
             plt.show()
             
         make_plots(gt,pd)

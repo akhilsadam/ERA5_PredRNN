@@ -30,6 +30,7 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+    snapshot_interval = 1 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = 'control' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
@@ -51,7 +52,6 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_embd': 400}) #64
 # hyp.overrides.update({'n_ffn_embd': 400}) #128
 hyp.max_iterations = 20005
-
 # hyp.overrides.update({'n_embd': 400}) #64
 
 if mode == 0:
