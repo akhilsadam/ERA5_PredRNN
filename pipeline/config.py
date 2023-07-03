@@ -321,7 +321,7 @@ def operate_loop(hyp, device):
     else:
         if hyp.pretrain_name == 'last':
             # get last checkpoint from the directory
-            n = max([int(i.split('_')[1].split('.')[0]) for i in os.listdir(checkpoint_dir) if '.ckpt' in i])
+            n = max([int(i.split('_')[1].split('.')[0]) for i in os.listdir(checkpoint_dir) if ('.ckpt' in i and 'best' not in i)])
             hyp.pretrain_name = f'model_{n}.ckpt'
     
         print('Using pretrained model')
