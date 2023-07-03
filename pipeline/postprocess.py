@@ -12,7 +12,8 @@ def visualize(hyp):
     try:
         modelname = hyp.model_name
         preprocessor = hyp.preprocessor_name
-        input_length = hyp.input_length
+        input_length = int(hyp.input_length)
+        assert input_length > 0
         model = f"{modelname}/{preprocessor}/" #WV_0_PC_0_EH_0_PS_1
 
         spec = importlib.util.spec_from_file_location("module.name", f'./user/{user}_param.py')
@@ -51,7 +52,7 @@ def visualize(hyp):
                     a = bq % gt.shape[1]
                     for stepi in sps:
 
-                        stepd = input_length-1 # last true frame
+                        stepd = input_length - 1 # last true frame
 
                         fig, axs = plt.subplots(2,3, figsize=(15,10))
                         ax0 = axs[0,0]
