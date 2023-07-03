@@ -14,7 +14,7 @@ def visualize(hyp):
         preprocessor = hyp.preprocessor_name
         input_length = int(hyp.input_length)
         assert input_length > 0
-        model = f"{modelname}/{preprocessor}/" #WV_0_PC_0_EH_0_PS_1
+
 
         spec = importlib.util.spec_from_file_location("module.name", f'./user/{user}_param.py')
         userparam = importlib.util.module_from_spec(spec)
@@ -23,8 +23,9 @@ def visualize(hyp):
 
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
-
-
+        n = max([int(i.split('_')[1].split('.')[0]) for i in os.listdir(checkpoint_dir) if ('.ckpt' in i and 'best' not in i)])
+        model = f"{modelname}-{preprocessor}-{options}-{n}it" #WV_0_PC_0_EH_0_PS_1
+        
         result_path = f"{checkpoint_dir}test_result/"
         
         gt = np.load(f'{result_path}true_data.npy')#.replace('/mnt/c','C:'))
@@ -99,7 +100,7 @@ def visualize(hyp):
                         ax3.set_title(f'(as compared to off-by-one frame):\n\trelative mse={meanMse:.4f}%.\nActual mse={mse:.4f}\nScaled mse={relmse:.4f}', \
                             y=0.5)
                         nm = f'frame_{stepi}_from_batch_{b*gt.shape[1] + a}_var_{var}'
-                        plt.suptitle(nm)
+                        plt.suptitle(f'{nm}-{model}')
                         plt.savefig(f'{result_path}{nm}.png')#.replace('/mnt/c','C:'))
                         plt.close()
                         # plt.show()
@@ -189,7 +190,7 @@ def visualize(hyp):
             [ax.yaxis.set_minor_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
             [ax.get_yaxis().set_visible(False) for ax in axs[1::2]]
 
-            plt.suptitle(f'{modelname} MSE')
+            plt.suptitle(f'{model} MSE')
             # plt.tight_layout()
             plt.savefig(f'{result_path}mse.png')#.replace('/mnt/c','C:'))
             plt.show()
