@@ -37,12 +37,14 @@ class Preprocessor(PreprocessorBase):
             'make_eigenvector': True, # whether to compute eigenvectors or not
             'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
-            'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
+            # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
             'n_patch': 8,
         }
         cdict.update(config)
         for k,v in cdict.items():
             setattr(self, k, v)
+            
+        self.randomized_svd_k = self.max_n_eigenvectors 
             
         super().__init__(config)
             
