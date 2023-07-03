@@ -159,7 +159,7 @@ def visualize(hyp):
             axs[0].set_title(f'MSE (absolute) = {avg:.4f}')
             axs[0].set_yscale('log')
             axs[2].set_yscale('log')
-            # axs[2].set_yscale('log')
+            axs[2].set_yscale('log')
             axs[2].set_title(f'Relative MSE = {ravg:.4f} :\n(MSE / frame magnitude)')
             axs[4].set_title('Scale (rel.MSE of frame delta) :\n (pred.frame-to-frame MSE / frame-to-frame MSE)')
             allmeansa = np.array(allmeans)
