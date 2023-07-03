@@ -19,9 +19,11 @@ def visualize(hyp):
         sys.modules["module.name"] = userparam
         spec.loader.exec_module(userparam)
 
-        checkpoint_dir = userparam.param['model_dir']
+        options=hyp.opt_str
+        checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
 
-        result_path = f"{checkpoint_dir}/{model}/test_result/"
+
+        result_path = f"{checkpoint_dir}test_result/"
         
         gt = np.load(f'{result_path}true_data.npy'.replace('/mnt/c','C:'))
         pd = np.load(f'{result_path}pred_data.npy'.replace('/mnt/c','C:'))
