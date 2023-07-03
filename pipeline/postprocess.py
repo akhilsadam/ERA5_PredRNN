@@ -143,12 +143,12 @@ def visualize(hyp):
                 axs[2].plot(relMeans, color=cs[b], label=f'Timestep Batch {b}')
                 spMeans[stepd] = np.nan
                 axs[4].plot(spMeans, color=cs[b], label=f'Timestep Batch {b}')
-                avg += np.mean(means)
-                ravg += np.mean(relMeans)
+                avg += np.mean(means[stepd+1:])
+                ravg += np.mean(relMeans[stepd+1:])
                 k+=1
-                allmeans.extend(means)
-                allrelmeans.extend(relMeans)
-                allspmeans.extend(spMeans)
+                allmeans.extend(means[stepd+1:])
+                allrelmeans.extend(relMeans[stepd+1:])
+                allspmeans.extend(spMeans[stepd+1:])
             avg /= k
             # avg *= total_length/(total_length-input_length)
             ravg /= k
