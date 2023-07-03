@@ -109,7 +109,7 @@ def visualize(hyp):
 
             total_length = gt.shape[2]
             fig = plt.figure(figsize=(18,6), constrained_layout=True)
-            gs = fig.add_gridspec(1, 6,  width_ratios=(4, 1,4,1,4,1))
+            gs = fig.add_gridspec(1, 6,  width_ratios=(8,2,8,2,8,2,1))
             axs = []
             for i in range(3):
                 axs.append(fig.add_subplot(gs[0, 2*i]))
@@ -157,6 +157,7 @@ def visualize(hyp):
             # plt.plot(medians, label='Median')
             axs[0].set_xlabel('        Lead Time (in frames, first half is known data, second half is testing)')
             axs[0].set_title(f'MSE (absolute) = {avg:.4f}')
+            axs[0].set_ylabel('MSE')
             axs[0].set_yscale('log')
             axs[2].set_yscale('log')
             axs[2].set_yscale('log')
@@ -169,17 +170,17 @@ def visualize(hyp):
             allspmeansa = np.array(allspmeans)
             allspmeansa = allspmeansa[np.where(allspmeansa > 1)]
             axs[1].hist(allmeansa, bins=100, color='k', orientation='horizontal')
+            axs[1].set_title(f'med={np.median(allmeansa):.4f}\niqr={np.quantile(allmeansa,0.75)-np.quantile(allmeansa,0.25):.4f}')
             axs[3].hist(allrelmeansa, bins=100, color='k', orientation='horizontal')
+            axs[3].set_title(f'med={np.median(allrelmeansa):.4f}\niqr={np.quantile(allrelmeansa,0.75)-np.quantile(allrelmeansa,0.25):.4f}')
             axs[5].hist(allspmeansa, bins=100, color='k', orientation='horizontal')
+            axs[5].set_title(f'med={np.median(allspmeansa):.4f}\niqr={np.quantile(allspmeansa,0.75)-np.quantile(allspmeansa,0.25):.4f}')
 
-
-            divider = make_axes_locatable(axs[5])
-            cax = divider.append_axes('right', size='20%', pad=0.05)
             fig.colorbar(
                 mpl.cm.ScalarMappable(
                     norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap
                 ),
-                cax=cax,
+                cax=axs[6],
                 orientation='vertical',
                 label=f'Timestep Start Time (every {gt.shape[2]} frames)',
                 # ticks=np.arange(0, gt.shape[0] * gt.shape[1] * gt.shape[2], gt.shape[2]).tolist(),
