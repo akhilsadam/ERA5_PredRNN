@@ -165,11 +165,11 @@ def visualize(hyp):
             axs[2].set_title(f'Relative MSE = {ravg:.4f} :\n(MSE / frame magnitude)')
             axs[4].set_title('Scale (rel.MSE of frame delta) :\n (pred.frame-to-frame MSE / frame-to-frame MSE)')
             allmeansa = np.array(allmeans)
-            allmeansa = allmeansa[np.where(allmeansa > 0)]
+            # allmeansa = allmeansa[np.where(allmeansa > 0)]
             allrelmeansa = np.array(allrelmeans)
-            allrelmeansa = allrelmeansa[np.where(allrelmeansa > 0)]
+            # allrelmeansa = allrelmeansa[np.where(allrelmeansa > 0)]
             allspmeansa = np.array(allspmeans)
-            allspmeansa = allspmeansa[np.where(allspmeansa > 1)]
+            # allspmeansa = allspmeansa[np.where(allspmeansa1)]
             axs[1].hist(allmeansa, bins=100, color='k', orientation='horizontal')
             axs[1].set_title(f'med={np.median(allmeansa):.4f}\niqr={np.quantile(allmeansa,0.75)-np.quantile(allmeansa,0.25):.4f}')
             axs[3].hist(allrelmeansa, bins=100, color='k', orientation='horizontal')
