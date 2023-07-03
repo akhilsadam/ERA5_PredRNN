@@ -12,9 +12,11 @@ parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int
 parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
 parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
+parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, default='t2',)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
+mode = args.mode
 ###############################################
 from config import operate_loop
 ###############################################
@@ -52,11 +54,15 @@ hyp.max_iterations = 20005
 
 # hyp.overrides.update({'n_embd': 400}) #64
 
-tr = [True, False]
-# tr = [True]
-# tr=[False]
-ptn = [None, 'model_20000.ckpt']
-# ptn = [None]
+if mode == 't2':
+    tr = [True, False]
+    ptn = [None, 'last']
+elif mode == 'train':
+    tr = [True]
+    ptn = [None]
+else:
+    tr = [False]
+    ptn = ['last']
 # ptn = ['model_1500.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 if args.input_lengths is None:
@@ -121,7 +127,7 @@ def run(i, device):
         il = input_lengths[i]
         hyp.input_length = il
         hyp.project_name = project_names[i]
-        hyp.opt_str = f"{ilstrs[i]}{pstrs[i]}"
+        hyp.opt_str = f"{ilstrs[i]}"
         try:
             operate_loop(hyp, device)
         except Exception as e:
