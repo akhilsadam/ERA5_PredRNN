@@ -179,7 +179,7 @@ def visualize(hyp):
             axs[5].set_title(f'med={np.median(allspmeansa):.4f}\niqr={np.quantile(allspmeansa,0.75)-np.quantile(allspmeansa,0.25):.4f}')
             
             divider = make_axes_locatable(axs[5])
-            cax = divider.append_axes('right', size='23%', pad=0.10)
+            cax = divider.append_axes('right', size='13%', pad=0.20)
             
             fig.colorbar(
                 mpl.cm.ScalarMappable(
