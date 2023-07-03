@@ -190,7 +190,7 @@ def visualize(hyp):
             [ax.yaxis.set_minor_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
             [ax.get_yaxis().set_visible(False) for ax in axs[1::2]]
 
-            plt.suptitle(f'{model} MSE')
+            plt.suptitle(f'{model} MSE for output frames (all frames shown)')
             # plt.tight_layout()
             plt.savefig(f'{result_path}mse.png')#.replace('/mnt/c','C:'))
             plt.show()
