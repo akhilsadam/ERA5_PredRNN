@@ -13,6 +13,7 @@ parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', r
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
 parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
 parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, type=int, default=0)
+parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -34,7 +35,7 @@ class hyperparam:
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = 'POD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'LS6_toy1_pod_tests' # name of wandb project
+    project_name = 'LS6_toy1_pod_embd100' # name of wandb project
     ##
     save_test_output=True # save test output to file
     weather_prediction=False # use PDE_* data or CDS_* data
@@ -49,8 +50,8 @@ class hyperparam:
 
 
 hyp = hyperparam()
-# hyp.overrides.update({'n_embd': 400}) #64
-# hyp.overrides.update({'n_ffn_embd': 400}) #128
+hyp.overrides.update({'n_embd': 100}) #64
+hyp.overrides.update({'n_ffn_embd': 100}) #128
 hyp.max_iterations = 20005
 # hyp.overrides.update({'n_embd': 400}) #64
 
@@ -63,6 +64,8 @@ elif mode == 1:
 else:
     tr = [False]
     ptn = ['last']
+    if args.preload != 0:
+        ptn = [f'model_{args.preload}.ckpt']
 # ptn = ['model_1500.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 if args.input_lengths is None:
