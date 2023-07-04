@@ -175,8 +175,8 @@ model_config_toy = \
             'n_layers': 4, # number of layers 
             'n_embd': 4096, # number of hidden units
             'dropout': 0.1, # dropout rate
-            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-6, max_lr=2e-5, cycle_momentum=False, step_size_up=20),
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
         },
         'rLSTM':{
