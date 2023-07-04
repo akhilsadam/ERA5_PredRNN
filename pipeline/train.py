@@ -50,8 +50,8 @@ class hyperparam:
 
 
 hyp = hyperparam()
-# hyp.overrides.update({'n_embd': 100}) #64
-# hyp.overrides.update({'n_ffn_embd': 100}) #128
+hyp.overrides.update({'n_embd': 100}) #64
+hyp.overrides.update({'n_ffn_embd': 100}) #128
 hyp.max_iterations = 20005
 # hyp.overrides.update({'n_embd': 400}) #64
 
@@ -65,7 +65,7 @@ else:
     tr = [False]
     ptn = ['last']
     if args.preload != 0:
-        ptn = [f'model_{args.preload}.ckpt']
+        ptn = [f'model_{args}.ckpt']
 # ptn = ['model_1500.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 if args.input_lengths is None:
