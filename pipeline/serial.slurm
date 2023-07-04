@@ -33,6 +33,7 @@
 #SBATCH --mail-user=akhil.sadam@utexas.edu
 
 # Any other commands must follow all #SBATCH directives...
+module load python3/3.9.2
 module list
 pwd
 date
