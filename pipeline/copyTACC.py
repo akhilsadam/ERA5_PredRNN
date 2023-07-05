@@ -6,7 +6,7 @@ userparam = importlib.util.module_from_spec(spec)
 sys.modules["module.name"] = userparam
 spec.loader.exec_module(userparam)
 
-_dir = userparam.param['work_dir']
+_dir = userparam.param['work_dir_abs']
 
 # copy back all .png files using rsync from user@ls6.tacc.utexas.edu
 os.makedirs('../model_ls6/', exist_ok=True)

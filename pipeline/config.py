@@ -147,6 +147,18 @@ model_config_toy = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
         },
+        'reZeroTF_DMD':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
+        },
         'reZeroTF_POD_v2':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
@@ -234,6 +246,13 @@ preprocessor_config = \
             'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 1000, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
+            'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
+        },
+        'DMD':{
+            'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
+            # (var is the variable name)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
+            'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
         },
         'control':{
