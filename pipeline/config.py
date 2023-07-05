@@ -92,6 +92,18 @@ model_config_toy = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
         },
+        'BERT_DMD':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 8, # number of hidden units in the transformer
+            'n_ffn_embd': 8, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
+        },
         'rBERT':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
