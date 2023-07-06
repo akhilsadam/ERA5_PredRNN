@@ -1,9 +1,9 @@
 import cdsapi
 import uuid, os, importlib, argparse
 import logging
-from tqdm.asyncio import tqdm
-# from tqdm import tqdm
-import asyncio
+# from tqdm.asyncio import tqdm
+from tqdm import tqdm
+import multiprocessing
 ###########
 import param
 import convert
@@ -16,8 +16,9 @@ parser.add_argument('--total_length', type=int, default=40)
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--save_movie', type=bool, default=False)
 parser.add_argument('--resave_data', type=bool, default=False)
+parser.add_argument('--max_processes', type=int, default=5)
 kwargs = vars(parser.parse_args())
-
+max_processes = kwargs['max_processes']
 
 logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler('filename.log'), logging.StreamHandler()])
@@ -79,10 +80,17 @@ def run(i):
         
 # for i in tqdm(range(kwargs['n'])):
 #     run(i)
-loop = asyncio.get_event_loop()
 
-group1 = tqdm.gather(*[run(i) for i in range(kwargs['n'])])
+# loop = asyncio.get_event_loop()
 
-all_groups = asyncio.gather(group1)                               
-results = loop.run_until_complete(all_groups)
+# group1 = tqdm.gather(*[run(i) for i in range(kwargs['n'])])
 
+# all_groups = asyncio.gather(group1)                               
+# results = loop.run_until_complete(all_groups)
+
+# use multiprocessing
+nsets = kwargs['n']
+processes = min(max_processes, nsets)
+with multiprocessing.Pool(processes=processes) as pool:
+    list(tqdm(pool.imap_unordered(run, range(nsets)), total=nsets))
+        
