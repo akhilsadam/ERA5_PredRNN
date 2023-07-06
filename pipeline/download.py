@@ -14,6 +14,7 @@ parser.add_argument('--input_length', type=int, default=20)
 parser.add_argument('--total_length', type=int, default=40)
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--save_movie', type=bool, default=False)
+parser.add_argument('--resave_data', type=bool, default=False)
 kwargs = vars(parser.parse_args())
 
 
@@ -39,18 +40,19 @@ def run(i):
         current_year = end_year - i
         months = param.data['month']
         for month in months:
-            cdatadir = f'{datadir}/CDS_{current_year}_{month}_{uid}/'
+            cdatadir = f'{datadir}/CDS_{current_year}_{month}/'
             os.makedirs(cdatadir, exist_ok=True)
             
             logger.info(f'Opening CDS API ... saving to {cdatadir}/data.grib')
+            if kwargs['resave_data'] or not os.path.exists(f'{cdatadir}/data.grib'):
 
-            c = cdsapi.Client()
-            params = param.data.copy()
-            params['year'] = str(current_year)
-            params['month'] = str(month)
-            c.retrieve('reanalysis-era5-single-levels',
-                params,
-                f'{cdatadir}/data.grib')
+                c = cdsapi.Client()
+                params = param.data.copy()
+                params['year'] = str(current_year)
+                params['month'] = str(month)
+                c.retrieve('reanalysis-era5-single-levels',
+                    params,
+                    f'{cdatadir}/data.grib')
 
             logger.info('Converting CDS data...')
             convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'))

@@ -21,8 +21,6 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
     if pygrib_fmt:
         import pygrib
         data = pygrib.open(path)
-        n_step = len(data) // n_var
-        mid = n_step // 2
         
         var_arrs = [[] for _ in range(n_var)]
 
@@ -32,6 +30,9 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
             r = i % n_var
             var_arrs[r].append(slice.values[np.newaxis,...])
 
+            
+        n_step = (i+1) // n_var
+        mid = n_step // 2
         # normalize data
         logger.info('Normalizing data...')
         for i in range(n_var):
