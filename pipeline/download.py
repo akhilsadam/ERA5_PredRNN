@@ -2,6 +2,7 @@ import cdsapi
 import uuid, os, importlib, argparse
 import logging
 from tqdm import tqdm
+import asyncio
 ###########
 import param
 import convert
@@ -23,7 +24,15 @@ logger = logging.getLogger(__name__)
 # TODO add logging to log.txt, so same file is not requested twice
 user=os.popen('whoami').read().replace('\n','')
 end_year=2021
-for i in tqdm(range(kwargs['n'])):
+# for i in tqdm(range(kwargs['n'])):
+loop = asyncio.get_event_loop()
+
+group1 = tqdm.gather(*[run(i) for i in range(1, 2)])
+
+all_groups = asyncio.gather(group1)                               
+results = loop.run_until_complete(all_groups)
+
+def run(i):
     uid = str(uuid.uuid4())
     logger.info(f'User: {user}')
     logger.info(f'UID: {uid}')
