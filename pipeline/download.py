@@ -65,7 +65,7 @@ def run(i):
         
 loop = asyncio.get_event_loop()
 
-group1 = tqdm.gather(*[run(i) for i in range(1, 2)])
+group1 = tqdm.gather(*[run(i) for i in range(kwargs['n'])])
 
 all_groups = asyncio.gather(group1)                               
 results = loop.run_until_complete(all_groups)
