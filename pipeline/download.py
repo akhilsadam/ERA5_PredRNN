@@ -1,7 +1,7 @@
 import cdsapi
 import uuid, os, importlib, argparse
 import logging
-from tqdm import tqdm
+from tqdm.asyncio import tqdm
 import asyncio
 ###########
 import param
