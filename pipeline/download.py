@@ -7,6 +7,7 @@ import asyncio
 ###########
 import param
 import convert
+from normalize import short
 ###########
 parser = argparse.ArgumentParser(description='Data Downloader')
 
@@ -39,23 +40,29 @@ def run(i):
     if 'year' in param.data.keys():
         current_year = end_year - i
         months = param.data['month']
+        variables = param.data['variable']
         for month in months:
             cdatadir = f'{datadir}/CDS_{current_year}_{month}/'
             os.makedirs(cdatadir, exist_ok=True)
-            
-            logger.info(f'Opening CDS API ... saving to {cdatadir}/data.grib')
-            if kwargs['resave_data'] or not os.path.exists(f'{cdatadir}/data.grib'):
 
-                c = cdsapi.Client()
-                params = param.data.copy()
-                params['year'] = str(current_year)
-                params['month'] = str(month)
-                c.retrieve('reanalysis-era5-single-levels',
-                    params,
-                    f'{cdatadir}/data.grib')
+            paths = []
+            for var in variables:
+                sname = short[var]
+                logger.info(f'Opening CDS API ... saving to {cdatadir}/{sname}.grib')
+                if kwargs['resave_data'] or not os.path.exists(f'{cdatadir}/{sname}.grib'):
 
+                    c = cdsapi.Client()
+                    params = param.data.copy()
+                    params['year'] = str(current_year)
+                    params['month'] = str(month)
+                    params['variable'] = var
+                    c.retrieve('reanalysis-era5-single-levels',
+                        params,
+                        f'{cdatadir}/{sname}.grib')
+
+                paths.append(f'{cdatadir}/{sname}.grib')
             logger.info('Converting CDS data...')
-            convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'))
+            convert.convert(paths, cdatadir, logging.getLogger('convert'))
     else:
         cdatadir = f'{datadir}/PDE_{uid}/'
         os.makedirs(cdatadir, exist_ok=True)

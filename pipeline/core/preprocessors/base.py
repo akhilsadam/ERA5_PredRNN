@@ -16,6 +16,8 @@ class PreprocessorBase:
 
         self.scale_path =  f"{self.datadir}/scale.txt"
         
+        self.weather_prediction = config.weather_prediction
+        
     def precompute_check(self):
         # check if scale file exists
         if not os.path.exists(self.scale_path):
@@ -81,11 +83,13 @@ class PreprocessorBase:
                 scale, shift = norms
                 scale = torch.Tensor([scale]).to(device).unsqueeze(1).unsqueeze(0)
                 shift = torch.Tensor([shift]).to(device).unsqueeze(1).unsqueeze(0)
-
             else:
                 scale, shift = norms
                 scale = torch.from_numpy(scale).to(device).unsqueeze(1).unsqueeze(0)
                 shift = torch.from_numpy(shift).to(device).unsqueeze(1).unsqueeze(0)
+            if self.weather_prediction:
+                scale = torch.ones_like(scale)
+                shift = torch.zeros_like(shift)
             return scale, shift
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')

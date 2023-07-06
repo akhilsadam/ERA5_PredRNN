@@ -437,6 +437,7 @@ def operate_loop(hyp, device):
         preprocessor_args['n_var'] = img_channel
         preprocessor_args['shapex'] = shp[1]
         preprocessor_args['shapey'] = shp[2]
+        preprocessor_args['weather_prediction'] = hyp.weather_prediction
         args.preprocessor = \
             importlib.import_module(f'core.preprocessors.{hyp.preprocessor_name}') \
             .Preprocessor(preprocessor_args)

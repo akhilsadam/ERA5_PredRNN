@@ -5,39 +5,35 @@ import os, sys
 import param, normalize
 
 
-def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, input_length=20, total_length=40, **kwargs):
+def convert(path, directory, logger=None, pygrib_fmt=True, final_data=None, input_length=20, total_length=40, **kwargs):
     if logger is None:
         import logging
         logger = logging.getLogger()
     
     # load data
     logger.info('Loading data...')
-    os.makedirs(output_path, exist_ok=True)
-    os.makedirs(f'{output_path}/snapshots', exist_ok=True)
+    os.makedirs(directory, exist_ok=True)
+    os.makedirs(f'{directory}/snapshots', exist_ok=True)
 
     varnames = [normalize.short[x] for x in param.data['variable']]
     n_var = len(varnames)
     
     if pygrib_fmt:
         import pygrib
-        data = pygrib.open(path)
-        
-        var_arrs = [[] for _ in range(n_var)]
-
         # collect data
         logger.info('Collecting data...')
-        for i, slice in tqdm(enumerate(data)):
-            r = i % n_var
-            var_arrs[r].append(slice.values[np.newaxis,...])
-
+        var_arrs = [[] for _ in range(n_var)]
+        
+        for i, pathi in enumerate(path):
+            data = pygrib.open(pathi)
+            for j,slice in tqdm(enumerate(data)):
+                var_arrs[i].append(slice.values[np.newaxis,...])
             
-        n_step = (i+1) // n_var
+            n_step = j+1
         mid = n_step // 2
         # normalize data
         logger.info('Normalizing data...')
         for i in range(n_var):
-            print(var_arrs[i][0].shape)
-            print(var_arrs[i][1240].shape)
             var_arrs[i] = normalize.norm_func[varnames[i]](var_arrs[i]) 
 
         # plot distribution
@@ -46,7 +42,7 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
             plt.figure(figsize=(5,5))
             plt.hist(var_arrs[i][mid,...])
             plt.title(f'{normalize.short_inv[s]} distribution at timestamp {mid}')
-            plt.savefig(f'{output_path}/snapshots/distribution_{normalize.short_inv[s]}.png')
+            plt.savefig(f'{directory}/snapshots/distribution_{normalize.short_inv[s]}.png')
             plt.close()
 
         # collect data
@@ -71,7 +67,7 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
         plt.imshow(final_data[mid,i,:,:])
         plt.colorbar()
         plt.title(f'{normalize.short_inv[s]} at timestamp {mid}')
-        plt.savefig(f'{output_path}/snapshots/{s}.png')
+        plt.savefig(f'{directory}/snapshots/{s}.png')
         plt.close()
 
 
@@ -80,9 +76,10 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
     in_step = input_length
     out_step = input_length
 
-    final_clips = np.ones((2,int(np.ceil(n_step/(in_step))),2))*in_step
-    final_clips[0,:,0] = np.arange(0,n_step,in_step)
-    final_clips[1,:,0] = np.arange(in_step,n_step+1,out_step)
+    nc = int(n_step//in_step)
+    final_clips = np.ones((2,nc,2))*in_step
+    final_clips[0,:,0] = np.arange(0,n_step,in_step)[:nc]
+    final_clips[1,:,0] = np.arange(in_step,n_step+1,out_step)[:nc]
     final_clips[1,:,1] = out_step
     logger.info('\tClip Shape:', final_clips.shape)
 
@@ -95,12 +92,12 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
 
     # save data
     logger.info('Saving data...')
-    np.savez(f'{output_path}/data.npz', **final_ds)
-    # copy param.py to output_path
-    os.system(f'cp {os.path.dirname(__file__)}/param.py {output_path}/param.py')
+    np.savez(f'{directory}/data.npz', **final_ds)
+    # copy param.py to directory
+    os.system(f'cp {os.path.dirname(__file__)}/param.py {directory}/param.py')
 
     logger.info('Done!')
     
 if __name__ == '__main__':
-    assert len(sys.argv) == 3, 'Usage: python convert.py <input_path> <output_path>'
+    assert len(sys.argv) == 3, 'Usage: python convert.py <input_path> <directory>'
     convert(*sys.argv[1:3])
