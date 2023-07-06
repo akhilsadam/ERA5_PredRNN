@@ -36,7 +36,7 @@ def run(i):
 
     if 'year' in param.data.keys():
         current_year = end_year - i
-        months = param.data['months']
+        months = param.data['month']
         for month in months:
             cdatadir = f'{datadir}/CDS_{current_year}_{month}_{uid}/'
             os.makedirs(cdatadir, exist_ok=True)
