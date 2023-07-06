@@ -1,7 +1,8 @@
 import cdsapi
 import uuid, os, importlib, argparse
 import logging
-from tqdm.asyncio import tqdm
+# from tqdm.asyncio import tqdm
+from tqdm import tqdm
 import asyncio
 ###########
 import param
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 # TODO add logging to log.txt, so same file is not requested twice
 user=os.popen('whoami').read().replace('\n','')
 end_year=2021
-# for i in tqdm(range(kwargs['n'])):
+
 def run(i):
     uid = str(uuid.uuid4())
     logger.info(f'User: {user}')
@@ -67,10 +68,12 @@ def run(i):
         final_data = gen.gen_data(param.data['t_step'], param.data['dt'], param.data['nvar'], param.data['gshape'], cdatadir, logging.getLogger('pde'), movie=kwargs['save_movie'])
         convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'), pygrib_fmt=False, final_data=final_data, **kwargs)
         
-loop = asyncio.get_event_loop()
+for i in tqdm(range(kwargs['n'])):
+    run(i)
+# loop = asyncio.get_event_loop()
 
-group1 = tqdm.gather(*[run(i) for i in range(kwargs['n'])])
+# group1 = tqdm.gather(*[run(i) for i in range(kwargs['n'])])
 
-all_groups = asyncio.gather(group1)                               
-results = loop.run_until_complete(all_groups)
+# all_groups = asyncio.gather(group1)                               
+# results = loop.run_until_complete(all_groups)
 
