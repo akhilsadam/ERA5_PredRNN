@@ -34,7 +34,7 @@ class hyperparam:
     snapshot_interval = 500 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'pod' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
+    preprocessor_name = 'POD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
     project_name = 'WP_pod_embd100' # name of wandb project
     ##
     save_test_output=True # save test output to file
