@@ -36,6 +36,8 @@ def convert(path, output_path, logger=None, pygrib_fmt=True, final_data=None, in
         # normalize data
         logger.info('Normalizing data...')
         for i in range(n_var):
+            print(var_arrs[i][0].shape)
+            print(var_arrs[i][1].shape)
             var_arrs[i] = normalize.norm_func[varnames[i]](var_arrs[i]) 
 
         # plot distribution
