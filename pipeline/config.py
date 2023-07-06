@@ -357,7 +357,7 @@ def operate_loop(hyp, device):
         img_channel = rawshape[1]
         img_layers = ','.join([str(i) for i in range(img_channel)])
         input_length = hyp.input_length #'24'
-        total_length = hyp.input_length #'48'
+        total_length = hyp.total_length #'48'
         layer_need_enhance = '0' # used to be 1, but turning off for now.
         patch_size = '1' # used to be 40, but turning off for now.
         # num_hidden = '480,480,480,480,480,480'
