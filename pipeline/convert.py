@@ -36,6 +36,10 @@ def convert(path, directory, logger=None, pygrib_fmt=True, final_data=None, inpu
         for i in range(n_var):
             var_arrs[i] = normalize.norm_func[varnames[i]](var_arrs[i]) 
 
+        if kwargs['download_only']:
+            logger.info('Download only, skipping conversion...')
+            return
+
         # plot distribution
         logger.info(f'Making distribution snapshots (at timestamp {mid})...')
         for i,s in tqdm(enumerate(varnames)):

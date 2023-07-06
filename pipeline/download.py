@@ -17,6 +17,7 @@ parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--save_movie', type=bool, default=False)
 parser.add_argument('--resave_data', type=bool, default=False)
 parser.add_argument('--max_processes', type=int, default=5)
+parser.add_argument('--download_only', type=bool, default=False)
 kwargs = vars(parser.parse_args())
 max_processes = kwargs['max_processes']
 
@@ -63,7 +64,7 @@ def run(i):
 
                 paths.append(f'{cdatadir}/{sname}.grib')
             logger.info('Converting CDS data...')
-            convert.convert(paths, cdatadir, logging.getLogger('convert'))
+            convert.convert(paths, cdatadir, logging.getLogger('convert'), pygrib_fmt=True, **kwargs)
     else:
         cdatadir = f'{datadir}/PDE_{uid}/'
         os.makedirs(cdatadir, exist_ok=True)
