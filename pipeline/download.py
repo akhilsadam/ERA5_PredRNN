@@ -63,8 +63,13 @@ def run(i):
                         f'{cdatadir}/{sname}.grib')
 
                 paths.append(f'{cdatadir}/{sname}.grib')
-            logger.info('Converting CDS data...')
-            convert.convert(paths, cdatadir, logging.getLogger('convert'), pygrib_fmt=True, **kwargs)
+                
+            
+            if kwargs['download_only']:
+                logger.info('Download only, skipping conversion...')
+            else:
+                logger.info('Converting CDS data...')
+                convert.convert(paths, cdatadir, logging.getLogger('convert'), pygrib_fmt=True, **kwargs)
     else:
         cdatadir = f'{datadir}/PDE_{uid}/'
         os.makedirs(cdatadir, exist_ok=True)
