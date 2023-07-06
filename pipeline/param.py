@@ -7,15 +7,15 @@ data= \
         '10m_u_component_of_wind', '10m_v_component_of_wind', 'sea_surface_temperature',
         'surface_pressure', 'total_precipitation',
     ],
-    'year': '2021',
-    'month': [
+    'year': '2021', # last year of data
+    'month': [      # will download these months separately
         '01', '02', '03',
         '04', '05', '06',
         '07', '08', '09',
         '10', '11', '12',
     ],
     # 'month': ['01'],
-    'day': [
+    'day': [        # days and times are downloaded together
         '01', '02', '03',
         '04', '05', '06',
         '07', '08', '09',

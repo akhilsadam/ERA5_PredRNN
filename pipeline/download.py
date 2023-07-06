@@ -36,19 +36,23 @@ def run(i):
 
     if 'year' in param.data.keys():
         current_year = end_year - i
-        cdatadir = f'{datadir}/CDS_{current_year}_{uid}/'
-        os.makedirs(cdatadir, exist_ok=True)
-        
-        logger.info(f'Opening CDS API ... saving to {cdatadir}/data.grib')
+        months = param.data['months']
+        for month in months:
+            cdatadir = f'{datadir}/CDS_{current_year}_{month}_{uid}/'
+            os.makedirs(cdatadir, exist_ok=True)
+            
+            logger.info(f'Opening CDS API ... saving to {cdatadir}/data.grib')
 
-        c = cdsapi.Client()
-        param.data['year'] = str(current_year)
-        c.retrieve('reanalysis-era5-single-levels',
-            param.data,
-            f'{cdatadir}/data.grib')
+            c = cdsapi.Client()
+            params = param.data.copy()
+            params['year'] = str(current_year)
+            params['month'] = str(month)
+            c.retrieve('reanalysis-era5-single-levels',
+                params,
+                f'{cdatadir}/data.grib')
 
-        logger.info('Converting CDS data...')
-        convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'))
+            logger.info('Converting CDS data...')
+            convert.convert(f'{cdatadir}/data.grib', cdatadir, logging.getLogger('convert'))
     else:
         cdatadir = f'{datadir}/PDE_{uid}/'
         os.makedirs(cdatadir, exist_ok=True)
