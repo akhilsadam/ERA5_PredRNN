@@ -438,10 +438,10 @@ def operate_loop(hyp, device):
         preprocessor_args['shapex'] = shp[1]
         preprocessor_args['shapey'] = shp[2]
         preprocessor_args['weather_prediction'] = hyp.weather_prediction
+        preprocessor_args['eigenvector'] = lambda v: preprocessor_args['eigenvector'](f'{v}{wp}')
         args.preprocessor = \
             importlib.import_module(f'core.preprocessors.{hyp.preprocessor_name}') \
             .Preprocessor(preprocessor_args)
-        args.preprocessor['eigenvector'] = lambda v: preprocessor_args['eigenvector'](f'{v}{wp}')
     args.preprocessor_name = hyp.preprocessor_name
     
     cmodel_config = copy.deepcopy(args.__dict__)
