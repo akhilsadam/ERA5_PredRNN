@@ -2270,3 +2270,27 @@
 23-06-28 11:28 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
 23-06-28 11:28 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
 23-06-28 11:28 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
+23-07-05 14:10 __main__     INFO     User: mitt-wsl
+23-07-05 14:10 __main__     INFO     UID: f940fad4-4d9a-4b96-bb25-9e9df1b92d0d
+23-07-05 14:10 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-07-05 14:10 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-07-05 14:10 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_f940fad4-4d9a-4b96-bb25-9e9df1b92d0d/
+23-07-05 14:10 __main__     CRITICAL t_step must be provided for PDE data
+23-07-05 14:11 __main__     INFO     User: mitt-wsl
+23-07-05 14:11 __main__     INFO     UID: 98622aac-af25-4292-ac8a-95d6c9cf6ceb
+23-07-05 14:12 __main__     INFO     User: mitt-wsl
+23-07-05 14:12 __main__     INFO     UID: e141ae8a-c4d0-49ac-a2a1-f74ed09dc523
+23-07-05 14:12 __main__     INFO     User: mitt-wsl
+23-07-05 14:12 __main__     INFO     UID: 5d1c4d54-8305-4990-aac8-7d3bdd12adb7
+23-07-05 14:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_5d1c4d54-8305-4990-aac8-7d3bdd12adb7//data.grib
+23-07-05 14:12 cdsapi       INFO     Welcome to the CDS
+23-07-05 14:12 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-05 14:14 __main__     INFO     User: mitt-wsl
+23-07-05 14:14 __main__     INFO     UID: 24ddbb9f-fe42-42b2-a586-95871a0ad819
+23-07-05 14:14 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_24ddbb9f-fe42-42b2-a586-95871a0ad819//data.grib
+23-07-05 14:14 cdsapi       INFO     Welcome to the CDS
+23-07-05 14:14 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-05 14:14 cdsapi       INFO     Request is queued
+23-07-05 14:14 cdsapi       INFO     Request is running
+23-07-05 14:28 cdsapi       INFO     Request is completed
+23-07-05 14:28 cdsapi       INFO     Downloading https://download-0000-clone.copernicus-climate.eu/cache-compute-0000/cache/data0/adaptor.mars.internal-1688584470.6610482-27424-7-e9a3baba-3a3f-47d7-9730-1c24547b0e51.grib to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_24ddbb9f-fe42-42b2-a586-95871a0ad819//data.grib (46.7G)

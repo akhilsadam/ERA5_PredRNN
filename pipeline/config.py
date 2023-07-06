@@ -235,6 +235,7 @@ model_config_toy = \
     }
 # note predrnn_v2 does not work with any preprocessing or other options
 ###############################################
+
 preprocessor_config = \
     {
         'POD':{
@@ -308,21 +309,23 @@ def operate_loop(hyp, device):
 
     dat = np.load(f"{datadir}/{train[0]}/data.npz")
     shp = dat['dims'][0]
-    l = dat['input_raw_data'].shape[0]
+    rawshape = dat['input_raw_data'].shape
+    l = rawshape[0]
     param = importlib.import_module('param',f"{datadir}/{train[0]}")
     snapshot = hyp.snapshot_interval
 
     if hyp.weather_prediction:
 
-        img_channel = 3
-        img_layers = '0,1,2'
-        input_length = '24'
-        total_length = '48'
-        layer_need_enhance = '1'
-        patch_size = '40'
-        num_hidden = '480,480,480,480,480,480'
+        img_channel = rawshape[1]
+        img_layers = ','.join([str(i) for i in range(img_channel)])
+        input_length = hyp.input_length #'24'
+        total_length = hyp.input_length #'48'
+        layer_need_enhance = '0' # used to be 1, but turning off for now.
+        patch_size = '1' # used to be 40, but turning off for now.
+        # num_hidden = '480,480,480,480,480,480'
+        num_hidden = '1,1,1,1' # copying below settings
         lr = '1e-4'
-        rss='1'; # number of test iterations to run
+        rss='0' # turning off rss
     else:
         img_channel = 1 # we only have one channel for PDE data
         img_layers = '0'
@@ -424,6 +427,7 @@ def operate_loop(hyp, device):
 
     parser = run2.make_parser()
     args = parser.parse_args(cmdargs.split())
+    wp = '_wp' if hyp.weather_prediction else ''
     if hyp.preprocessor_name != 'raw':
         preprocessor_args = copy.deepcopy(args.__dict__)
         preprocessor_args.update(preprocessor_config[hyp.preprocessor_name],allow_override=True)
@@ -436,6 +440,7 @@ def operate_loop(hyp, device):
         args.preprocessor = \
             importlib.import_module(f'core.preprocessors.{hyp.preprocessor_name}') \
             .Preprocessor(preprocessor_args)
+        args.preprocessor['eigenvector'] = lambda v: preprocessor_args['eigenvector'](f'{v}{wp}')
     args.preprocessor_name = hyp.preprocessor_name
     
     cmodel_config = copy.deepcopy(args.__dict__)

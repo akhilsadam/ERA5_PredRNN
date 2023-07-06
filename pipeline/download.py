@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 # TODO add logging to log.txt, so same file is not requested twice
 user=os.popen('whoami').read().replace('\n','')
+end_year=2021
 for i in tqdm(range(kwargs['n'])):
     uid = str(uuid.uuid4())
     logger.info(f'User: {user}')
@@ -31,13 +32,15 @@ for i in tqdm(range(kwargs['n'])):
     datadir = userparam.param['data_dir']
     os.makedirs(datadir, exist_ok=True)
 
-    if 'year' in param.data:
-        cdatadir = f'{datadir}/CDS_{uid}/'
+    if 'year' in param.data.keys():
+        current_year = end_year - i
+        cdatadir = f'{datadir}/CDS_{current_year}_{uid}/'
         os.makedirs(cdatadir, exist_ok=True)
         
         logger.info(f'Opening CDS API ... saving to {cdatadir}/data.grib')
 
         c = cdsapi.Client()
+        param.data['year'] = str(current_year)
         c.retrieve('reanalysis-era5-single-levels',
             param.data,
             f'{cdatadir}/data.grib')

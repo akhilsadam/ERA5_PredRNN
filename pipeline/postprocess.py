@@ -97,7 +97,7 @@ def visualize(hyp):
                         # medianMse = np.median(d**2)*100 / np.median(d0**2)
                         ax2.set_title('Actual MSE')
                         ax3 = axs[1,2]
-                        ax3.set_title(f'(as compared to off-by-one frame):\n\trelative mse={meanMse:.4f}%.\nActual mse={mse:.4f}\nScaled mse={relmse:.4f}', \
+                        ax3.set_title(f'Actual mse={mse:.4f}\nRelative mse={relmse:.4f}', \
                             y=0.5)
                         nm = f'frame_{stepi}_from_batch_{b*gt.shape[1] + a}_var_{var}'
                         plt.suptitle(f'{nm}-{model}')
