@@ -115,8 +115,9 @@ class Preprocessor(PreprocessorBase):
             for i in tqdm(range(latent_dimension)):
                 os.makedirs(f"{self.eigenvector_vis_path}/{v}/", exist_ok=True)
                 # convert colormap
-                imc = self.cmap(eigenvectors[:,i]).reshape(patch_x,patch_y,4)[:,:,:3]
-                imc /= np.max(imc)
+                ev = eigenvectors[:,i]
+                nev = (ev - np.min(ev)) / (np.max(ev) - np.min(ev))
+                imc = self.cmap(nev).reshape(shape[-2],shape[-1],4)[:,:,:3]                imc /= np.max(imc)
                 imc = (imc*255).astype(np.uint8)                
                 imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/_{i}.png", imc, format='JPEG')
             

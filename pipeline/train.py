@@ -36,10 +36,10 @@ class hyperparam:
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = 'POD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'LS6_pod_embd100' # name of wandb project
+    project_name = 'WP_pod_embd100' # name of wandb project
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
@@ -48,7 +48,7 @@ class hyperparam:
     ## 
     overrides = {}
     ##
-    opt_str=""
+    opt_str="WP"
 
 
 hyp = hyperparam()
