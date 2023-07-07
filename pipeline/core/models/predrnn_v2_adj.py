@@ -101,7 +101,7 @@ class RNN(BaseModel):
         '''
         # print(f"Inside, frames_tensor shape:{frames_tensor.shape}, frames_tensor device: {frames_tensor.get_device()}")
         # print(f"Inside, self.area_weight device: {self.area_weight.get_device()}")
-        seq_in = frames_tensor[:,:self.input_length,:]
+        seq_in = frames_tensor#[:,:self.input_length,:]
         inpt = self.preprocessor.batched_input_transform(seq_in)
         
         nc, sx, sy = inpt.shape[-3:]
