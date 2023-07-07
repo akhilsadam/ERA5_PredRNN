@@ -15,6 +15,17 @@ class RNN(BaseModel):
     def __init__(self, num_layers, num_hidden, configs):
         super(RNN, self).__init__(num_layers, num_hidden, configs)
         
+        self.preprocessor.load(device=configs.device)
+        self.device = configs.device
+        self.input_length = configs.input_length
+        self.predict_length = configs.total_length - configs.input_length
+        self.total_length = configs.total_length
+        
+        shapex = self.preprocessor.patch_x
+        shapey = self.preprocessor.patch_y
+        configs.img_height = shapex
+        configs.img_width = shapey
+        
         self.wavelet = self.configs.wavelet
         if configs.is_WV:
             self.configs.img_channel = self.configs.img_channel * 10
@@ -73,10 +84,6 @@ class RNN(BaseModel):
         # shared adapter
         adapter_num_hidden = num_hidden[0]
         self.adapter = nn.Conv2d(adapter_num_hidden, adapter_num_hidden, 1, stride=1, padding=0, bias=False)
-        
-        self.input_length = configs.input_length
-        self.predict_length = configs.total_length - configs.input_length
-        self.total_length = configs.total_length
         
     def edit_config(self,configs):
         configs.visual = 0
