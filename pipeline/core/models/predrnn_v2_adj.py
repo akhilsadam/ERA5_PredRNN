@@ -72,8 +72,8 @@ class RNN(BaseModel):
         # self.area_weight = nn.Parameter(configs.area_weight, requires_grad=False)
         self.area_weight = configs.area_weight
         self.MSE_criterion = nn.MSELoss()
-        height = configs.img_height // self.patch_size
-        width = configs.img_width // self.patch_size
+        height = shapex // self.patch_size
+        width = shapey // self.patch_size
         
         for i in range(num_layers):
             in_channel = self.frame_channel if i == 0 else num_hidden[i-1]
