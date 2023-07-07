@@ -102,4 +102,6 @@ class PreprocessorBase:
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')
             _, a = self.precompute_scale(use_datasets=False)
-            return a
+            scale = a[0].to('cpu')
+            shift = a[1].to('cpu')
+            return scale,shift
