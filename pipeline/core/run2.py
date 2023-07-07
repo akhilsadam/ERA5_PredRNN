@@ -287,6 +287,7 @@ class run2:
                             is_testing=False,is_training=True,is_WV=args.is_WV)
                     
                     ims = train_input_handle.get_batch()
+                    print(ims,'\n',ims.shape)
                     ims = ims[:,:,:args.img_channel,:,:]
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")
                     # if args.reverse_scheduled_sampling == 1:
