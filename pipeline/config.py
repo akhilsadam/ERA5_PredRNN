@@ -338,6 +338,8 @@ def operate_loop(hyp, device):
     logger.info(f'Found {len(datasets)} datasets: {datasets}')
     assert len(datasets) > hyp.n_valid, logger.critical('Insufficient number of datasets found (cannot train)')
     datasets.sort()
+    if hyp.max_datasets != -1:
+        datasets = datasets[:hyp.max_datasets]
     train = datasets[:-hyp.n_valid]
     valid = datasets[-hyp.n_valid:]
     ###############################################

@@ -14,6 +14,7 @@ parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list'
 parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
 parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, type=int, default=0)
 parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
+parser.add_argument('-mds', '--max_datasets', help='Max datasets',type=int ,required=False, default=0)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -39,7 +40,8 @@ class hyperparam:
     ##
     save_test_output=True # save test output to file
     weather_prediction=True # use PDE_* data or CDS_* data
-    # n_valid = 1 # number of validation datasets to use
+    n_valid = 1 # number of validation datasets to use
+    max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
     input_length = 20 # number of input frames (must be <= total_length)
     total_length = 40 # total number of frames (must be equal to frames slices as given by dataset)
@@ -52,7 +54,7 @@ class hyperparam:
 hyp = hyperparam()
 hyp.overrides.update({'n_embd': 100}) #64
 hyp.overrides.update({'n_ffn_embd': 100}) #128
-hyp.n_valid = 12 if hyp.weather_prediction else 1
+# hyp.n_valid = 12 if hyp.weather_prediction else 1
 hyp.max_iterations = 20005
 # hyp.overrides.update({'n_embd': 400}) #64
 
