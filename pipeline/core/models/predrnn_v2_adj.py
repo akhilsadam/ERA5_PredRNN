@@ -20,7 +20,7 @@ class RNN(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
-        self.configs.img_channel = self.preprocessor.latent_dims[-1]
+        self.img_channel = self.preprocessor.latent_dims[-1]
         
         shapex = self.preprocessor.patch_x
         shapey = self.preprocessor.patch_y
@@ -48,19 +48,19 @@ class RNN(BaseModel):
         # print(self.frame_channel)
         if configs.is_WV:           
             self.frame_channel = int(self.configs.img_channel/10)*self.patch_size**2
-            self.img_channel = int(self.configs.img_channel/10)
+            self.img_channel = int(self.img_channel/10)
             
         else:
             self.frame_channel = self.configs.img_channel*self.patch_size**2
-            self.img_channel = self.configs.img_channel
+            # self.img_channel = self.configs.img_channel
             # print(f"self.configs.img_channel:{self.configs.img_channel}, self.frame_channel: {self.frame_channel}")
         
         if configs.use_weight ==1 :
             self.layer_weights = np.array([float(xi) for xi in configs.layer_weight.split(',')])
             if configs.is_WV ==0:
-                if self.layer_weights.shape[0] != self.configs.img_channel:
+                if self.layer_weights.shape[0] != self.img_channel:
                     print('error! number of channels and weigth should be the same')
-                    print('weight length: '+str(self.layer_weights.shape[0]) +', number of channel: '+str(self.configs.img_channel))
+                    print('weight length: '+str(self.layer_weights.shape[0]) +', number of channel: '+str(self.img_channel))
                     sys.exit()
                 self.layer_weights = np.repeat(self.layer_weights, self.patch_size**2)[np.newaxis,...]
             else:
