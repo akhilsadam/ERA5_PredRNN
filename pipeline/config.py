@@ -39,8 +39,8 @@ model_config = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
-            'test_batch_size': 2, # batch size for testin
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
         },
         'reZeroTF_POD':{
             'n_layers': 4, # number of layers in the transformer
@@ -60,14 +60,14 @@ model_config = \
             'n_embd': 100, # number of hidden units
             'dropout': 0.1, # dropout rate
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=1e-3, cycle_momentum=False, step_size_up=20),
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testin
         },
         'predrnn_v2_POD':{
             "optimizer": None, # uses default Adam as configured below
-            'batch_size': 2, # batch size
-            'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
 
