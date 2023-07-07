@@ -6,7 +6,8 @@ from torch.optim import ASGD, Adam, SGD
 from torch.optim.lr_scheduler import CyclicLR
 ###############################################
 GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
-# TODO make batch size > 3 possible (at present dataset maxes out at 3 batches, so we need to mix datasets)
+# TODO make batch size > 2 possible (at present memory issue, so we need gradient accumulation,
+# also dataset maxes out at 3 batches, so we need to mix datasets)
 model_config = \
     {
         'TF':{
@@ -38,7 +39,7 @@ model_config = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 3, # batch size
+            'batch_size': 2, # batch size
         },
         'reZeroTF_POD':{
             'n_layers': 4, # number of layers in the transformer
@@ -50,7 +51,7 @@ model_config = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 3, # batch size
+            'batch_size': 2, # batch size
         },        
         'LSTM_POD':{
             'n_layers': 4, # number of layers 
@@ -58,12 +59,12 @@ model_config = \
             'dropout': 0.1, # dropout rate
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 3, # batch size
+            'batch_size': 2, # batch size
         },
         'predrnn_v2_POD':{
             "optimizer": None, # uses default Adam as configured below
-            'batch_size': 3, # batch size
-            'test_batch_size': 3, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
 
