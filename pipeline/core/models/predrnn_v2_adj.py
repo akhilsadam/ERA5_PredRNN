@@ -51,7 +51,7 @@ class RNN(BaseModel):
             self.img_channel = int(self.img_channel/10)
             
         else:
-            self.frame_channel = self.configs.img_channel*self.patch_size**2
+            self.frame_channel = self.img_channel*self.patch_size**2
             # self.img_channel = self.configs.img_channel
             # print(f"self.configs.img_channel:{self.configs.img_channel}, self.frame_channel: {self.frame_channel}")
         
