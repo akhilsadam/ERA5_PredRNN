@@ -24,8 +24,12 @@ class RNN(BaseModel):
         
         shapex = self.preprocessor.patch_x
         shapey = self.preprocessor.patch_y
-        configs.img_height = shapex
-        configs.img_width = shapey
+        # configs.img_height = shapex
+        # configs.img_width = shapey
+        self.cur_height = shapex // self.patch_size
+        self.cur_width = shapey // self.patch_size
+        height = shapex // self.patch_size
+        width = shapey // self.patch_size
         
         self.wavelet = self.configs.wavelet
         if configs.is_WV:
@@ -72,8 +76,6 @@ class RNN(BaseModel):
         # self.area_weight = nn.Parameter(configs.area_weight, requires_grad=False)
         self.area_weight = configs.area_weight
         self.MSE_criterion = nn.MSELoss()
-        height = shapex // self.patch_size
-        width = shapey // self.patch_size
         
         for i in range(num_layers):
             in_channel = self.frame_channel if i == 0 else num_hidden[i-1]
