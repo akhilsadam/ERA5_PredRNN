@@ -239,11 +239,11 @@ class RNN(BaseModel):
                 next_frames = self.wv_to_img(next_frames)
                 
         outpt = next_frames
-        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)       
-        out = self.preprocessor.batched_output_transform(outpt)
-       
-        all_frames = torch.cat([seq[:, 0].unsqueeze(1), out], dim=1)
-        return loss_pred, decouple_loss, all_frames
+        outpt = torch.cat([frames_tensor[:, 0].unsqueeze(1), outpt], dim=1)
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy) 
+        out = self.preprocessor.batched_output_transform(outpt)      
+        
+        return loss_pred, decouple_loss, out
     
     def enhance(self, img_tensor):
         #center enhance

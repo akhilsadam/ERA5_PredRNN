@@ -54,8 +54,8 @@ class LSTM(BaseModel):
         return configs
         
     def core_forward(self, seq_total, istrain=True, **kwargs):
-        seq_in = seq_total[:,:self.input_length,:]
-        inpt = self.preprocessor.batched_input_transform(seq_in)
+        total = self.preprocessor.batched_input_transform(seq_total)
+        inpt = total[:,:self.input_length,:]
             
         nc, sx, sy = inpt.shape[-3:]
         inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
@@ -69,9 +69,8 @@ class LSTM(BaseModel):
                 
         outpt = self.decoder(outpt_encoded)
         outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)    
-        out = self.preprocessor.batched_output_transform(outpt)
-        out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
-
+        out = torch.cat((total[:,:self.input_length,:],outpt),dim=1)  
+        out = self.preprocessor.batched_output_transform(out)
             
         loss_pred = loss_mixed(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
