@@ -14,7 +14,7 @@ from core.models.model_base import BaseModel
 class RNN(BaseModel):
     def __init__(self, num_layers, num_hidden, configs):
         super(RNN, self).__init__(num_layers, num_hidden, configs)
-        
+        self.preprocessor = configs.preprocessor
         self.preprocessor.load(device=configs.device)
         self.device = configs.device
         self.input_length = configs.input_length
