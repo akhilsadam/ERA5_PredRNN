@@ -101,8 +101,8 @@ class RNN(BaseModel):
         '''
         # print(f"Inside, frames_tensor shape:{frames_tensor.shape}, frames_tensor device: {frames_tensor.get_device()}")
         # print(f"Inside, self.area_weight device: {self.area_weight.get_device()}")
-        seq_in = frames_tensor#[:,:self.input_length,:]
-        inpt = self.preprocessor.batched_input_transform(seq_in)
+        seq = frames_tensor#[:,:self.input_length,:]
+        inpt = self.preprocessor.batched_input_transform(seq)
         
         nc, sx, sy = inpt.shape[-3:]
         frames_tensor = inpt.reshape(inpt.shape[0],inpt.shape[1],-1,1,1)
@@ -242,7 +242,7 @@ class RNN(BaseModel):
         outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)       
         out = self.preprocessor.batched_output_transform(outpt)
        
-        all_frames = torch.cat([frames_tensor[:, 0].unsqueeze(1), out], dim=1)
+        all_frames = torch.cat([seq[:, 0].unsqueeze(1), out], dim=1)
         return loss_pred, decouple_loss, all_frames
     
     def enhance(self, img_tensor):
