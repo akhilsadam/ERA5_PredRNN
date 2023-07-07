@@ -40,6 +40,7 @@ model_config = \
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
         },
         'reZeroTF_POD':{
             'n_layers': 4, # number of layers in the transformer
@@ -52,6 +53,7 @@ model_config = \
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
         },        
         'LSTM_POD':{
             'n_layers': 4, # number of layers 
@@ -60,6 +62,7 @@ model_config = \
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
         },
         'predrnn_v2_POD':{
             "optimizer": None, # uses default Adam as configured below
@@ -281,7 +284,7 @@ preprocessor_config = \
         'POD':{
             'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
         },

@@ -60,9 +60,12 @@ class PreprocessorBase:
         np.savetxt(self.scale_path, np.stack([scale,shift]), delimiter=',')
         
         if use_datasets:
-            datasets2 = []
-            for data in datasets:
-                datasets2.append(data * scale.reshape((1,len(scale),1,1)) + shift.reshape((1,len(scale),1,1)))
+            if self.weather_prediction:
+                datasets2 = datasets
+            else:
+                datasets2 = []
+                for data in datasets:
+                    datasets2.append(data * scale.reshape((1,len(scale),1,1)) + shift.reshape((1,len(scale),1,1)))
             
             return datasets2, shape, (scale, shift)
         
