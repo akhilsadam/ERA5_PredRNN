@@ -284,7 +284,7 @@ preprocessor_config = \
         'POD':{
             'eigenvector': lambda var: f'POD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
         },
