@@ -74,6 +74,10 @@ class RNN(BaseModel):
         adapter_num_hidden = num_hidden[0]
         self.adapter = nn.Conv2d(adapter_num_hidden, adapter_num_hidden, 1, stride=1, padding=0, bias=False)
         
+        self.input_length = configs.input_length
+        self.predict_length = configs.total_length - configs.input_length
+        self.total_length = configs.total_length
+        
     def edit_config(self,configs):
         configs.visual = 0
         configs.visual_path = ''
