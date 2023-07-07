@@ -101,4 +101,5 @@ class PreprocessorBase:
             return scale, shift
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')
-            return None
+            _, a = self.precompute_scale(use_datasets=False)
+            return a
