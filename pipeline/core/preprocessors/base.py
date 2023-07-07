@@ -62,7 +62,7 @@ class PreprocessorBase:
         if use_datasets:
             datasets2 = []
             for data in datasets:
-                datasets2.append(data * scale.reshape((1,len(scale))) + shift.reshape((1,len(scale))))
+                datasets2.append(data * scale.reshape((1,len(scale),1,1)) + shift.reshape((1,len(scale),1,1)))
             
             return datasets2, shape, (scale, shift)
         
