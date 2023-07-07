@@ -77,6 +77,12 @@ class PreprocessorBase:
     
     def load_scale(self, device):
         # load scale from text file
+    
+        if self.weather_prediction:
+            scale = torch.Tensor([1.0]).to(device)
+            shift = torch.Tensor([0.0]).to(device)
+            return scale, shift
+    
         try:
             norms = np.loadtxt(self.scale_path, delimiter=',')
             if norms is None:
@@ -92,9 +98,6 @@ class PreprocessorBase:
                 scale, shift = norms
                 scale = torch.from_numpy(scale).to(device)#.unsqueeze(1).unsqueeze(0)
                 shift = torch.from_numpy(shift).to(device)#.unsqueeze(1).unsqueeze(0)
-            if self.weather_prediction:
-                scale = torch.Tensor([1.0]).to(device)
-                shift = torch.Tensor([0.0]).to(device)
             return scale, shift
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')
