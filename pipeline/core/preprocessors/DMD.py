@@ -48,8 +48,9 @@ class Preprocessor(PreprocessorBase):
             
         super().__init__(config)
             
-        self.eigenvector_path = lambda var: f"{self.datadir}/{self.eigenvector(var)}"
-        self.eigenvector_vis_path =  f"{self.datadir}/DMD_eigen_vis/"
+        self.wp = 'WP_' if self.weather_prediction else ''    
+        self.eigenvector_path = lambda var: f"{self.datadir}/{self.wp}{self.eigenvector(var)}"
+        self.eigenvector_vis_path =  f"{self.datadir}/{self.wp}DMD_eigen_vis/"
         
         self.cmap = jpcm.get('desert')        
         with torch.no_grad():
