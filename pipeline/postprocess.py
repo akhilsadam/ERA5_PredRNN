@@ -108,7 +108,7 @@ def visualize(hyp):
                     # fig,axs = plt.subplots(1,6, figsize=(15,6))
 
             total_length = gt.shape[2]
-            fig = plt.figure(figsize=(18,6), constrained_layout=True)
+            fig = plt.figure(figsize=(24,6), constrained_layout=True)
             gs = fig.add_gridspec(1, 6,  width_ratios=(8,2,8,2,8,3))
             axs = []
             for i in range(3):
