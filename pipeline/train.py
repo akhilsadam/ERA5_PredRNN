@@ -68,7 +68,7 @@ else:
     tr = [False]
     ptn = ['last']
     if args.preload != 0:
-        ptn = [f'model_{args}.ckpt']
+        ptn = [f'model_{args.preload}.ckpt']
 # ptn = ['model_1500.ckpt']
 # names = ['BERT','BERT_v2','rBERT','LSTM','rLSTM', 'DNN', 'adaptDNN']#['ViT_LDM','BERT','rBERT','reZeroTF','LSTM','rLSTM']
 if args.input_lengths is None:
