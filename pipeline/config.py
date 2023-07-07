@@ -65,9 +65,11 @@ model_config = \
             'test_batch_size': 2, # batch size for testin
         },
         'predrnn_v2_POD':{
-            "optimizer": None, # uses default Adam as configured below
-            'batch_size': 1, # batch size
-            'test_batch_size': 1, # batch size for testing -- for some reason this needs to be the same as batch_size
+            # "optimizer": None, # uses default Adam as configured below
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=1e-3, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
 
