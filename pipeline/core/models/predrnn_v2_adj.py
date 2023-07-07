@@ -87,6 +87,12 @@ class RNN(BaseModel):
         '''
         # print(f"Inside, frames_tensor shape:{frames_tensor.shape}, frames_tensor device: {frames_tensor.get_device()}")
         # print(f"Inside, self.area_weight device: {self.area_weight.get_device()}")
+        seq_in = frames_tensor[:,:self.input_length,:]
+        inpt = self.preprocessor.batched_input_transform(seq_in)
+        
+        nc, sx, sy = inpt.shape[-3:]
+        frames_tensor = inpt.reshape(inpt.shape[0],inpt.shape[1],-1,1,1)
+        
 
         tensor_device = frames_tensor.get_device()
         self.mean_press = torch.mean(self.area_weight*frames_tensor[:,0,self.configs.layer_need_enhance])
@@ -217,7 +223,12 @@ class RNN(BaseModel):
         
         if not istrain and self.configs.is_WV:
                 next_frames = self.wv_to_img(next_frames)
-        all_frames = torch.cat([frames_tensor[:, 0].unsqueeze(1), next_frames], dim=1)
+                
+        outpt = next_frames
+        outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)       
+        out = self.preprocessor.batched_output_transform(outpt)
+       
+        all_frames = torch.cat([frames_tensor[:, 0].unsqueeze(1), out], dim=1)
         return loss_pred, decouple_loss, all_frames
     
     def enhance(self, img_tensor):
