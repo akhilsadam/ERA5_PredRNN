@@ -130,7 +130,7 @@ def run(i, device):
     il = input_lengths[i]
     hyp.input_length = il
     hyp.project_name = project_names[i]
-    hyp.opt_str = f"{ilstrs[i]}"
+    hyp.opt_str = f"{hyp.opt_str}{ilstrs[i]}"
     if mode < 3:
         for t,p in zip(tr,ptn):
             hyp.training = t
