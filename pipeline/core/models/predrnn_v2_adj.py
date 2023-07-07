@@ -20,6 +20,7 @@ class RNN(BaseModel):
         self.input_length = configs.input_length
         self.predict_length = configs.total_length - configs.input_length
         self.total_length = configs.total_length
+        self.configs.img_channel = self.preprocessor.latent_dims[-1]
         
         shapex = self.preprocessor.patch_x
         shapey = self.preprocessor.patch_y
