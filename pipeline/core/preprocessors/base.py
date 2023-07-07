@@ -81,15 +81,15 @@ class PreprocessorBase:
                     shift = float(f.readline())
             elif isinstance(norms[0], np.float64):
                 scale, shift = norms
-                scale = torch.Tensor([scale]).to(device).unsqueeze(1).unsqueeze(0)
-                shift = torch.Tensor([shift]).to(device).unsqueeze(1).unsqueeze(0)
+                scale = torch.Tensor([scale]).to(device)#.unsqueeze(1).unsqueeze(0)
+                shift = torch.Tensor([shift]).to(device)#.unsqueeze(1).unsqueeze(0)
             else:
                 scale, shift = norms
-                scale = torch.from_numpy(scale).to(device).unsqueeze(1).unsqueeze(0)
-                shift = torch.from_numpy(shift).to(device).unsqueeze(1).unsqueeze(0)
+                scale = torch.from_numpy(scale).to(device)#.unsqueeze(1).unsqueeze(0)
+                shift = torch.from_numpy(shift).to(device)#.unsqueeze(1).unsqueeze(0)
             if self.weather_prediction:
-                scale = torch.ones_like(scale)
-                shift = torch.zeros_like(shift)
+                scale = torch.Tensor([1.0]).to(device)
+                shift = torch.Tensor([0.0]).to(device)
             return scale, shift
         except Exception as e:
             print(f'Warning: Failed to load scale file! (Exception "{e}" was thrown.)')
