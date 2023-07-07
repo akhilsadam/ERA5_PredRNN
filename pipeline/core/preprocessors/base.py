@@ -14,9 +14,11 @@ class PreprocessorBase:
         assert self.shapex > 0, "shapex (x dimension of data) must be specified and greater than 0"
         assert self.shapey > 0, "shapey (y dimension of data) must be specified and greater than 0"             
 
-        self.scale_path =  f"{self.datadir}/scale.txt"
-        
         self.weather_prediction = config['weather_prediction']
+        wp = '_WP' if self.weather_prediction else ''
+        self.scale_path =  f"{self.datadir}/scale{wp}.txt"
+        
+        
         
     def precompute_check(self):
         # check if scale file exists
