@@ -44,7 +44,7 @@ def visualize(hyp):
 
             bs = gt.shape[0] * gt.shape[1]
             bts = np.arange(0,bs-0.9,3).astype(int)
-            sps = [5,25,30,38]
+            sps = [0,5,25,30,38]
 
             variables = gt.shape[3]
             for var in range(variables):
@@ -192,13 +192,15 @@ def visualize(hyp):
             )
             # plt.legend()/
             [ax.yaxis.set_major_locator(plt.MaxNLocator(10)) for ax in axs[::2]]
-            [ax.yaxis.set_major_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
-            [ax.yaxis.set_minor_formatter(mticker.ScalarFormatter()) for ax in axs[::2]]
+            formatter = mticker.FuncFormatter(lambda y, _: '{:g}'.format(y))
+            [ax.yaxis.set_major_formatter(formatter) for ax in axs[::2]]
+            [ax.yaxis.set_minor_formatter(formatter) for ax in axs[::2]]
+            [plt.setp(ax.get_yminorticklabels(), visible=False) for ax in axs[::2]]
             [ax.get_yaxis().set_visible(False) for ax in axs[1::2]]
 
             plt.suptitle(f'{model} MSE for output frames (all frames shown)')
             # plt.tight_layout()
-            plt.savefig(f'{result_path}mse.png')#.replace('/mnt/c','C:'))
+            plt.savefig(f'{result_path}mse.png',bbox_inches='tight')#.replace('/mnt/c','C:'))
             plt.show()
             
         make_plots(gt,pd)

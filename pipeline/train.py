@@ -32,11 +32,11 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 500 # save model every n iterations
+    snapshot_interval = 200 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'DMD' # [raw, control, POD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'LS6_dmd_embd100' # name of wandb project
+    preprocessor_name = 'POD' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
+    project_name = 'toy1_pod_embd100' # name of wandb project
     ##
     save_test_output=True # save test output to file
     weather_prediction=False # use PDE_* data or CDS_* data
@@ -55,7 +55,7 @@ hyp = hyperparam()
 hyp.overrides.update({'n_embd': 100}) #64
 hyp.overrides.update({'n_ffn_embd': 100}) #128
 # hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 20005
+hyp.max_iterations = 20001
 # hyp.overrides.update({'n_embd': 400}) #64
 
 if mode == 0:
