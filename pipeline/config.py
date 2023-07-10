@@ -317,7 +317,7 @@ preprocessor_config = \
         'DMD':{
             'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
         },
