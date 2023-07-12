@@ -6,6 +6,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.ticker as mticker
 import traceback
 
+import normalize
+
 def visualize(hyp):
     user=os.popen('whoami').read().replace('\n','')
     print(f'User: {user}')
@@ -20,6 +22,22 @@ def visualize(hyp):
         userparam = importlib.util.module_from_spec(spec)
         sys.modules["module.name"] = userparam
         spec.loader.exec_module(userparam)
+        
+        if hyp.weather_prediction:        
+            datadir = userparam.param['data_dir']
+            folders = os.listdir(datadir)
+            header = 'CDS'
+            # get first folder with header
+            path = [f for f in folders if header in f][0]
+            fullpath = f'{datadir}/{path}'
+            
+            spec = importlib.util.spec_from_file_location("module.name", f'{fullpath}/param.py')
+            genparam = importlib.util.module_from_spec(spec)
+            sys.modules["module.name"] = genparam
+            spec.loader.exec_module(genparam)
+            varnames = [normalize.short[x] for x in genparam.data['variable']]
+        else:
+            varnames = lambda x: f'var {x}'
 
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
@@ -30,6 +48,14 @@ def visualize(hyp):
         
         gt = np.load(f'{result_path}true_data.npy')#.replace('/mnt/c','C:'))
         pd = np.load(f'{result_path}pred_data.npy')#.replace('/mnt/c','C:'))
+               
+        # unnormalize data
+        if hyp.weather_prediction:
+            invfunc = lambda x: normalize.norm_inv[varnames[x]]
+
+            for i in range(gt.shape[3]):
+                gt[:,:,:,i,:,:] = invfunc(i)(gt[:,:,:,i,:,:])
+                pd[:,:,:,i,:,:] = invfunc(i)(pd[:,:,:,i,:,:])
         
         def make_plots(gt, pd):
             # stepi = 5
@@ -61,13 +87,13 @@ def visualize(hyp):
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
-                        ax0.set_title(f'GT (ERA5) {var}')
+                        ax0.set_title(f'GT (ERA5) {varnames[var]}')
                         ax1 = axs[0,1]
                         im1 = ax1.imshow(pd[b,a,stepi,var,:,:])
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
-                        ax1.set_title(f'{modelname} {var}')
+                        ax1.set_title(f'{modelname} {varnames[var]}')
 
 
                         ax0 = axs[1,0]
@@ -75,14 +101,14 @@ def visualize(hyp):
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
-                        ax0.set_title(f'GT (ERA5) (change from last true) {var}')
+                        ax0.set_title(f'GT (ERA5) (change from last true) {varnames[var]}')
 
                         ax1 = axs[1,1]
                         im1 = ax1.imshow((pd[b,a,stepi,var,:,:]-pd[b,a,stepd,var,:,:]))
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
-                        ax1.set_title(f'{modelname} (change from last true) {var}')
+                        ax1.set_title(f'{modelname} (change from last true) {varnames[var]}')
 
                         ax2 = axs[0,2]
                         d = gt[b,a,shift+stepi,var,:,:]-pd[b,a,stepi,var,:,:]
@@ -99,7 +125,7 @@ def visualize(hyp):
                         ax3 = axs[1,2]
                         ax3.set_title(f'Actual mse={mse:.4f}\nRelative mse={relmse:.4f}', \
                             y=0.5)
-                        nm = f'frame_{stepi}_from_batch_{b*gt.shape[1] + a}_var_{var}'
+                        nm = f'frame_{stepi}_from_batch_{b*gt.shape[1] + a}_var_{varnames[var]}'
                         plt.suptitle(f'{nm}-{model}')
                         plt.savefig(f'{result_path}{nm}.png')#.replace('/mnt/c','C:'))
                         plt.close()
