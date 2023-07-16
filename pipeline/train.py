@@ -35,8 +35,8 @@ class hyperparam:
     snapshot_interval = 500 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'POD' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'WP_pod_embd100' # name of wandb project
+    preprocessor_name = 'POD_v4' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
+    project_name = 'WP_gpod_embd100' # name of wandb project
     ##
     save_test_output=True # save test output to file
     weather_prediction=True # use PDE_* data or CDS_* data

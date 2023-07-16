@@ -314,6 +314,14 @@ preprocessor_config = \
             'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
         },
+        'POD_v4':{
+            'eigenvector': lambda var: f'POD_v4_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
+            # (var is the variable name)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
+            'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
+            'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
+            'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
+        },
         'DMD':{
             'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
@@ -355,8 +363,12 @@ def operate_loop(hyp, device):
     datasets.sort()
     if hyp.max_datasets != -1:
         datasets = datasets[:hyp.max_datasets]
-    train = datasets[:-hyp.n_valid]
-    valid = datasets[-hyp.n_valid:]
+    if hyp.n_valid > 0:
+        train = datasets[:-hyp.n_valid]
+        valid = datasets[-hyp.n_valid:]
+    else:
+        train = [datasets[0],]
+        valid = [datasets[0],]
     ###############################################
     train_data_paths = ','.join([f"{datadir}/{tr}/data.npz" for tr in train])
     valid_data_paths = ','.join([f"{datadir}/{vd}/data.npz" for vd in valid])
