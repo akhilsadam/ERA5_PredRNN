@@ -128,7 +128,7 @@ class Preprocessor(PreprocessorBase):
         self.scale, self.shift = super().load_scale(device)
         
         data = np.load(self.eigenvector_path(""))
-        self.data_torch = torch.from_numpy(d['eigenvectors']).float().to(device)
+        self.data_torch = torch.from_numpy(data['eigenvectors']).float().to(device)
         latent_dims = data['latent_dimension'] # number of latent dimensions
         latent_dims.insert(0,0)
         
