@@ -22,7 +22,7 @@ def simple_randomized_torch_svd(M, k=10):
         transpose = True
         B = B.transpose(0, 1)
         m, n = B.size()
-    rand_matrix = torch.rand((n,k), dtype=torch.double, device=M.device)  # short side by k
+    rand_matrix = torch.rand((n,k), dtype=torch.float, device=M.device)  # short side by k
     Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
     smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
     U_hat, s, V = torch.svd(smaller_matrix,False)
