@@ -129,8 +129,8 @@ class Preprocessor(PreprocessorBase):
         
         data = np.load(self.eigenvector_path(""))
         self.data_torch = torch.from_numpy(data['eigenvectors']).float().to(device)
-        latent_dims = data['latent_dimension'] # number of latent dimensions
-        latent_dims.insert(0,0)
+        latent_dims = [0,int(data['latent_dimension']),] # number of latent dimensions
+        # latent_dims.insert(0,0)
         
         def in_tf(method):
             rows = method[0] 
