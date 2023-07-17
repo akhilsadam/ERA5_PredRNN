@@ -77,7 +77,7 @@ class Preprocessor(PreprocessorBase):
         # Make data matrix
         dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device).reshape(rows,-1) for d in datasets],dim=1)
         dataset = dataset.reshape(rows,cols)
-        print(dataset.shape)
+        # print(dataset.shape)
         # Make SVD
         U, s, V = simple_randomized_torch_svd(dataset, k=self.randomized_svd_k)
         # Get PVE and truncate
@@ -104,11 +104,14 @@ class Preprocessor(PreprocessorBase):
      
         for i in tqdm(range(latent_dimension)):
             # convert colormap
-            ev = eigenvectors[:,i]
+            fev = eigenvectors[:,i]
+            qev = fev.reshape(shape[-2],shape[-1],shape[1])
             for v in tqdm(range(shape[1])):
                 logger.info(f'Plotting eigenvectors for variable {v}...')
                 os.makedirs(f"{self.eigenvector_vis_path}/{v}/", exist_ok=True)
-                qev = ev[v*shape[-2]*shape[-1]:(v+1)*shape[-2]*shape[-1]]
+                
+                ev = qev[:,:,v]
+                
                 nev = (ev - np.min(ev)) / (np.max(ev) - np.min(ev))
                 imc = self.cmap(nev).reshape(shape[-2],shape[-1],4)[:,:,:3]
                 imc /= np.max(imc)
