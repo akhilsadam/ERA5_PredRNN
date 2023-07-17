@@ -75,7 +75,7 @@ class Preprocessor(PreprocessorBase):
         # for v in tqdm(range(shape[1])):
         logger.info(f'Computing eigenvectors for all variables...')
         # Make data matrix
-        dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device).reshape(-1,rows) for d in datasets],dim=0)
+        dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device).reshape(rows,-1) for d in datasets],dim=1)
         # dataset = dataset.reshape(rows,cols)
         # Make SVD
         U, s, V = simple_randomized_torch_svd(dataset, k=self.randomized_svd_k)
