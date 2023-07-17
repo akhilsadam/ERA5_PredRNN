@@ -61,7 +61,7 @@ class Preprocessor(PreprocessorBase):
     def precompute(self):
         datasets, shape, _ = super().precompute_scale(use_datasets=True)
 
-        rows = shape[-2]*shape[-1]*shape[1]
+        rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
         
         # approx_mem_req = (8/1024**3) * (rows*cols + cols**2 + rows**2 + rows)
@@ -75,8 +75,8 @@ class Preprocessor(PreprocessorBase):
         # for v in tqdm(range(shape[1])):
         logger.info(f'Computing eigenvectors for all variables...')
         # Make data matrix
-        dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device).reshape(rows,-1) for d in datasets],dim=1)
-        dataset = dataset.reshape(rows,cols)
+        dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device) for d in datasets],dim=0)
+        dataset = dataset.reshape(cols,rows).T
         # print(dataset.shape)
         # Make SVD
         U, s, V = simple_randomized_torch_svd(dataset, k=self.randomized_svd_k)
@@ -105,12 +105,12 @@ class Preprocessor(PreprocessorBase):
         for i in tqdm(range(latent_dimension)):
             # convert colormap
             fev = eigenvectors[:,i]
-            qev = fev.reshape(shape[-2],shape[-1],shape[1])
+            qev = fev.reshape(shape[1],shape[-2],shape[-1])
             for v in tqdm(range(shape[1])):
                 logger.info(f'Plotting eigenvectors for variable {v}...')
                 os.makedirs(f"{self.eigenvector_vis_path}/{v}/", exist_ok=True)
                 
-                ev = qev[:,:,v]
+                ev = qev[v]
                 
                 nev = (ev - np.min(ev)) / (np.max(ev) - np.min(ev))
                 imc = self.cmap(nev).reshape(shape[-2],shape[-1],4)[:,:,:3]
