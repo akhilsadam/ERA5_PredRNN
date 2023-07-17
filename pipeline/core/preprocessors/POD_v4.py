@@ -127,9 +127,9 @@ class Preprocessor(PreprocessorBase):
         '''
         self.scale, self.shift = super().load_scale(device)
         
-        data = [np.load(self.eigenvector_path(v)) for v in range(self.n_var)]
-        self.data_torch = [torch.from_numpy(d['eigenvectors']).float().to(device) for d in data]
-        latent_dims = np.cumsum([data[v]['latent_dimension'] for v in range(self.n_var)]).tolist()
+        data = np.load(self.eigenvector_path(""))
+        self.data_torch = torch.from_numpy(d['eigenvectors']).float().to(device)
+        latent_dims = data['latent_dimension'] # number of latent dimensions
         latent_dims.insert(0,0)
         
         def in_tf(method):
@@ -144,6 +144,6 @@ class Preprocessor(PreprocessorBase):
         self.patch_y = 1
         self.latent_dims = latent_dims
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: torch.cat([in_tf(data[v]['method'])(self.data_torch[v],x[:,:,v,:,:]) for v in range(self.n_var)],dim=2).unsqueeze(-1).unsqueeze(-1)
+        self.batched_input_transform = lambda x: (in_tf(data['method'])(self.data_torch,x)).unsqueeze(-1).unsqueeze(-1)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: torch.stack([out_tf(self.data_torch[v],a[:,:,latent_dims[v]:latent_dims[v+1],0,0]) for v in range(self.n_var)],dim=2)
+        self.batched_output_transform = lambda a: (out_tf(self.data_torch,a[:,:,:,0,0]))
