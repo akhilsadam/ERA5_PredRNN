@@ -12,6 +12,9 @@ import traceback, sys
 import wandb
 import gc
 
+from core.utils import saliency
+from core.viz.viz_salient import viz
+
 os.environ["WANDB_SILENT"] = "true"
 
 class Model(object):
@@ -44,6 +47,7 @@ class Model(object):
         name = configs.model_name
         self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
     
+        self.saliency = configs.interpret if hasattr(configs, 'interpret') else False
 
         if configs.model_name in networks_map:
             self.network_handle = networks_map[configs.model_name]
@@ -159,8 +163,28 @@ class Model(object):
                 final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())
                 del next_frames
                 torch.cuda.empty_cache()
+        elif self.saliency and not self.configs.is_training:
+            # add handles
+            handles = saliency.modify_model(self.network)
+            # backprop
+            frames_tensor.requires_grad = True
+            next_frames, loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor, istrain=False)
+            loss.backward()
+            # get saliency maps
+            batch = frames_tensor.shape[0]
+            idx = batch//2
+            salient = frames_tensor.grad[idx,:input_length :, :, :].detach().cpu().numpy()
+            frame = frames_tensor[idx,:input_length, :, :, :].detach().cpu().numpy()
+            gt = frames_tensor[idx,input_length:, :, :, :].detach().cpu().numpy()
+            print("Gradient shape:", salient.shape)
+            viz(salient, frame, gt, self.configs)
+            # remove handles
+            saliency.revert_model(handles)
+            with torch.no_grad():
+                next_frames = next_frames.detach()
         else:
             with torch.no_grad():
                 next_frames, loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor, istrain=False)
+
 
         return next_frames, loss, loss_pred, decouple_loss

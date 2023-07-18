@@ -15,6 +15,7 @@ parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name
 parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, type=int, default=0)
 parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
 parser.add_argument('-mds', '--max_datasets', help='Max datasets',type=int ,required=False, default=-1)
+parser.add_argument('-pre', '--preprocessor', help='Preprocessor',type=str ,required=False, default='POD')
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -26,7 +27,7 @@ from config import operate_loop
 visualize=True
 
 if visualize:
-    from postprocess import visualize as viz
+    from core.viz.postprocess import visualize as viz
 
 class hyperparam:
     training=True #False # train or test
@@ -35,11 +36,12 @@ class hyperparam:
     snapshot_interval = 500 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'POD_v4' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'WP_gpod_embd100' # name of wandb project
+    preprocessor_name = 'control' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
+    project_name = 'explain_pod_embd100' # name of wandb project
+    interpret = True # interpret model
     ##
     save_test_output=True # save test output to file
-    weather_prediction=True # use PDE_* data or CDS_* data
+    weather_prediction=False # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
@@ -55,7 +57,7 @@ hyp = hyperparam()
 hyp.overrides.update({'n_embd': 100}) #64
 hyp.overrides.update({'n_ffn_embd': 100}) #128
 # hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 25001
+hyp.max_iterations = 1001
 # hyp.overrides.update({'n_embd': 400}) #64
 
 if mode == 0:

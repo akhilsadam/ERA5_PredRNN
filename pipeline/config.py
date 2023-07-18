@@ -555,4 +555,5 @@ def operate_loop(hyp, device):
     if 'test_batch_size' in model_args:
         args.test_batch_size = model_args['test_batch_size']
     args.weather_prediction = hyp.weather_prediction
+    args.interpret = hyp.interpret
     run2.main(args)
