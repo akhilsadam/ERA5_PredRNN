@@ -36,7 +36,7 @@ class hyperparam:
     snapshot_interval = 500 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
-    preprocessor_name = 'control' # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
+    preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
     project_name = 'explain_pod_embd100' # name of wandb project
     interpret = True # interpret model
     ##
