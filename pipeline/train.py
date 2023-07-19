@@ -54,8 +54,8 @@ class hyperparam:
 
 
 hyp = hyperparam()
-hyp.overrides.update({'n_embd': 400}) #64
-hyp.overrides.update({'n_ffn_embd': 400}) #128
+hyp.overrides.update({'n_embd': 200}) #64
+hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.n_valid = 12 if hyp.weather_prediction else 1
 hyp.max_iterations = 25001
 # hyp.overrides.update({'n_embd': 400}) #64
