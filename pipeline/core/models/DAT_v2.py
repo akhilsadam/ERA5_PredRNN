@@ -45,9 +45,9 @@ class DAT(BaseModel):
         d_space = self.model_args['n_embd']
         d_time_original = configs.input_length
         
-        if d_space != d_space_original:
-            print (f"Warning: n_embd is {d_space} but should be {d_space_original} for TF model. Setting to {d_space_original}.")
-            d_space = d_space_original
+        # if d_space != d_space_original:
+        #     print (f"Warning: n_embd is {d_space} but should be {d_space_original} for TF model. Setting to {d_space_original}.")
+        #     d_space = d_space_original
             
         windows = self.model_args['windows']
         shifts = self.model_args['shifts']
@@ -151,10 +151,10 @@ class DualAttentionTransformer(nn.Module):
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(d_space, dropout)
         self.layers = ModuleList([DualAttentionTransformerLayer(w, s, latent, d_time_original, d_space, nhead, nhid, dropout, activation, batch_first=True) for w,s in zip(windows,shifts)])
-        # self.encoder = nn.Linear(d_space_original, d_space)
+        self.encoder = nn.Linear(d_space_original, d_space)
         self.d_space = d_space
         self.d_space_original = d_space_original
-        # self.decoder = nn.Linear(d_space, d_space_original)
+        self.decoder = nn.Linear(d_space, d_space_original)
         self.initialization = initialization
 
         # self.init_weights()
@@ -191,13 +191,13 @@ class DualAttentionTransformer(nn.Module):
         # else:
         #     self.src_mask = None
 
-        # src = self.encoder(src) * math.sqrt(self.d_space)
+        src = self.encoder(src) #* math.sqrt(self.d_space)
         # src = self.pos_encoder(src)
         # output = self.transformer_encoder(src)
         output = src
         for i,layer in enumerate(self.layers):
             output = output + layer(output)
-        # output = self.decoder(output)
+        output = self.decoder(output)
         return output
     
     
