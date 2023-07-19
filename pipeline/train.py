@@ -15,7 +15,7 @@ parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name
 parser.add_argument('-a','--mode', help='Mode [t2, train, test]', required=False, type=int, default=0)
 parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
 parser.add_argument('-mds', '--max_datasets', help='Max datasets',type=int ,required=False, default=-1)
-parser.add_argument('-pre', '--preprocessor', help='Preprocessor',type=str ,required=False, default='POD')
+parser.add_argument('-pre', '--preprocessor', help='Preprocessor',type=str ,required=False, default='POD_v4')
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
