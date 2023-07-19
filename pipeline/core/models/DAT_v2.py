@@ -45,6 +45,11 @@ class DAT(BaseModel):
         d_space = self.model_args['n_embd']
         d_time_original = configs.input_length
         
+        if patch_x = patch_y = 1:
+            self.upscale = 16
+        else:
+            self.upscale = 1
+        
         # if d_space != d_space_original:
         #     print (f"Warning: n_embd is {d_space} but should be {d_space_original} for TF model. Setting to {d_space_original}.")
         #     d_space = d_space_original
@@ -65,7 +70,8 @@ class DAT(BaseModel):
                          nlayers=len(windows),
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
-                         activation=self.model_args['activation']).to(self.device)
+                         activation=self.model_args['activation'],
+                         upscale = self.upscale).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
@@ -144,31 +150,59 @@ class PositionalEncoding(nn.Module):
 class DualAttentionTransformer(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, windows, shifts, latent, d_time_original, d_space_original, d_space, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu'):
+    def __init__(self, windows, shifts, latent, d_time_original, d_space_original, d_space, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', upscale=1):
         super(DualAttentionTransformer, self).__init__()
 
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(d_space, dropout)
         self.layers = ModuleList([DualAttentionTransformerLayer(w, s, latent, d_time_original, d_space, nhead, nhid, dropout, activation, batch_first=True) for w,s in zip(windows,shifts)])
-        self.encoder = nn.Linear(d_space_original, d_space)
+        
         self.d_space = d_space
         self.d_space_original = d_space_original
-        self.decoder = nn.Linear(d_space, d_space_original)
+        self.upscale = upscale
+        
         self.initialization = initialization
 
-        # self.init_weights()
+        if self.d_space != self.d_space_original or self.upscale != 1:
+            self.init_weights()
+        else:
+            self.encoder = lambda x: x
+            self.decoder = lambda x: x
         for i,tf_encoder_layer in enumerate(self.layers):
             self.init_FFN_weights(tf_encoder_layer,i)
 
 
-    # def init_weights(self):
-    #     initrange = math.sqrt(3 / self.d_space) #0.1
-    #     nn.init.uniform_(self.encoder.weight, -initrange, initrange)
-    #     nn.init.zeros_(self.decoder.bias)
-    #     initrange = math.sqrt(6 / (self.d_space + self.d_space_original))
-    #     nn.init.uniform_(self.decoder.weight, -initrange, initrange)
-
+    def init_weights(self):
+        if self.upscale == 1:
+            self.encoderA = nn.Linear(self.d_space_original, self.d_space)
+            self.decoderA = nn.Linear(self.d_space, self.d_space_original)
+            initrangeA = math.sqrt(3 / self.d_space)
+            initrangeB = math.sqrt(6 / (self.d_space + self.d_space_original))
+            
+        else:
+            self.encoderA = nn.Linear(self.d_space_original, self.upscale*self.upscale*self.d_space)
+            self.decoderA = nn.Linear(self.upscale*self.upscale*self.d_space, self.d_space_original)
+            initrangeA = math.sqrt(3 / (self.upscale*self.upscale*self.d_space))
+            initrangeB = math.sqrt(6 / (self.upscale*self.upscale*self.d_space + self.d_space_original))
+         #0.1
+        nn.init.uniform_(self.encoderA.weight, -initrangeA, initrangeA)
+        nn.init.zeros_(self.encoderA.bias)
+        nn.init.zeros_(self.decoderA.bias)
+        nn.init.uniform_(self.decoderA.weight, -initrangeB, initrangeB)
+                   
+        if self.upscale == 1:              
+            self.encoderC = lambda x: self.encoderA(x)
+            self.decoderC = lambda x: self.decoderA(x)
+        else:
+            
+            self.encoderC = lambda x: self.encoderA(x).reshape(x.shape[0],x.shape[1],self.upscale,self.upscale, self.d_space)
+            self.decoderC = lambda x: self.decoderA(x.reshape(x.shape[0],x.shape[1],1,1,self.upscale*self.upscale*self.d_space))
+        
+        
+        self.encoder = lambda x: self.encoderC(x.permute(0,1,3,4,2)).permute(0,1,4,2,3)
+        self.decoder = lambda x: self.decoderC(x.permute(0,1,3,4,2)).permute(0,1,4,2,3)
+        
     def init_FFN_weights(self,tf_encoder_layer, layer_num=0):
         # initialize the weights of the feed-forward network (assuming RELU)
         # TODO need to add option if using sine activation
