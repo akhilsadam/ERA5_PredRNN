@@ -45,7 +45,7 @@ class DAT(BaseModel):
         d_space = self.model_args['n_embd']
         d_time_original = configs.input_length
         
-        if patch_x = patch_y = 1:
+        if patch_x == patch_y and patch_y == 1:
             self.upscale = 16
         else:
             self.upscale = 1
