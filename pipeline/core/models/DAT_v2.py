@@ -202,6 +202,7 @@ class DualAttentionTransformer(nn.Module):
         
         self.encoder = lambda x: self.encoderC(x.permute(0,1,3,4,2)).permute(0,1,4,2,3)
         self.decoder = lambda x: self.decoderC(x.permute(0,1,3,4,2)).permute(0,1,4,2,3)
+        self.d_space *= self.upscale*self.upscale
         
     def init_FFN_weights(self,tf_encoder_layer, layer_num=0):
         # initialize the weights of the feed-forward network (assuming RELU)
