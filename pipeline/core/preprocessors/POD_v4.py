@@ -30,7 +30,7 @@ def simple_randomized_torch_svd(M, k=10):
     U = (Q @ U_hat)
     return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
 
-def randomized_torch_svd(dataset, loader, devices, m, n, k=100, skip=0):
+def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0):
     # only works on multiple GPU machines
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
     # https://discuss.pytorch.org/t/matmul-on-multiple-gpus/33122/3
@@ -48,7 +48,7 @@ def randomized_torch_svd(dataset, loader, devices, m, n, k=100, skip=0):
     n_patches = len(dataset)
     dims = [d.shape[0] for d in dataset]
     
-    load = lambda i, dev: loader(dataset[i], dev)
+    load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],rows).T
         
     rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
     Y, A = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
@@ -129,6 +129,7 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 x += dx
                 
         del A, C_, B_
+        gc.collect()
         for i in range(skip, ngpu):
             torch.cuda.set_device(i)
             torch.cuda.empty_cache()
@@ -180,12 +181,10 @@ class Preprocessor(PreprocessorBase):
 
         # for v in tqdm(range(shape[1])):
         logger.info(f'Computing eigenvectors for all variables...')
-        # Make data matrix
-        loader = lambda d, device: torch.tensor(d, dtype=torch.float, device=device).reshape(d.shape[0],rows).T
         # print(dataset.shape)
         # Make SVD
         skip = 1 if self.weather_prediction else 0
-        U, s, V = randomized_torch_svd(datasets, loader, devices, rows, cols, k=self.randomized_svd_k, skip=skip)
+        U, s, V = randomized_torch_svd(datasets, devices, rows, cols, k=self.randomized_svd_k, skip=skip)
         # Get PVE and truncate
         PVE = torch.cumsum(s**2, dim=0) / torch.sum(s**2)
         loc = torch.where(PVE > self.PVE_threshold)[0][0]
