@@ -51,9 +51,9 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0):
     load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],m).T
         
     rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
-    Y, A = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
+    Y = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
     Q, _ = torch.linalg.qr(Y)                                                       # long side by k  
-    smaller_matrix, _ = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
+    smaller_matrix = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
     
     U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
     U = (Q @ U_hat)
@@ -134,7 +134,7 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
             torch.cuda.set_device(i)
             torch.cuda.empty_cache()
         
-    return C, A
+    return C
 
 class Preprocessor(PreprocessorBase):
     def __init__(self, config):
