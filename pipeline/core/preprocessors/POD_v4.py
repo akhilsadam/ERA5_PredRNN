@@ -53,13 +53,13 @@ def randomized_torch_svd(dataset, loader, devices, m, n, k=100, skip=0):
     rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
     Y, A = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
     Q, _ = torch.linalg.qr(Y)                                                       # long side by k  
-    smaller_matrix, _ = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, A=A, skip=skip, mult_order=1)  # k by short side # parallelize
+    smaller_matrix, _ = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
     
     U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
     U = (Q @ U_hat)
     return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
 
-def split_mult(N, K, n_patches, B, dims, load, transpose, devices, A=None, skip=0, mult_order=0):
+def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0):
     
     device0 = torch.device('cuda:0')
     ngpu = len(devices)
@@ -67,30 +67,25 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, A=None, skip=
     sdims = np.cumsum(dims).tolist()
     sdims.insert(0,0)
     
-    if A is None:
-        A = []
-        make_A = True
-    else:
-        make_A = False
-        
     C = torch.empty(N, K, device=device0)
     x = 0
     for p3 in range(n_batch): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
         shift = p3 * (ngpu-skip)
+        A = []
         B_ = []   
         C_ = []
-        if make_A:
-            for i in range(0, ngpu-skip):
-                p = (shift + i)
-                if p >= n_patches:
-                    break
-                torch.cuda.set_device(i+skip)
-                device = torch.device('cuda:' + str(i+skip))
-                # each GPU has a slice of A
-                ai = load(p, device)
-                if transpose:
-                    ai = ai.transpose(0, 1)
-                A.append(ai)
+
+        for i in range(0, ngpu-skip):
+            p = (shift + i)
+            if p >= n_patches:
+                break
+            torch.cuda.set_device(i+skip)
+            device = torch.device('cuda:' + str(i+skip))
+            # each GPU has a slice of A
+            ai = load(p, device)
+            if transpose:
+                ai = ai.transpose(0, 1)
+            A.append(ai)
 
         # now let's matmul
         for i in range(0, ngpu-skip):
@@ -115,9 +110,9 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, A=None, skip=
             device = torch.device('cuda:' + str(i+skip))
             
             if mult_order == 1:
-                C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[p]))
+                C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[i]))
             else:
-                C_.append(torch.matmul(A[p], B_[i]))
+                C_.append(torch.matmul(A[i], B_[i]))
             
         for i in range(0, ngpu-skip):
             p = (shift + i)
@@ -132,7 +127,11 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, A=None, skip=
                 # print(x,dx)
                 C[x:x+dx,:].copy_(C_[i])
                 x += dx
-        del C_, B_
+                
+        del A, C_, B_
+        for i in range(skip, ngpu):
+            torch.cuda.set_device(i)
+            torch.cuda.empty_cache()
         
     return C, A
 
