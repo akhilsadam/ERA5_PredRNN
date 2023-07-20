@@ -116,6 +116,7 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 else:
                     C_.append(torch.matmul(A[i], B_[i]))
                 
+            D_ = []
             for i in range(0, ngpu-skip):
                 p = (shift + i)
                 if p >= n_patches:
@@ -123,7 +124,9 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 torch.cuda.set_device(0)
                 
                 if not transpose or mult_order == 1:
-                    C += C_[i].to(device0)
+                    add = C_[i].to(device0)
+                    D_.append(add)
+                    C += add
                 else:
                     dx = C_[i].shape[0]
                     # print(x,dx)
@@ -136,7 +139,9 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 del i
             for i in C_:
                 del i  
-            del A, C_, B_
+            for i in D_:
+                del i
+            del A, C_, B_, D_
             gc.collect()
             for i in range(skip, ngpu):
                 torch.cuda.set_device(i)
