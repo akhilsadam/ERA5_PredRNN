@@ -40,7 +40,7 @@ class Model(object):
             'rLSTM': rLSTM.rLSTM,
             'ViT_LDM': ViT_LDM.ViT_LDM,
         }
-        
+        torch.backends.cuda.matmul.allow_tf32 = True
         device = configs.device
         self.device = device
         thread = threading.current_thread().name

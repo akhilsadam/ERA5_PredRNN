@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import torch
 import gc, os, jpcm
 import numpy as np
+import math
 import torch.nn as nn
 import logging
 import imageio.v3 as imageio
@@ -22,12 +23,118 @@ def simple_randomized_torch_svd(M, k=10):
         transpose = True
         B = B.transpose(0, 1)
         m, n = B.size()
-    rand_matrix = torch.rand((n,k), dtype=torch.float, device=M.device)  # short side by k
+    rand_matrix = torch.randn((n,k), dtype=torch.float, device=M.device)  # short side by k
     Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
     smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
-    U_hat, s, V = torch.svd(smaller_matrix,False)
+    U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
     U = (Q @ U_hat)
-    return (V.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, V)
+    return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
+
+def randomized_torch_svd(dataset, loader, devices, m, n, k=100, skip=0):
+    # only works on multiple GPU machines
+    # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
+    # https://discuss.pytorch.org/t/matmul-on-multiple-gpus/33122/3
+    device0 = torch.device('cuda:0')
+    
+    # transpose = m < n ### TODO
+    if True: #m < n:
+        transpose = True
+        dlong = n
+        dshort = m
+    else:
+        transpose = False
+        dshort = n
+        dlong = m
+    n_patches = len(dataset)
+    dims = [d.shape[0] for d in dataset]
+    
+    load = lambda i, dev: loader(dataset[i], dev)
+        
+    rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
+    Y, A = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
+    Q, _ = torch.linalg.qr(Y)                                                       # long side by k  
+    smaller_matrix, _ = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, A=A, skip=skip, mult_order=1)  # k by short side # parallelize
+    
+    U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
+    U = (Q @ U_hat)
+    return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
+
+def split_mult(N, K, n_patches, B, dims, load, transpose, devices, A=None, skip=0, mult_order=0):
+    
+    device0 = torch.device('cuda:0')
+    ngpu = len(devices)
+    n_batch = math.ceil(n_patches / (ngpu-skip))
+    sdims = np.cumsum(dims).tolist()
+    sdims.insert(0,0)
+    
+    if A is None:
+        A = []
+        make_A = True
+    else:
+        make_A = False
+        
+    C = torch.empty(N, K, device=device0)
+    x = 0
+    for p3 in range(n_batch): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
+        shift = p3 * (ngpu-skip)
+        B_ = []   
+        C_ = []
+        if make_A:
+            for i in range(0, ngpu-skip):
+                p = (shift + i)
+                if p >= n_patches:
+                    break
+                torch.cuda.set_device(i+skip)
+                device = torch.device('cuda:' + str(i+skip))
+                # each GPU has a slice of A
+                ai = load(p, device)
+                if transpose:
+                    ai = ai.transpose(0, 1)
+                A.append(ai)
+
+        # now let's matmul
+        for i in range(0, ngpu-skip):
+            p = (shift + i)
+            if p >= n_patches:
+                break
+            torch.cuda.set_device(i+skip)
+            device = torch.device('cuda:' + str(i+skip))
+            
+            if not transpose:
+                B_slice = torch.empty(dims[p], B.size(1), device=device)
+                B_.append(B_slice)
+            else:
+                B_.append(B.to(device))
+
+        # Step 2: issue the matmul on each GPU
+        for i in range(0, ngpu-skip):
+            p = (shift + i)
+            if p >= n_patches:
+                break
+            torch.cuda.set_device(i+skip)
+            device = torch.device('cuda:' + str(i+skip))
+            
+            if mult_order == 1:
+                C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[p]))
+            else:
+                C_.append(torch.matmul(A[p], B_[i]))
+            
+        for i in range(0, ngpu-skip):
+            p = (shift + i)
+            if p >= n_patches:
+                break
+            torch.cuda.set_device(0)
+            
+            if not transpose or mult_order == 1:
+                C += C_[i].to(device0)
+            else:
+                dx = C_[i].shape[0]
+                # print(x,dx)
+                C[x:x+dx,:].copy_(C_[i])
+                x += dx
+        del C_, B_
+        
+    return C, A
 
 class Preprocessor(PreprocessorBase):
     def __init__(self, config):
@@ -67,19 +174,19 @@ class Preprocessor(PreprocessorBase):
         # approx_mem_req = (8/1024**3) * (rows*cols + cols**2 + rows**2 + rows)
         # if approx_mem_req > 2:
         #     print(f"Warning: Approximate memory requirement is {approx_mem_req:.2f} GB. Will use CPU for eigenvector computation.")
-        device = torch.device('cpu')
+        # device = torch.device('cpu')
         # else:
-        #     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        devices = range(torch.cuda.device_count())
             
 
         # for v in tqdm(range(shape[1])):
         logger.info(f'Computing eigenvectors for all variables...')
         # Make data matrix
-        dataset = torch.cat([torch.tensor(d, dtype=torch.float, device=device) for d in datasets],dim=0)
-        dataset = dataset.reshape(cols,rows).T
+        loader = lambda d, device: torch.tensor(d, dtype=torch.float, device=device).reshape(d.shape[0],rows).T
         # print(dataset.shape)
         # Make SVD
-        U, s, V = simple_randomized_torch_svd(dataset, k=self.randomized_svd_k)
+        skip = 1 if self.weather_prediction else 0
+        U, s, V = randomized_torch_svd(datasets, loader, devices, rows, cols, k=self.randomized_svd_k, skip=skip)
         # Get PVE and truncate
         PVE = torch.cumsum(s**2, dim=0) / torch.sum(s**2)
         loc = torch.where(PVE > self.PVE_threshold)[0][0]
@@ -118,7 +225,7 @@ class Preprocessor(PreprocessorBase):
                 imc = (imc*255).astype(np.uint8)                
                 imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/_{i}.png", imc, format='JPEG')
             
-        del dataset, U, s, V, PVE, loc, eigenvectors, latent_dimension, vdict
+        del datasets, U, s, V, PVE, loc, eigenvectors, latent_dimension, vdict
         gc.collect()
         
     def load(self, device):
