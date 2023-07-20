@@ -48,91 +48,100 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0):
     n_patches = len(dataset)
     dims = [d.shape[0] for d in dataset]
     
-    load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],m).T
-        
-    rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
-    Y = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
-    Q, _ = torch.linalg.qr(Y)                                                       # long side by k  
-    smaller_matrix = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
+    with torch.no_grad():
     
-    U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
-    U = (Q @ U_hat)
+        load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],m).T
+            
+        rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
+        Y = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
+        Q, _ = torch.linalg.qr(Y)                                                       # long side by k  
+        smaller_matrix = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
+        
+        U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
+        U = (Q @ U_hat)
     return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
 
 def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0):
-    
-    device0 = torch.device('cuda:0')
-    ngpu = len(devices)
-    n_batch = math.ceil(n_patches / (ngpu-skip))
-    sdims = np.cumsum(dims).tolist()
-    sdims.insert(0,0)
-    
-    C = torch.empty(N, K, device=device0)
-    x = 0
-    for p3 in range(n_batch): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
-        shift = p3 * (ngpu-skip)
-        A = []
-        B_ = []   
-        C_ = []
+    with torch.no_grad():
+        device0 = torch.device('cuda:0')
+        ngpu = len(devices)
+        n_batch = math.ceil(n_patches / (ngpu-skip))
+        sdims = np.cumsum(dims).tolist()
+        sdims.insert(0,0)
+        
+        C = torch.empty(N, K, device=device0)
+        x = 0
+        for p3 in range(n_batch): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
+            shift = p3 * (ngpu-skip)
+            A = []
+            B_ = []   
+            C_ = []
 
-        for i in range(0, ngpu-skip):
-            p = (shift + i)
-            if p >= n_patches:
-                break
-            torch.cuda.set_device(i+skip)
-            device = torch.device('cuda:' + str(i+skip))
-            # each GPU has a slice of A
-            ai = load(p, device)
-            if transpose:
-                ai = ai.transpose(0, 1)
-            A.append(ai)
+            for i in range(0, ngpu-skip):
+                p = (shift + i)
+                if p >= n_patches:
+                    break
+                torch.cuda.set_device(i+skip)
+                device = torch.device('cuda:' + str(i+skip))
+                # each GPU has a slice of A
+                ai = load(p, device)
+                if transpose:
+                    ai = ai.transpose(0, 1)
+                A.append(ai)
 
-        # now let's matmul
-        for i in range(0, ngpu-skip):
-            p = (shift + i)
-            if p >= n_patches:
-                break
-            torch.cuda.set_device(i+skip)
-            device = torch.device('cuda:' + str(i+skip))
-            
-            if not transpose:
-                B_slice = torch.empty(dims[p], B.size(1), device=device)
-                B_.append(B_slice)
-            else:
-                B_.append(B.to(device))
-
-        # Step 2: issue the matmul on each GPU
-        for i in range(0, ngpu-skip):
-            p = (shift + i)
-            if p >= n_patches:
-                break
-            torch.cuda.set_device(i+skip)
-            device = torch.device('cuda:' + str(i+skip))
-            
-            if mult_order == 1:
-                C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[i]))
-            else:
-                C_.append(torch.matmul(A[i], B_[i]))
-            
-        for i in range(0, ngpu-skip):
-            p = (shift + i)
-            if p >= n_patches:
-                break
-            torch.cuda.set_device(0)
-            
-            if not transpose or mult_order == 1:
-                C += C_[i].to(device0)
-            else:
-                dx = C_[i].shape[0]
-                # print(x,dx)
-                C[x:x+dx,:].copy_(C_[i])
-                x += dx
+            # now let's matmul
+            for i in range(0, ngpu-skip):
+                p = (shift + i)
+                if p >= n_patches:
+                    break
+                torch.cuda.set_device(i+skip)
+                device = torch.device('cuda:' + str(i+skip))
                 
-        del A, C_, B_
-        gc.collect()
-        for i in range(skip, ngpu):
-            torch.cuda.set_device(i)
-            torch.cuda.empty_cache()
+                if not transpose:
+                    B_slice = torch.empty(dims[p], B.size(1), device=device)
+                    B_.append(B_slice)
+                else:
+                    B_.append(B.to(device))
+
+            # Step 2: issue the matmul on each GPU
+            for i in range(0, ngpu-skip):
+                p = (shift + i)
+                if p >= n_patches:
+                    break
+                torch.cuda.set_device(i+skip)
+                device = torch.device('cuda:' + str(i+skip))
+                
+                if mult_order == 1:
+                    C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[i]))
+                else:
+                    C_.append(torch.matmul(A[i], B_[i]))
+                
+            for i in range(0, ngpu-skip):
+                p = (shift + i)
+                if p >= n_patches:
+                    break
+                torch.cuda.set_device(0)
+                
+                if not transpose or mult_order == 1:
+                    C += C_[i].to(device0)
+                else:
+                    dx = C_[i].shape[0]
+                    # print(x,dx)
+                    C[x:x+dx,:].copy_(C_[i])
+                    x += dx
+                
+            for i in A:
+                del i
+            for i in B_:
+                del i
+            for i in C_:
+                del i  
+            del A, C_, B_
+            gc.collect()
+            for i in range(skip, ngpu):
+                torch.cuda.set_device(i)
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
         
     return C
 
