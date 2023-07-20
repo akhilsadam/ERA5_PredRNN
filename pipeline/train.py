@@ -41,7 +41,7 @@ class hyperparam:
     interpret = False # interpret model
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
@@ -54,8 +54,8 @@ class hyperparam:
 
 
 hyp = hyperparam()
-hyp.overrides.update({'n_embd': 200}) #64
-hyp.overrides.update({'n_ffn_embd': 200}) #128
+hyp.overrides.update({'n_embd': 300}) #64
+hyp.overrides.update({'n_ffn_embd': 300}) #128
 # hyp.n_valid = 12 if hyp.weather_prediction else 1
 hyp.max_iterations = 25001
 # hyp.overrides.update({'n_embd': 400}) #64
