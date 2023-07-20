@@ -48,7 +48,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0):
     n_patches = len(dataset)
     dims = [d.shape[0] for d in dataset]
     
-    load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],rows).T
+    load = lambda i, dev: torch.from_numpy(dataset[i]).float().to(dev).reshape(dataset[i].shape[0],m).T
         
     rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
     Y, A = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
