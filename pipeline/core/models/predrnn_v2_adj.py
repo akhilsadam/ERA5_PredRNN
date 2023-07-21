@@ -105,7 +105,7 @@ class RNN(BaseModel):
         inpt = self.preprocessor.batched_input_transform(seq)
         
         nc, sx, sy = inpt.shape[-3:]
-        frames_tensor = inpt.reshape(inpt.shape[0],inpt.shape[1],-1,1,1)
+        frames_tensor = inpt.reshape(inpt.shape[0],inpt.shape[1],-1,self.preprocessor.patch_x,self.preprocessor.patch_y)
         
 
         tensor_device = frames_tensor.get_device()
