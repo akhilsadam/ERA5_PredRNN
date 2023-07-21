@@ -39,7 +39,7 @@ class Preprocessor(PreprocessorBase):
                     
         self.patch_x = self.shape[2]
         self.patch_y = self.shape[3]
-        self.latent_dims = self.shape[1]
+        self.latent_dims = list(range(self.shape[1]+1))
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
         self.batched_input_transform = lambda x: x*self.scale + self.shift
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
