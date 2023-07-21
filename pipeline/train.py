@@ -16,6 +16,7 @@ parser.add_argument('-a','--mode', help='Mode [all, train & test, train, test]',
 parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
 parser.add_argument('-mds', '--max_datasets', help='Max datasets',type=int ,required=False, default=-1)
 parser.add_argument('-pre', '--preprocessor', help='Preprocessor',type=str ,required=False, default='POD_v4')
+parser.add_argument('-gpu', '--gpu', help='GPU',type=int ,required=False, default=-1)
 args = parser.parse_args()
 hyt = args.hyperthreading
 names = args.models
@@ -98,7 +99,7 @@ else:
 queue = names # thread immutable
 running = Value('i', 1)   
 n_gpus = torch.cuda.device_count()
-gpus = range(n_gpus) # also immutable
+gpus = range(n_gpus) if args.gpu==-1 else [args.gpu,] # also immutable
 busy_processes = Array('i', np.zeros((n_gpus*hyt), dtype='int32'), lock=False) # mutable
 arr_lock = Lock()
 
