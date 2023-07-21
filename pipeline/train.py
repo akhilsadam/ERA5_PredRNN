@@ -12,7 +12,7 @@ parser.add_argument("--hyperthreading", help="Run # processes per GPU", type=int
 parser.add_argument('-m','--models', nargs='+', help='<Required> Model Names', required=True)
 parser.add_argument('-il','--input_lengths', nargs='+', help='Input length list', required=False)
 parser.add_argument('-pn','--project_names', nargs='+', help='Wandb project name', required=False)
-parser.add_argument('-a','--mode', help='Mode [all, train & test, train, test]', required=False, type=int, default=0)
+parser.add_argument('-a','--mode', help='Mode [salient, train & test, train, test]', required=False, type=int, default=0)
 parser.add_argument('-p', '--preload', help='Preload data',type=int ,required=False, default=0)
 parser.add_argument('-mds', '--max_datasets', help='Max datasets',type=int ,required=False, default=-1)
 parser.add_argument('-pre', '--preprocessor', help='Preprocessor',type=str ,required=False, default='POD_v4')
@@ -61,9 +61,11 @@ hyp = hyperparam()
 hyp.max_iterations = 2001
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
-    tr = [True, False, False]
-    ptn = [None, 'last', 'last']
-    sal = [False, False, True]
+    tr = [False]
+    ptn = ['last']
+    sal = [True]
+    if args.preload != 0:
+        ptn = [f'model_{args.preload}.ckpt']
 elif mode == 0:
     tr = [True, False]
     ptn = [None, 'last']
