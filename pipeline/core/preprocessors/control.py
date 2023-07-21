@@ -36,7 +36,7 @@ class Preprocessor(PreprocessorBase):
             # return x.reshape(x.size(0),x.size(1),self.shapex*self.shapey) * self.scale + self.shift#torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
             return x * self.scale + self.shift
         def out_tf(a):
-            return a / self.scale - self.shift
+            return (a- self.shift) / self.scale 
             
         # latent_dims = np.cumsum([self.shapey*self.shapex,]*self.n_var).tolist()
         latent_dims = np.cumsum([1,]*self.n_var).tolist()
