@@ -138,7 +138,7 @@ class Preprocessor(PreprocessorBase):
                 
         def out_tf(eigen,a):
             out = torch.einsum('sl,btlxy->btsxy',eigen, a)
-            return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
+            return (out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) - self.shift) / self.scale 
             
         self.patch_x = self.n_patch
         self.patch_y = self.n_patch

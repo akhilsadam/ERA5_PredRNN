@@ -184,7 +184,7 @@ class Preprocessor(PreprocessorBase):
             aqx = torch.mul(evs,phx)
             # print(aqx.shape, q.shape)
             out = torch.matmul(aqx,q).real.permute(0,1,4,2,3)
-            return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
+            return (out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) - self.shift) / self.scale
             
             # out = torch.einsum('sl,btlxy->btsxy',eigen, a)
             # return out.reshape(out.size(0), out.size(1), self.shapex, self.shapey) / self.scale - self.shift
