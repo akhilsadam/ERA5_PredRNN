@@ -24,6 +24,8 @@ class Preprocessor(PreprocessorBase):
         
         self.wp = 'WP_' if self.weather_prediction else ''                    
 
+        #precompute
+        self.precompute()
     
     def precompute(self):
         shape, _ = super().precompute_scale(use_datasets=False)
