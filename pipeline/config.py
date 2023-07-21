@@ -141,8 +141,8 @@ model_config_toy = \
             'optimizer' :  lambda x,y : ASGD(x,lr=50*y) # [None, Adam, ASGD,...]'
         },
         'DualAttentionTransformer':{
-            'windows': [[16,16],[2,2],[2,2]], # list of window sizes for the shifted attention
-            'shifts': [[0,0],[0,0],[1,1]], # list of shifts for the shifted attention
+            'windows': [[16,16],[8,8],[2,2],[2,2]], # list of window sizes for the shifted attention
+            'shifts': [[0,0],[0,0],[0,0],[1,1]], # list of shifts for the shifted attention
             'n_head': 1, # number of heads in the transformer
             'n_embd': 4096, # number of hidden units in the transformer
             'n_ffn_embd': 4096, # number of hidden units in the FFN
@@ -151,7 +151,7 @@ model_config_toy = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 16, # batch size
+            'batch_size': 4, # batch size
         },
         'BERT':{
             'n_layers': 4, # number of layers in the transformer
