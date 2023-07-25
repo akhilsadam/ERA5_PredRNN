@@ -13,6 +13,13 @@ def pilsave(name, cmap, data):
     img = Image.fromarray((cmap(data)[:, :, :3] * 255).astype(np.uint8))
     img.save(name)
 
+def pilsaven(name, cmap, data):
+    data -= np.mean(data)
+    data /= np.std(data)
+    data += 3
+    data = np.clip(data, 0, 6)/6
+    pilsave(name, cmap, data)
+
 def viz(data, frame, gt, config):
     # data shape : (length, channels, height, width)    
     checkpoint_dir = config.gen_frm_dir

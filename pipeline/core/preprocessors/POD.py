@@ -25,7 +25,7 @@ def simple_randomized_torch_svd(M, k=10):
     smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
     U_hat, s, V = torch.svd(smaller_matrix,False)
     U = (Q @ U_hat)
-    return (V.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, V)
+    return (V, s, U.transpose(0, 1)) if transpose else (U, s, V.transpose(0, 1))
 
 class Preprocessor(PreprocessorBase):
     def __init__(self, config):
