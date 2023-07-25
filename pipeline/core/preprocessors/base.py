@@ -10,7 +10,7 @@ class DataLoader:
         self.shape = shape
     
     def load(self, device):
-        return np.load(self.path, mmap_mode='r')
+        return np.load(self.path, mmap_mode='r')['input_raw_data']
 
 class PreprocessorBase:
     def __init__(self, config):
@@ -76,11 +76,13 @@ class PreprocessorBase:
             import zipfile
             for i,trainset in tqdm(enumerate(self.train_data_paths)):
                 try:
-                    filename = trainset
-                    with zipfile.ZipFile(filename, mode='r') as archive:
-                        npy = archive.open(filename, mode='r')
-                        version = np.lib.format.read_magic(npy)
-                        shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
+                    with zipfile.ZipFile(trainset) as archive:
+                        for name in archive.namelist():
+                            if name.endswith('input_raw_data.npy'):
+                                npy = archive.open(name)
+                                version = np.lib.format.read_magic(npy)
+                                shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
+                                break
                     
                     assert len(shape)==4, f"Raw data in {trainset} is not 4D!"
                     assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"

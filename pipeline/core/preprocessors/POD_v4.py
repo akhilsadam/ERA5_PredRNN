@@ -64,7 +64,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
     
     with torch.no_grad():
         def loader(i, dev, tp):
-            dataseti = dataset[i].load() # assume lazy loader
+            dataseti = dataset[i].load() if type(dataset[i]) is not torch.Tensor else dataset[i] # lazy check
             if tp:
                 tensor = torch.from_numpy(dataseti.reshape(dataseti.shape[0],m)).float().to(dev)
             else:
@@ -260,7 +260,7 @@ class Preprocessor(PreprocessorBase):
 
     
     def precompute(self):
-        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy = True)
+        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=self.weather_prediction)
 
         rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
