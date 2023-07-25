@@ -2651,3 +2651,74 @@
 23-07-16 17:02 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
 23-07-16 17:02 cdsapi       INFO     Request is queued
 23-07-16 17:02 cdsapi       INFO     Request is running
+23-07-25 10:10 __main__     INFO     User: mitt-wsl
+23-07-25 10:10 __main__     INFO     UID: f4bb8d19-8fa9-4f90-84fd-2dec028c684f
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//u_wind.grib
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//v_wind.grib
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//temp.grib
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//sea_press.grib
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//precip.grib
+23-07-25 10:10 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//moist_static.grib
+23-07-25 10:10 cdsapi       INFO     Welcome to the CDS
+23-07-25 10:10 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-25 10:10 cdsapi       INFO     Request is queued
+23-07-25 10:10 cdsapi       INFO     Request is running
+23-07-25 10:10 cdsapi       INFO     Request is completed
+23-07-25 10:10 cdsapi       INFO     Downloading https://download-0014-clone.copernicus-climate.eu/cache-compute-0014/cache/data3/adaptor.mars.internal-1690297832.8083582-21381-13-3be260da-3e42-480f-8dcb-92f82976a593.grib to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//moist_static.grib (245.6M)
+23-07-25 10:11 cdsapi       INFO     Download rate 6.8M/s
+23-07-25 10:11 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//dry_static.grib
+23-07-25 10:11 cdsapi       INFO     Welcome to the CDS
+23-07-25 10:11 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-25 10:11 cdsapi       INFO     Request is queued
+23-07-25 10:11 cdsapi       INFO     Request is running
+23-07-25 10:11 cdsapi       INFO     Request is completed
+23-07-25 10:11 cdsapi       INFO     Downloading https://download-0012-clone.copernicus-climate.eu/cache-compute-0012/cache/data6/adaptor.mars.internal-1690297878.2534275-19407-2-ade40d1a-3775-442e-a84f-ea44c0e5173e.grib to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//dry_static.grib (245.6M)
+23-07-25 10:12 cdsapi       INFO     Download rate 6.2M/s
+23-07-25 10:12 __main__     INFO     Download only, skipping conversion...
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_02//u_wind.grib
+23-07-25 10:12 cdsapi       INFO     Welcome to the CDS
+23-07-25 10:12 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-25 10:12 cdsapi       INFO     Request is queued
+23-07-25 10:12 cdsapi       INFO     Request is running
+23-07-25 10:12 __main__     INFO     User: mitt-wsl
+23-07-25 10:12 __main__     INFO     UID: 0b070689-195c-4ab9-a450-1aa380fb1175
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//u_wind.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//v_wind.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//temp.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//sea_press.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//precip.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//moist_static.grib
+23-07-25 10:12 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//dry_static.grib
+23-07-25 10:12 __main__     INFO     Converting CDS data...
+23-07-25 10:12 convert      INFO     Loading data...
+23-07-25 10:12 convert      INFO     Collecting data...
+23-07-25 10:12 convert      INFO     Normalizing data...
+23-07-25 10:12 convert      INFO     Making distribution snapshots (at timestamp 62)...
+23-07-25 10:14 convert      INFO     Stacking data...
+23-07-25 10:14 convert      INFO     Making variable snapshots (at timestamp 62)...
+23-07-25 10:14 convert      INFO     Making clips...
+23-07-25 10:14 convert      INFO     Saving data...
+23-07-25 10:17 __main__     INFO     User: mitt-wsl
+23-07-25 10:17 __main__     INFO     UID: dd3e1112-89c1-4a99-ad2d-f83883b4b889
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//u_wind.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//v_wind.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//temp.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//sea_press.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//precip.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//moist_static.grib
+23-07-25 10:17 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_01//dry_static.grib
+23-07-25 10:17 __main__     INFO     Converting CDS data...
+23-07-25 10:17 convert      INFO     Loading data...
+23-07-25 10:17 convert      INFO     Collecting data...
+23-07-25 10:17 convert      INFO     Normalizing data...
+23-07-25 10:17 convert      INFO     Making distribution snapshots (at timestamp 62)...
+23-07-25 10:18 convert      INFO     Stacking data...
+23-07-25 10:18 convert      INFO     Making variable snapshots (at timestamp 62)...
+23-07-25 10:18 convert      INFO     Making clips...
+23-07-25 10:18 convert      INFO     Saving data...
+23-07-25 10:19 convert      INFO     Done!
+23-07-25 10:19 __main__     INFO     Opening CDS API ... saving to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_02//u_wind.grib
+23-07-25 10:19 cdsapi       INFO     Welcome to the CDS
+23-07-25 10:19 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
+23-07-25 10:19 cdsapi       INFO     Request is completed
+23-07-25 10:19 cdsapi       INFO     Downloading https://download-0002-clone.copernicus-climate.eu/cache-compute-0002/cache/data0/adaptor.mars.internal-1690297932.8088903-13633-3-8f3196bb-565e-4b4c-b7cf-80d5a50ddafe.grib to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_02//u_wind.grib (221.8M)
