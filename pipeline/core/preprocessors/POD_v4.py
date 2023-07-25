@@ -361,7 +361,7 @@ class Preprocessor(PreprocessorBase):
 
     
     def precompute(self):
-        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=True) # self.weather_prediction) # TODO change back
+        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=self.weather_prediction) # TODO change back
 
         rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
