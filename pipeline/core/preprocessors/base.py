@@ -9,7 +9,7 @@ class DataLoader:
         self.path = path
         self.shape = shape
     
-    def load(self, device):
+    def load(self):
         return np.load(self.path, mmap_mode='r')['input_raw_data']
 
 class PreprocessorBase:
