@@ -140,7 +140,7 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
         
         C = torch.empty(N, K, device=device0)
         x = 0
-        for p3 in range(n_batch): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
+        for p3 in tqdm(range(n_batch)): # assume n_patches >> ngpu, and each patch maximally fills a GPU 
             shift = p3 * (ngpu-skip)
             A = []
             B_ = []   

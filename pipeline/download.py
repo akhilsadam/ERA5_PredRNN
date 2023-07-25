@@ -10,7 +10,8 @@ import convert
 from normalize import short
 ###########
 parser = argparse.ArgumentParser(description='Data Downloader')
-
+#python3 download.py --download_only True --n 5 (run first on login node)
+#python3 download.py --n 5 (run next on compute node)
 parser.add_argument('--input_length', type=int, default=20)
 parser.add_argument('--total_length', type=int, default=40)
 parser.add_argument('--n', type=int, default=1)

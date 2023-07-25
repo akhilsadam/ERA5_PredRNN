@@ -81,7 +81,7 @@ def convert(path, directory, logger=None, pygrib_fmt=True, final_data=None, inpu
     final_clips[0,:,0] = np.arange(0,n_step,in_step)[:nc]
     final_clips[1,:,0] = np.arange(in_step,n_step+1,out_step)[:nc]
     final_clips[1,:,1] = out_step
-    logger.info('\tClip Shape:', final_clips.shape)
+    logger.info('\tClip Shape:', list(final_clips.shape))
 
     dim_shape = final_data.shape[1:]
     final_ds = {
