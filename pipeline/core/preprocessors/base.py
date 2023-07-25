@@ -5,12 +5,12 @@ from tqdm import tqdm
 logger = logging.getLogger('preprocessor')
 
 class DataLoader:
-    def __init__(self, path, shape) -> None:
+    def __init__(self, path, shape):
         self.path = path
         self.shape = shape
     
     def load(self):
-        return np.load(self.path, mmap_mode='r')['input_raw_data']
+        return np.load(self.path)['input_raw_data']
 
 class PreprocessorBase:
     def __init__(self, config):
@@ -99,7 +99,7 @@ class PreprocessorBase:
             
         
         if use_datasets:
-            if self.weather_prediction:
+            if self.weather_prediction or lazy:
                 datasets2 = datasets
             else:
                 datasets2 = []

@@ -3,6 +3,8 @@ import torch
 import gc, os, jpcm
 import numpy as np
 import math
+import threading
+from threading import Lock
 import torch.nn as nn
 import logging
 import imageio.v3 as imageio
@@ -13,6 +15,42 @@ from .base import PreprocessorBase
 
 logger = logging.getLogger('POD_v4-preprocessor')
 
+
+class ThreadSafeList():
+    # constructor
+    def __init__(self):
+        # initialize the list
+        self._list = list()
+        # initialize the lock
+        self._lock = Lock()
+ 
+    # add a value to the list
+    def append(self, value):
+        # acquire the lock
+        with self._lock:
+            # append the value
+            self._list.append(value)
+ 
+    # remove and return the last value from the list
+    def pop(self):
+        # acquire the lock
+        with self._lock:
+            # pop a value from the list
+            return self._list.pop()
+ 
+    # read a value from the list at an index
+    def get(self, index):
+        # acquire the lock
+        with self._lock:
+            # read a value at the index
+            return self._list[index]
+ 
+    # return the number of items in the list
+    def length(self):
+        # acquire the lock
+        with self._lock:
+            return len(self._list)
+
 # POD, but all variables at once!
 import inspect
 def retrieve_name(var):
@@ -20,13 +58,18 @@ def retrieve_name(var):
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
 def print_trace():
     print('--- start GC collect ---')
+    items = {}
     for obj in gc.get_objects():
         try:
             if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-                print(obj.element_size() * obj.nelement() if len(obj.size()) > 0 else 0, type(obj), obj.size(), retrieve_name(obj))
+                size = obj.element_size() * obj.nelement() if len(obj.size()) > 0 else 0
+                name = retrieve_name(obj)[0]
+                print(size, type(obj), obj.size(), name)
+                items[name] = size
         except:
             pass
     print('--- end GC collect ---')
+    return items
 
 def simple_randomized_torch_svd(M, k=10):
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
@@ -44,11 +87,12 @@ def simple_randomized_torch_svd(M, k=10):
     U = (Q @ U_hat)
     return (Vt.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, Vt)
 
-def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
+def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nbatch=6):
     # only works on multiple GPU machines
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
     # https://discuss.pytorch.org/t/matmul-on-multiple-gpus/33122/3
     device0 = torch.device('cuda:0')
+    max_gb = 0.9 * torch.cuda.get_device_properties(device0).total_memory / 1024**3
     
     # transpose = m < n ### TODO
     if True: #m < n:
@@ -59,28 +103,62 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
         transpose = False
         dshort = n
         dlong = m
-    n_patches = len(dataset)
-    dims = [d.shape[0] for d in dataset]
+    total = len(dataset)
+    n_patches = math.ceil(total / nbatch)
+    dims0 = [d.shape[0] for d in dataset]
+    # sum batches together to get correct dim size
+    dims = []
+    for i in range(n_patches):
+        x = 0
+        for j in range(nbatch):
+            p = (i*nbatch + j)
+            if p >= total:
+                break
+            x += dims0[p]
+        dims.append(x)
     
     with torch.no_grad():
-        def loader(i, dev, tp):
-            dataseti = dataset[i].load() if type(dataset[i]) is not torch.Tensor else dataset[i] # lazy check
+        def loader(i, dev, tp, nbatch):            
+            tensors = ThreadSafeList()
+            ordering = ThreadSafeList()
+            
+            def tf(j, ts, ord):
+                dataseti = dataset[j].load() if type(dataset[j]) is not torch.Tensor else dataset[j] # lazy check
+                if tp:
+                    dataseti = dataseti.reshape(dataseti.shape[0],m)
+                else:
+                    dataseti = dataseti.reshape(dataseti.shape[0],m).T
+                ts.append(torch.from_numpy(dataseti).float())
+                ord.append(j)
+                # print(f"Loaded {j}.")
+            
+            threads = []
+            for j in range(i*nbatch, min((i+1)*nbatch, total)):
+                t = threading.Thread(target=tf, args=(j, tensors, ordering))
+                t.start()
+                threads.append(t)
+            
+            for t in threads:
+                t.join()
+                    
+            data = [tensors.get(i) for i in np.argsort(ordering._list)]
+                    
             if tp:
-                tensor = torch.from_numpy(dataseti.reshape(dataseti.shape[0],m)).float().to(dev)
+                out = torch.cat(data, dim=0).to(dev)
             else:
-                tensor = torch.from_numpy(dataseti.reshape(dataseti.shape[0],m).T).float().to(dev)
-            del dataseti
+                out = torch.cat(data, dim=1).to(dev)
+                
+            del tensors, ordering, data
             gc.collect()
-            return tensor
-                   
+            return out
         
-        load = lambda i, dev, tp : loader(i,dev, tp)
+        load = lambda i, dev, tp, batch : loader(i,dev, tp, batch)
           
         def make_Q():  
             def make_Y():
                 rand_matrix = torch.randn((dshort,k), dtype=torch.float, device=device0)         # short side by k
                 # pilsave(f"{savepath}rand_matrix.png", jpcm.get('desert'), rand_matrix.cpu().numpy())
-                Y = split_mult(dlong, k, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
+                Y = split_mult(dlong, k, nbatch, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
                 
                 del rand_matrix
                 gc.collect()
@@ -89,7 +167,10 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
             
             Y = make_Y()
             torch.cuda.empty_cache()
-            print_trace()
+            gb = print_trace()['Y'] / 1024**3
+            frac = gb / max_gb
+            remIT = math.ceil(frac / (1-frac))
+            print(f"Y is {gb:.2f} GB ({frac*100:.2f}% of GPU memory). Will sum using {remIT} chunks.")
             
             # pilsave(f"{savepath}Y.png", jpcm.get('desert'), Y.cpu().numpy())
 
@@ -99,14 +180,14 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
             gc.collect()
             torch.cuda.empty_cache()
             # pilsave(f"{savepath}Q.png", jpcm.get('desert'), Q.cpu().numpy())
-            return Q
+            return Q, remIT
         
-        Q = make_Q()
+        Q, remIT = make_Q()
         torch.cuda.empty_cache()     
-        # print_trace()
+        print_trace()
         
-        smaller_matrix = split_mult(k, dshort, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1)  # k by short side # parallelize
-        # print_trace()
+        smaller_matrix = split_mult(k, dshort, nbatch, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1, add_cycles=remIT)  # k by short side # parallelize
+        print_trace()
         # pilsave(f"{savepath}smaller_matrix.png", jpcm.get('desert'), smaller_matrix.cpu().numpy())
         U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
         
@@ -130,7 +211,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
     #     U = (Q @ U_hat)
     # return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
 
-def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0):
+def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0, add_cycles=1):
     with torch.no_grad():
         device0 = torch.device('cuda:0')
         ngpu = len(devices)
@@ -155,7 +236,7 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 torch.cuda.set_device(i+skip)
                 device = torch.device('cuda:' + str(i+skip))
                 # each GPU has a slice of A
-                ai = load(p, device, transpose)
+                ai = load(p, device, transpose, nbatch)
                 A.append(ai)
 
             # now let's matmul
@@ -195,10 +276,22 @@ def split_mult(N, K, n_patches, B, dims, load, transpose, devices, skip=0, mult_
                 torch.cuda.set_device(0)
                 
                 if not transpose or mult_order == 1:
-                    add = C_[i].to(device0)
-                    D_.append(add)
-                    C += add
-                    del add
+                    if add_cycles <= 1:
+                        add = C_[i].to(device0)
+                        D_.append(add)
+                        C.add_(add)
+                        del add
+                    else:
+                        l = C_[i].size(0)
+                        step = math.ceil(l/add_cycles)
+                        x = 0
+                        for _ in range(add_cycles):
+                            xm = min(x+step,l)
+                            add = C_[i][x:xm,:].to(device0)
+                            D_.append(add)
+                            C[x:xm,:].add_(add)
+                            del add
+                            x = xm
                 else:
                     dx = C_[i].shape[0]
                     # print(x,dx)
