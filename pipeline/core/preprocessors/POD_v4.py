@@ -80,7 +80,6 @@ def simple_randomized_torch_svd(M, k=10):
         transpose = True
         B = B.transpose(0, 1)
         m, n = B.size()
-    print(m, n, k)
         
     rand_matrix = torch.randn((n,k), dtype=torch.float, device=M.device)  # short side by k
     Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
@@ -97,7 +96,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
     max_gb = 0.9 * torch.cuda.get_device_properties(device0).total_memory / 1024**3
     
     # transpose = m < n ### TODO
-    if True: #m < n:
+    if m < n:
         transpose = True
         dlong = n
         dshort = m
@@ -105,6 +104,8 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
         transpose = False
         dshort = n
         dlong = m
+        
+    print(f"Sizes are {dlong} by {dshort}, with k={k}.")
     total = len(dataset)
     n_patches = math.ceil(total / nbatch)
     dims0 = [d.shape[0] for d in dataset]
@@ -249,8 +250,9 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 torch.cuda.set_device(i+skip)
                 device = torch.device('cuda:' + str(i+skip))
                 
-                if not transpose:
+                if not transpose and mult_order == 0:
                     B_slice = torch.empty(dims[p], B.size(1), device=device)
+                    # print(B_slice.shape, B[sdims[p]:sdims[p]+dims[p],:].shape)
                     B_slice.copy_(B[sdims[p]:sdims[p]+dims[p],:])
                     B_.append(B_slice)
                 else:
@@ -265,8 +267,11 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 torch.cuda.set_device(i+skip)
                 device = torch.device('cuda:' + str(i+skip))
                 
-                if mult_order == 1:
+                if transpose and mult_order == 1:
                     C_.append(torch.matmul(B_[i][:,sdims[p]:sdims[p]+dims[p]], A[i]))
+                elif not transpose and mult_order == 1:
+                    C_.append(torch.matmul(B_[i], A[i]))
+                    print(C_[i].shape, B_[i].shape, A[i].shape)
                 else:
                     C_.append(torch.matmul(A[i], B_[i]))
                 
@@ -277,7 +282,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     break
                 torch.cuda.set_device(0)
                 
-                if not transpose or mult_order == 1:
+                if (not transpose and mult_order==0) or (transpose and mult_order == 1):
                     if add_cycles <= 1:
                         add = C_[i].to(device0)
                         D_.append(add)
@@ -286,23 +291,24 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     else:
                         l = C_[i].size(0)
                         step = math.ceil(l/add_cycles)
-                        x = 0
+                        z = 0
                         for _ in range(add_cycles):
-                            xm = min(x+step,l)
-                            add = C_[i][x:xm,:].to(device0)
+                            zm = min(z+step,l)
+                            add = C_[i][z:zm,:].to(device0)
                             D_.append(add)
-                            C[x:xm,:].add_(add)
+                            C[z:zm,:].add_(add)
                             del add
-                            x = xm
+                            z = zm
+                elif not transpose and mult_order == 1:
+                    dx = C_[i].shape[1]
+                    # print(x,dx)
+                    C[:,x:x+dx].copy_(C_[i])
+                    x += dx
                 else:
                     dx = C_[i].shape[0]
                     # print(x,dx)
                     C[x:x+dx,:].copy_(C_[i])
                     x += dx
-                    # dx = C_[i].shape[1]
-                    # # print(x,dx)
-                    # C[:,x:x+dx].copy_(C_[i])
-                    # x += dx
             for i in A:
                 del i
             for i in B_:
@@ -355,7 +361,7 @@ class Preprocessor(PreprocessorBase):
 
     
     def precompute(self):
-        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=self.weather_prediction)
+        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=True) # self.weather_prediction) # TODO change back
 
         rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
