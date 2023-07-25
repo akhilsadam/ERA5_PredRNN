@@ -73,9 +73,12 @@ class PreprocessorBase:
         else:
             scale = torch.Tensor([1.0])
             shift = torch.Tensor([0.0])
+            import zipfile
             for i,trainset in tqdm(enumerate(self.train_data_paths)):
                 try:
-                    with open(trainset) as npy:
+                    filename = trainset
+                    with zipfile.ZipFile(filename, mode='r') as archive:
+                        npy = archive.open(filename, mode='r'):
                         version = np.lib.format.read_magic(npy)
                         shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
                     
