@@ -80,6 +80,8 @@ def simple_randomized_torch_svd(M, k=10):
         transpose = True
         B = B.transpose(0, 1)
         m, n = B.size()
+    print(m, n, k)
+        
     rand_matrix = torch.randn((n,k), dtype=torch.float, device=M.device)  # short side by k
     Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
     smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
