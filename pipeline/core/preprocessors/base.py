@@ -78,7 +78,7 @@ class PreprocessorBase:
                 try:
                     filename = trainset
                     with zipfile.ZipFile(filename, mode='r') as archive:
-                        npy = archive.open(filename, mode='r'):
+                        npy = archive.open(filename, mode='r')
                         version = np.lib.format.read_magic(npy)
                         shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
                     
