@@ -38,7 +38,7 @@ class hyperparam:
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'saliency_control' # name of wandb project
+    project_name = 'WP_pod4_400' # name of wandb project
     interpret = False # interpret model
     ##
     save_test_output=True # save test output to file
@@ -55,10 +55,10 @@ class hyperparam:
 
 
 hyp = hyperparam()
-# hyp.overrides.update({'n_embd': 300}) #64
-# hyp.overrides.update({'n_ffn_embd': 300}) #128
+hyp.overrides.update({'n_embd': 400}) #64
+hyp.overrides.update({'n_ffn_embd': 400}) #128
 # hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 2001
+hyp.max_iterations = 20001
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]
