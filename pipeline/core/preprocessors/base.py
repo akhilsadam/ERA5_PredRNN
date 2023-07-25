@@ -4,6 +4,14 @@ import logging,os
 from tqdm import tqdm
 logger = logging.getLogger('preprocessor')
 
+class DataLoader:
+    def __init__(self, path, shape) -> None:
+        self.path = path
+        self.shape = shape
+    
+    def load(self, device):
+        return np.load(self.path, mmap_mode='r')
+
 class PreprocessorBase:
     def __init__(self, config):
         
@@ -26,40 +34,64 @@ class PreprocessorBase:
             logger.info(f"Scale file {self.scale_path} does not exist! Precomputing...")
             return self.precompute_scale(use_datasets=False)
     
-    def precompute_scale(self, use_datasets=False):
+    def precompute_scale(self, use_datasets=False, lazy = False):
         shape = None # (time, var, shapex, shapey)
         datasets = []
         maxs = []
         mins = []
-        logger.info('Loading training datasets for precomputation (eigenvectors)...')
-        for i,trainset in tqdm(enumerate(self.train_data_paths)):
-            data = np.load(trainset, mmap_mode='r')
-            try:
-                raw = data['input_raw_data']
-                shape = raw.shape
-                assert len(raw.shape)==4, f"Raw data in {trainset} is not 4D!"
-                assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
-                assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
-                assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"
-                
-                maxs.append(np.nanmax(raw, axis=(0,2,3)))
-                mins.append(np.nanmin(raw,axis=(0,2,3)))                
-                
-            except Exception as e:
-                print(f'Warning: Failed to load dataset {i}! Skipping... (Exception "{e}" was thrown.)')
-            else:
-                datasets.append(raw)
-    
-        maxval = np.nanmedian(np.stack(maxs),axis=0)
-        minval = np.nanmedian(np.stack(mins),axis=0)
+        if not lazy:
+            logger.info('Loading training datasets for precomputation (eigenvectors)...')  
+            for i,trainset in tqdm(enumerate(self.train_data_paths)):
+                data = np.load(trainset, mmap_mode='r')
+                try:
+                    raw = data['input_raw_data']
+                    shape = raw.shape
+                    assert len(raw.shape)==4, f"Raw data in {trainset} is not 4D!"
+                    assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
+                    assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
+                    assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"
+                    
+                    maxs.append(np.nanmax(raw, axis=(0,2,3)))
+                    mins.append(np.nanmin(raw,axis=(0,2,3)))                
+                    
+                except Exception as e:
+                    print(f'Warning: Failed to load dataset {i}! Skipping... (Exception "{e}" was thrown.)')
+                else:
+                    datasets.append(raw)
         
-        assert np.prod(maxval-minval) > 0, "Max and min values are not valid for at least one dataset!"
+            maxval = np.nanmedian(np.stack(maxs),axis=0)
+            minval = np.nanmedian(np.stack(mins),axis=0)
+            
+            assert np.prod(maxval-minval) > 0, "Max and min values are not valid for at least one dataset!"
+            
+            scale = 2 / (maxval - minval)
+            shift = -1 - minval * scale
+            
+            # dump scale to file
+            np.savetxt(self.scale_path, np.stack([scale,shift]), delimiter=',')
         
-        scale = 2 / (maxval - minval)
-        shift = -1 - minval * scale
-        
-        # dump scale to file
-        np.savetxt(self.scale_path, np.stack([scale,shift]), delimiter=',')
+        else:
+            scale = torch.Tensor([1.0])
+            shift = torch.Tensor([0.0])
+            for i,trainset in tqdm(enumerate(self.train_data_paths)):
+                try:
+                    with open(trainset) as npy:
+                        version = np.lib.format.read_magic(npy)
+                        shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
+                    
+                    assert len(shape)==4, f"Raw data in {trainset} is not 4D!"
+                    assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
+                    assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
+                    assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"         
+                    
+                    raw = DataLoader(trainset,shape)
+                    
+                except Exception as e:
+                    print(f'Warning: Failed to load dataset {i}! Skipping... (Exception "{e}" was thrown.)')
+                else:
+                    datasets.append(raw)
+
+            
         
         if use_datasets:
             if self.weather_prediction:

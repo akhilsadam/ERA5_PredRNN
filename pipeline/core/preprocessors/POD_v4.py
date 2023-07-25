@@ -64,10 +64,14 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath=""):
     
     with torch.no_grad():
         def loader(i, dev, tp):
+            dataseti = dataset[i].load() # assume lazy loader
             if tp:
-                return torch.from_numpy(dataset[i].reshape(dataset[i].shape[0],m)).float().to(dev)
+                tensor = torch.from_numpy(dataseti.reshape(dataseti.shape[0],m)).float().to(dev)
             else:
-                return torch.from_numpy(dataset[i].reshape(dataset[i].shape[0],m).T).float().to(dev)
+                tensor = torch.from_numpy(dataseti.reshape(dataseti.shape[0],m).T).float().to(dev)
+            del dataseti
+            gc.collect()
+            return tensor
                    
         
         load = lambda i, dev, tp : loader(i,dev, tp)
@@ -256,7 +260,7 @@ class Preprocessor(PreprocessorBase):
 
     
     def precompute(self):
-        datasets, shape, _ = super().precompute_scale(use_datasets=True)
+        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy = True)
 
         rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
