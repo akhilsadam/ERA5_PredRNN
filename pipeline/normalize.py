@@ -11,6 +11,8 @@ short=\
         '2m_temperature': 'temp',
         'surface_pressure': 'sea_press',
         'total_precipitation': 'precip',
+        'vertical_integral_of_potential_internal_and_latent_energy': 'moist_static', 
+        'vertical_integral_of_potential_and_internal_energy': 'dry_static',
         'pde_u': 'u',
     }
 short_inv={v: k for k, v in short.items()}
@@ -20,6 +22,8 @@ norm_dict=\
         'v_wind': [-20, 20],
         'temp': [210, 305],
         'sea_press': [98000, 105000],
+        'moist_static': [0, 1],
+        'dry_static': [0, 1],
         'precip': [0, 0.0025],
     }
 norm_func=\
@@ -28,6 +32,8 @@ norm_func=\
         'v_wind': lambda x: np.vstack(x)/norm_dict['v_wind'][1],
         'temp': lambda x: (np.vstack(x) - norm_dict['temp'][0])/(norm_dict['temp'][1] - norm_dict['temp'][0]),
         'sea_press': lambda x: (np.vstack(x) - norm_dict['sea_press'][0])/(norm_dict['sea_press'][1] - norm_dict['sea_press'][0]),
+        'moist_static': lambda x: np.vstack(x)/norm_dict['moist_static'][1],
+        'dry_static': lambda x: np.vstack(x)/norm_dict['dry_static'][1],
         'precip': lambda x: ((force_min(np.vstack(x))) - norm_dict['precip'][0])/(norm_dict['precip'][1] - norm_dict['precip'][0]),
     }
 norm_inv=\
@@ -36,5 +42,7 @@ norm_inv=\
         'v_wind': lambda x: x*norm_dict['v_wind'][1],
         'temp': lambda x: x*(norm_dict['temp'][1] - norm_dict['temp'][0]) + norm_dict['temp'][0],
         'sea_press': lambda x: x*(norm_dict['sea_press'][1] - norm_dict['sea_press'][0]) + norm_dict['sea_press'][0],
+        'moist_static': lambda x: x*norm_dict['moist_static'][1],
+        'dry_static': lambda x: x*norm_dict['dry_static'][1],
         'precip': lambda x: x*(norm_dict['precip'][1] - norm_dict['precip'][0]) + norm_dict['precip'][0],
     }

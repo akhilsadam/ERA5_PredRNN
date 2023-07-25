@@ -5,7 +5,10 @@ data= \
     ],
     'variable': [
         '10m_u_component_of_wind', '10m_v_component_of_wind', '2m_temperature',
-        'surface_pressure', 'total_precipitation', # will split these up and download separately
+        'surface_pressure', 'total_precipitation',
+        'vertical_integral_of_potential_internal_and_latent_energy', # moist static energy 
+        'vertical_integral_of_potential_and_internal_energy', # dry static energy
+        # will split these up and download separately
     ],
     'year': '2021', # last year of data
     'month': [      # will download these months separately
