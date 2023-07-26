@@ -93,7 +93,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
     # https://discuss.pytorch.org/t/matmul-on-multiple-gpus/33122/3
     device0 = torch.device('cuda:0')
-    max_gb = 0.9 * torch.cuda.get_device_properties(device0).total_memory / 1024**3
+    max_gb = 0.8 * torch.cuda.get_device_properties(device0).total_memory / 1024**3
     
     # transpose = m < n ### TODO
     if m > n:
@@ -282,6 +282,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 torch.cuda.set_device(0)
                 
                 if (not transpose and mult_order==0) or (transpose and mult_order == 1):
+                    torch.cuda.empty_cache()
                     gb = torch.cuda.max_memory_allocated() / 1024**3
                     frac = gb / max_gb
                     add_cycles = math.ceil(frac / (1-frac))
@@ -304,6 +305,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                             C[z:zm,:].add_(add)
                             del add
                             z = zm
+                            torch.cuda.empty_cache()
                 elif not transpose and mult_order == 1:
                     dx = C_[i].shape[1]
                     # print(x,dx)
