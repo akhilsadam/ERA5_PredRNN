@@ -88,7 +88,7 @@ def simple_randomized_torch_svd(M, k=10):
     U = (Q @ U_hat)
     return (Vt.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, Vt)
 
-def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nbatch=2):
+def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nbatch=1):
     # only works on multiple GPU machines
     # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
     # https://discuss.pytorch.org/t/matmul-on-multiple-gpus/33122/3
