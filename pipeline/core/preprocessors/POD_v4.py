@@ -170,8 +170,11 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
             
             Y = make_Y()
             torch.cuda.empty_cache()
-            gby = print_trace()['Y'] / 1024**3
-            print(f"Y is {gby:.2f} GB ({gby/max_gb*100:.2f}% of GPU memory).")
+            try:
+                gby = print_trace()['Y'] / 1024**3
+                print(f"Y is {gby:.2f} GB ({gby/max_gb*100:.2f}% of GPU memory).")
+            except Exception as e:
+                print(f"Error: {e}")
 
             
             # pilsave(f"{savepath}Y.png", jpcm.get('desert'), Y.cpu().numpy())
