@@ -173,6 +173,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
                 return Y
             
             Y = make_Y()
+            gc.collect()
             torch.cuda.empty_cache()
             try:
                 gby = print_trace()['Y'] / 1024**3
@@ -247,6 +248,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 # each GPU has a slice of A
                 ai = load(p, device, transpose, nbatch)
                 A.append(ai)
+                del ai
 
             torch.cuda.synchronize()
             gc.collect()
@@ -266,9 +268,11 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     # print(B_slice.shape, B[sdims[p]:sdims[p]+dims[p],:].shape)
                     B_slice.copy_(B[sdims[p]:sdims[p]+dims[p],:])
                     B_.append(B_slice)
+                    del B_slice
                 else:
                     db = B.to(device)
                     B_.append(db)
+                    del db
 
             torch.cuda.synchronize()
             gc.collect()
