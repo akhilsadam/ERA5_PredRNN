@@ -56,10 +56,10 @@ import inspect
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
-def print_trace():
+def print_trace(objects = gc.get_objects()):
     print('--- start GC collect ---')
     items = {}
-    for obj in gc.get_objects():
+    for obj in objects:
         try:
             if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
                 size = obj.element_size() * obj.nelement() if len(obj.size()) > 0 else 0
@@ -286,6 +286,8 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     gb = torch.cuda.max_memory_allocated() / 1024**3
                     frac = gb / max_gb
                     add_cycles = math.ceil(frac / (1-frac))
+                    
+                    print_trace()
                     
                     if add_cycles <= 1:
                         add = C_[i].to(device0)
