@@ -56,8 +56,11 @@ import inspect
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
-def print_trace(objects = gc.get_objects()):
+def print_trace(objects = None):
     print('--- start GC collect ---')
+    gc.collect()
+    if objects is None:
+        objects = gc.get_objects()
     items = {}
     for obj in objects:
         try:
@@ -232,7 +235,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
             B_ = []   
             C_ = []
 
-            # print_trace()
+            print_trace()
             
             for i in range(0, ngpu-skip):
                 p = (shift + i)
@@ -373,7 +376,7 @@ class Preprocessor(PreprocessorBase):
 
     
     def precompute(self):
-        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=self.weather_prediction) # TODO change back
+        datasets, shape, _ = super().precompute_scale(use_datasets=True, lazy=True )#self.weather_prediction) # TODO change back
 
         rows = shape[1]*shape[-2]*shape[-1]
         cols = sum(d.shape[0] for d in datasets)
