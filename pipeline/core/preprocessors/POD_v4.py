@@ -334,10 +334,10 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                         for z in range(add_cycles):
                             a = z * step
                             b = min((z+1) * step, l)
-                            T.copy_(C_[i][a:b,:])
+                            T[a:b,:].copy_(C_[i][a:b,:])
                             gb = torch.cuda.max_memory_allocated() / 1024**3
                             print(f"x1 GPU0 has {gb:.2f} GB allocated.")
-                            T.add_(C[a:b,:])
+                            T[a:b,:].add_(C[a:b,:])
                             C[a:b,:].copy_(T)
                             
                             torch.cuda.synchronize()
