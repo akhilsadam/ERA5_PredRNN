@@ -56,12 +56,12 @@ import inspect
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
-def print_trace(objects = None, uname="obj"):
+def print_trace(objects = None, uname=""):
     gc.collect()
     if objects is None:
         # print_trace(gc.garbage, "unreachable")
         objects = gc.get_objects()
-    print(f'--- start GC collect [{uname}] ---')
+    print(f'--- start GC collect {uname} ---')
     items = {}
     for obj in objects:
         try:
@@ -72,7 +72,7 @@ def print_trace(objects = None, uname="obj"):
                 items[name] = size
         except:
             pass
-    print(f'--- end GC collect [{uname}] ---')
+    print(f'--- end GC collect {uname} ---')
     return items
 
 def simple_randomized_torch_svd(M, k=10):
@@ -330,20 +330,23 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                         
                         l = C_[i].size(0)
                         step = math.ceil(l/add_cycles)
-                        z = 0
-                        for _ in range(add_cycles):
-                            zm = min(z+step,l)
-                            print(C_[i][z:zm,:].device)
-                            add = C_[i][z:zm,:].to(device0)
+                        T = torch.empty(step, C_[i].size(1), device=device0)
+                        for z in range(add_cycles):
+                            a = z * step
+                            b = min((z+1) * step, l)
+                            T.copy_(C_[i][a:b,:])
+                            gb = torch.cuda.max_memory_allocated() / 1024**3
                             print(f"x1 GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated.")
-                            D_.append(add)
-                            C[z:zm,:].add_(add)
+                            T.add_(C[a:b,:])
+                            C[a:b,:].copy_(T)
+                            
                             torch.cuda.synchronize()
-                            del add
                             gc.collect()
-                            z = zm
                             torch.cuda.empty_cache()
+                            
+                            gb = torch.cuda.max_memory_allocated() / 1024**3
                             print(f"x2 GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated.")
+                            
                 elif not transpose and mult_order == 1:
                     dx = C_[i].shape[1]
                     # print(x,dx)
