@@ -151,12 +151,15 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
             data = [tensors.get(i) for i in np.argsort(ordering._list)]
                     
             if tp:
-                out = torch.cat(data, dim=0).to(dev)
+                out0 = torch.cat(data, dim=0)
             else:
-                out = torch.cat(data, dim=1).to(dev)
+                out0 = torch.cat(data, dim=1)
+            out = out0.to(dev)
                 
-            del tensors, ordering, data
+            torch.cuda.synchronize()
+            del tensors, ordering, data, out0
             gc.collect()
+            torch.cuda.empty_cache()
             return out
         
         load = lambda i, dev, tp, batch : loader(i,dev, tp, batch)
@@ -330,6 +333,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                         z = 0
                         for _ in range(add_cycles):
                             zm = min(z+step,l)
+                            print(C_[i][z:zm,:].device)
                             add = C_[i][z:zm,:].to(device0)
                             D_.append(add)
                             C[z:zm,:].add_(add)
