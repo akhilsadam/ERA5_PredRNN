@@ -350,7 +350,9 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                             
                             gb = torch.cuda.max_memory_allocated() / 1024**3
                             print(f"x2 GPU0 has {gb:.2f} GB allocated.")
-                            
+                        del T
+                        gc.collect()
+                        torch.cuda.empty_cache()    
                 elif not transpose and mult_order == 1:
                     dx = C_[i].shape[1]
                     # print(x,dx)
