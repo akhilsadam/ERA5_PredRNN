@@ -56,11 +56,12 @@ import inspect
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
-def print_trace(objects = None):
-    print('--- start GC collect ---')
+def print_trace(objects = None, name=""):
     gc.collect()
     if objects is None:
+        print_trace(gc.garbage, "unreachable")
         objects = gc.get_objects()
+    print(f'--- start GC collect [{name}] ---')
     items = {}
     for obj in objects:
         try:
@@ -71,7 +72,7 @@ def print_trace(objects = None):
                 items[name] = size
         except:
             pass
-    print('--- end GC collect ---')
+    print(f'--- end GC collect [{name}] ---')
     return items
 
 def simple_randomized_torch_svd(M, k=10):
