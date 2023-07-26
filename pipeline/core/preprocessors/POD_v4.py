@@ -336,7 +336,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                             b = min((z+1) * step, l)
                             T.copy_(C_[i][a:b,:])
                             gb = torch.cuda.max_memory_allocated() / 1024**3
-                            print(f"x1 GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated.")
+                            print(f"x1 GPU0 has {gb:.2f} GB allocated.")
                             T.add_(C[a:b,:])
                             C[a:b,:].copy_(T)
                             
@@ -345,7 +345,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                             torch.cuda.empty_cache()
                             
                             gb = torch.cuda.max_memory_allocated() / 1024**3
-                            print(f"x2 GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated.")
+                            print(f"x2 GPU0 has {gb:.2f} GB allocated.")
                             
                 elif not transpose and mult_order == 1:
                     dx = C_[i].shape[1]
