@@ -161,7 +161,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
             def make_Y():
                 rand_matrix = torch.randn((long_dim,k), dtype=torch.float, device=device0)         # short side by k
                 # pilsave(f"{savepath}rand_matrix.png", jpcm.get('desert'), rand_matrix.cpu().numpy())
-                Y = split_mult(short_dim, k, nbatch, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0)             # long side by k  # parallelize
+                Y = split_mult(short_dim, k, nbatch, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0, max_gb=max_gb)             # long side by k  # parallelize
                 
                 del rand_matrix
                 gc.collect()
@@ -170,10 +170,9 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
             
             Y = make_Y()
             torch.cuda.empty_cache()
-            gb = print_trace()['Y'] / 1024**3
-            frac = gb / max_gb
-            remIT = math.ceil(frac / (1-frac))
-            print(f"Y is {gb:.2f} GB ({frac*100:.2f}% of GPU memory). Will sum using {remIT} chunks.")
+            gby = print_trace()['Y'] / 1024**3
+            print(f"Y is {gby:.2f} GB ({gby/max_gb*100:.2f}% of GPU memory).")
+
             
             # pilsave(f"{savepath}Y.png", jpcm.get('desert'), Y.cpu().numpy())
 
@@ -183,13 +182,13 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
             gc.collect()
             torch.cuda.empty_cache()
             # pilsave(f"{savepath}Q.png", jpcm.get('desert'), Q.cpu().numpy())
-            return Q, remIT
+            return Q
         
-        Q, remIT = make_Q()
+        Q = make_Q()
         torch.cuda.empty_cache()     
         print_trace()
         
-        smaller_matrix = split_mult(k, long_dim, nbatch, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1, add_cycles=remIT)  # k by short side # parallelize
+        smaller_matrix = split_mult(k, long_dim, nbatch, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1, max_gb=max_gb)  # k by short side # parallelize
         print_trace()
         # pilsave(f"{savepath}smaller_matrix.png", jpcm.get('desert'), smaller_matrix.cpu().numpy())
         U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
@@ -214,7 +213,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
     #     U = (Q @ U_hat)
     # return (Vt, s, U.transpose(0, 1)) if transpose else (U, s, Vt.transpose(0, 1))
 
-def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0, add_cycles=1):
+def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=0, mult_order=0, max_gb=12):
     with torch.no_grad():
         device0 = torch.device('cuda:0')
         ngpu = len(devices)
@@ -283,12 +282,18 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 torch.cuda.set_device(0)
                 
                 if (not transpose and mult_order==0) or (transpose and mult_order == 1):
+                    gb = torch.cuda.max_memory_allocated() / 1024**3
+                    frac = gb / max_gb
+                    add_cycles = math.ceil(frac / (1-frac))
+                    
                     if add_cycles <= 1:
                         add = C_[i].to(device0)
                         D_.append(add)
                         C.add_(add)
                         del add
                     else:
+                        print(f"GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated. Will sum using {add_cycles} chunks.")
+                        
                         l = C_[i].size(0)
                         step = math.ceil(l/add_cycles)
                         z = 0
