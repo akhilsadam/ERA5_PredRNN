@@ -248,6 +248,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 ai = load(p, device, transpose, nbatch)
                 A.append(ai)
 
+            torch.cuda.synchronize()
             gc.collect()
             torch.cuda.empty_cache()
             print_trace()
@@ -269,6 +270,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     db = B.to(device)
                     B_.append(db)
 
+            torch.cuda.synchronize()
             gc.collect()
             torch.cuda.empty_cache()
             print_trace()
@@ -289,6 +291,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 else:
                     C_.append(torch.matmul(A[i], B_[i]))
                     
+            torch.cuda.synchronize()
             gc.collect()
             torch.cuda.empty_cache()               
             print_trace()
@@ -312,7 +315,9 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                         add = C_[i].to(device0)
                         D_.append(add)
                         C.add_(add)
+                        torch.cuda.synchronize()
                         del add
+                        gc.collect()
                     else:
                         print(f"GPU0 has {gb:.2f} GB ({frac*100:.2f}% of GPU memory) allocated. Will sum using {add_cycles} chunks.")
                         
@@ -324,7 +329,9 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                             add = C_[i][z:zm,:].to(device0)
                             D_.append(add)
                             C[z:zm,:].add_(add)
+                            torch.cuda.synchronize()
                             del add
+                            gc.collect()
                             z = zm
                             torch.cuda.empty_cache()
                 elif not transpose and mult_order == 1:
