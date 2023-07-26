@@ -100,16 +100,16 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
     max_gb = 0.8 * torch.cuda.get_device_properties(device0).total_memory / 1024**3
     
     # transpose = m < n ### TODO
-    if m > n:
+    if m < n:
         transpose = True
-        short_dim = n
-        long_dim = m
-    else:
-        transpose = False
         long_dim = n
         short_dim = m
+    else:
+        transpose = False
+        short_dim = n
+        long_dim = m
         
-    print(f"Sizes are {short_dim} by {long_dim}, with k={k}.")
+    print(f"Sizes are {long_dim} by {short_dim}, with k={k}.")
     total = len(dataset)
     n_patches = math.ceil(total / nbatch)
     dims0 = [d.shape[0] for d in dataset]
@@ -166,9 +166,9 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
           
         def make_Q():  
             def make_Y():
-                rand_matrix = torch.randn((long_dim,k), dtype=torch.float, device=device0)         # short side by k
+                rand_matrix = torch.randn((short_dim,k), dtype=torch.float, device=device0)         # short side by k
                 # pilsave(f"{savepath}rand_matrix.png", jpcm.get('desert'), rand_matrix.cpu().numpy())
-                Y = split_mult(short_dim, k, nbatch, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0, max_gb=max_gb)             # long side by k  # parallelize
+                Y = split_mult(long_dim, k, nbatch, n_patches, rand_matrix, dims, load, transpose, devices, skip=skip, mult_order=0, max_gb=max_gb)             # long side by k  # parallelize
                 
                 del rand_matrix
                 gc.collect()
@@ -199,7 +199,7 @@ def randomized_torch_svd(dataset, devices, m, n, k=100, skip=0, savepath="", nba
         torch.cuda.empty_cache()     
         print_trace()
         
-        smaller_matrix = split_mult(k, long_dim, nbatch, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1, max_gb=max_gb)  # k by short side # parallelize
+        smaller_matrix = split_mult(k, short_dim, nbatch, n_patches, Q.transpose(0, 1), dims, load, transpose, devices, skip=skip, mult_order=1, max_gb=max_gb)  # k by short side # parallelize
         print_trace()
         # pilsave(f"{savepath}smaller_matrix.png", jpcm.get('desert'), smaller_matrix.cpu().numpy())
         U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
