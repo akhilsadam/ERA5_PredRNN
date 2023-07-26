@@ -56,12 +56,12 @@ import inspect
 def retrieve_name(var):
     callers_local_vars = inspect.currentframe().f_back.f_back.f_locals.items()
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
-def print_trace(objects = None, name=""):
+def print_trace(objects = None, uname="obj"):
     gc.collect()
     if objects is None:
-        print_trace(gc.garbage, "unreachable")
+        # print_trace(gc.garbage, "unreachable")
         objects = gc.get_objects()
-    print(f'--- start GC collect [{name}] ---')
+    print(f'--- start GC collect [{uname}] ---')
     items = {}
     for obj in objects:
         try:
@@ -72,7 +72,7 @@ def print_trace(objects = None, name=""):
                 items[name] = size
         except:
             pass
-    print(f'--- end GC collect [{name}] ---')
+    print(f'--- end GC collect [{uname}] ---')
     return items
 
 def simple_randomized_torch_svd(M, k=10):
@@ -248,6 +248,10 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 ai = load(p, device, transpose, nbatch)
                 A.append(ai)
 
+            gc.collect()
+            torch.cuda.empty_cache()
+            print_trace()
+            
             # now let's matmul
             for i in range(0, ngpu-skip):
                 p = (shift + i)
@@ -265,6 +269,10 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     db = B.to(device)
                     B_.append(db)
 
+            gc.collect()
+            torch.cuda.empty_cache()
+            print_trace()
+
             # Step 2: issue the matmul on each GPU
             for i in range(0, ngpu-skip):
                 p = (shift + i)
@@ -280,7 +288,11 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                     print(C_[i].shape, B_[i].shape, A[i].shape)
                 else:
                     C_.append(torch.matmul(A[i], B_[i]))
-                
+                    
+            gc.collect()
+            torch.cuda.empty_cache()               
+            print_trace()
+            
             D_ = []
             for i in range(0, ngpu-skip):
                 p = (shift + i)
