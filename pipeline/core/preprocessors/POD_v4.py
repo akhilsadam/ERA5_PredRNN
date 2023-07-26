@@ -356,9 +356,7 @@ def split_mult(N, K, nbatch, n_patches, B, dims, load, transpose, devices, skip=
                 del i  
             for i in D_:
                 del i
-            del A, C_, B_, D_, ai
-            if transpose:
-                del db
+            del A, C_, B_, D_
             gc.collect()
             for i in range(skip, ngpu):
                 torch.cuda.set_device(i)
