@@ -279,7 +279,7 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        self.conv = CNN(5,5,channels,spatial=spatial)
+        self.conv = CNN(9,9,channels,spatial=spatial)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
