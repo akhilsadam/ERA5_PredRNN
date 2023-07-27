@@ -38,7 +38,7 @@ class hyperparam:
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'reZeroVAR' # name of wandb project
+    project_name = 'WP_reZeroVAR' # name of wandb project
     interpret = False # interpret model
     ##
     save_test_output=True # save test output to file
