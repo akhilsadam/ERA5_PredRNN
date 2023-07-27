@@ -1,5 +1,10 @@
 import numpy as np
 import random
+import dask.array as da
+
+# Loading data using Dask's numpy interface
+def load_dask_array(file_path):
+    return da.from_npy_stack(file_path)
 
 class InputHandle:
     def __init__(self, input_param):
@@ -27,52 +32,67 @@ class InputHandle:
 
     def load(self):
         print(f"{self.name}, Loading data from {self.paths[0]}")
-        dat_1 = np.load(self.paths[0])
+
+        # Load data using dask
+        dat_1 = load_dask_array(self.paths[0])
+        # dat_1 = {
+        #     'clips': 'clips'),
+        #     'dims': load_dask_array(self.paths[0], 'dims'),
+        #     'input_raw_data': load_dask_array(self.paths[0], 'input_raw_data')
+        # }
+
+        # Update dims with img_channel1
+        dat_1['dims'][0][0] = self.img_channel1
+
+        # Select img_channel1 and img_layers
+        dat1_raw_data = dat_1['input_raw_data'][:, self.img_layers, :, :]
+        print(f"NaN value num: {da.isnan(dat1_raw_data).sum().compute()}")
+
         self.data['clips'] = dat_1['clips']
-        self.data['dims'] = dat_1['dims']
-        self.data['dims'][0][0] = self.img_channel1
-        dat1_raw_data = dat_1['input_raw_data'][:,self.img_layers,:,:]
-        # try:
-        #     dat1_raw_data = dat_1['input_raw_data'][:,self.img_layers,:,:]
-        # except:
-        #     print('warning: length of image layers is not consistent with the specified image channel! Using default!')
-        #     dat1_raw_data = dat_1['input_raw_data']
-        print(f"NaN value num: {np.isnan(dat1_raw_data).sum()}")
-        self.data['input_raw_data'] = dat1_raw_data[:,:self.img_channel1,:,:]
+        self.data['input_raw_data'] = dat1_raw_data[:, :self.img_channel1, :, :]
+
         if self.num_paths > 1:
             num_clips_1 = dat_1['clips'].shape[1]
             clip_arr = [dat_1['clips']]
             temp_shape = dat_1['input_raw_data'].shape
-            input_raw_arr = np.zeros((temp_shape[0]*self.num_paths, self.img_channel1, 
-                                      temp_shape[2], temp_shape[3]),dtype=np.float32)
+            input_raw_arr = da.zeros((temp_shape[0] * self.num_paths, self.img_channel1, temp_shape[2], temp_shape[3]),
+                                    dtype=np.float32)
             curr_pos = temp_shape[0]
-            # try:
-            #     dat1_raw_data = dat_1['input_raw_data'][:,self.img_layers,:,:]
-            # except:
-            #     print('warning: length of image layers is not consistent with the specified image channel! Using default!')
-            #     dat1_raw_data = dat_1['input_raw_data']
-            input_raw_arr[:curr_pos,...] = dat1_raw_data[:,:self.img_channel1,:,:]
+            input_raw_arr[:curr_pos, ...] = dat1_raw_data[:, :self.img_channel1, :, :]
+
             for pathi in range(1, self.num_paths):
-                #print(num_clips_1)
                 print(f"pathi={pathi}, Loading data from {self.paths[pathi]}")
-                dat_2 = np.load(self.paths[pathi])
+
+                # Load data using dask for subsequent paths
+                # dat_2 = {
+                #     'clips': load_dask_array(self.paths[pathi], 'clips'),
+                #     'input_raw_data': load_dask_array(self.paths[pathi], 'input_raw_data')
+                # }
+                dat_2 = load_dask_array(self.paths[pathi])
+
                 next_pos = curr_pos + dat_2['input_raw_data'].shape[0]
                 temp_clips = dat_2['clips']
-                temp_clips[:,:,0] = dat_2['clips'][:,:,0] + num_clips_1*dat_2['clips'][0,0,1]
+                temp_clips[:, :, 0] = dat_2['clips'][:, :, 0] + num_clips_1 * dat_2['clips'][0, 0, 1]
+
                 if pathi == self.num_paths - 1:
-                    temp_clips = temp_clips[:,:-1,:]
+                    temp_clips = temp_clips[:, :-1, :]
+
                 clip_arr.append(temp_clips)
-                #print(temp_clips)
+
                 try:
-                    dat2_raw_data = dat_2['input_raw_data'][:,self.img_layers,:,:]
+                    dat2_raw_data = dat_2['input_raw_data'][:, self.img_layers, :, :]
                 except:
                     print('warning: length of image layers is not consistent with the specified image channel! Using default!')
                     dat2_raw_data = dat_2['input_raw_data']
-                input_raw_arr[curr_pos:next_pos,...] = dat2_raw_data[:,:self.img_channel1,:,:]
+
+                input_raw_arr[curr_pos:next_pos, ...] = dat2_raw_data[:, :self.img_channel1, :, :]
                 num_clips_1 += dat_2['clips'].shape[1]
                 curr_pos = next_pos
-            self.data['clips'] = np.concatenate(clip_arr, axis=1)
-            self.data['input_raw_data'] = input_raw_arr[:next_pos,...]
+
+            # Compute concatenated results to finalize the data
+            self.data['clips'] = da.concatenate(clip_arr, axis=1).compute()
+            self.data['input_raw_data'] = input_raw_arr[:next_pos, ...].compute()
+
 
         # for key in self.data.keys():
         #     print(key)

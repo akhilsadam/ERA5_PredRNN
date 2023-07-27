@@ -34,13 +34,16 @@ class RZTX_NAT(BaseModel):
         spatial_preprocessor = 'flags' in self.preprocessor.__dict__ and 'spatial' in self.preprocessor.flags
         if spatial_preprocessor:
             reduced_shape = self.preprocessor.reduced_shape
+            channels = ninp // (reduced_shape[1]*reduced_shape[2])
+            assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
         else:
             reduced_shape = None
+            channels = ninp
                 
         self.model = ReZero_base( \
                          seq_len = self.input_length,
                          ntoken=ntoken,
-                         channels = ninp,
+                         channels = channels,
                          ninp=ninp,
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
@@ -137,18 +140,33 @@ class NAT(nn.Module):
         # NA1D: [batch_size, sequence_length, dim]
         # NA2D: [batch_size, height, width, dim]
         # NA3D: [batch_size, depth, height, width, dim]
-        if spatial:
+        if spatial and channels > 1:
             from natten import NeighborhoodAttention3D
             # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
             # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
 
             # in is [batch_size, dim, channels, height, width]
             
-            self.perm1 = lambda x : x.permute(0,4,1,2,3)
-            self.rperm1 = lambda x : x.permute(0,2,3,4,1)
+            self.rperm1 = lambda x : x.permute(0,4,1,2,3)
+            self.perm1 = lambda x : x.permute(0,2,3,4,1)
 
-            self.conv1 = NeighborhoodAttention3D(dim=d, kernel_size=k1, kernel_size_d=1, dilation=1, dilation_d=1, num_heads=num_heads).to(device)
-            self.conv2 = NeighborhoodAttention3D(dim=d, kernel_size=k2, kernel_size_d=1, dilation=2, dilation_d=1, num_heads=num_heads).to(device)
+            self.conv1 = NeighborhoodAttention3D(dim=d, kernel_size=k1,dilation=1, kernel_size_d=channels, dilation_d=1, num_heads=num_heads).to(device) 
+            self.conv2 = NeighborhoodAttention3D(dim=d, kernel_size=k2, dilation=2, kernel_size_d=channels, dilation_d=1, num_heads=num_heads).to(device)
+            
+            self.combineA = lambda x : self.conv1(self.perm1(x))
+            self.combineB = lambda x : self.rperm1(self.conv2(x))
+        elif spatial and channels == 1:
+            from natten import NeighborhoodAttention2D
+            # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
+            # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
+
+            # in is [batch_size, height, width, dim]
+            
+            self.perm1 = lambda x : x.squeeze(2).permute(0,2,3,1)
+            self.rperm1 = lambda x : x.permute(0,3,1,2).unsqueeze(2)
+
+            self.conv1 = NeighborhoodAttention2D(dim=d, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
+            self.conv2 = NeighborhoodAttention2D(dim=d, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
@@ -337,6 +355,7 @@ class RZTXEncoderLayer(Module):
         
         if self.reduced_shape is not None:
             shape = (src2.shape[0], src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
+            # print(shape)
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
             src5 = src4.reshape(src2.shape)

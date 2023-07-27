@@ -34,12 +34,15 @@ class RZTX_CNN(BaseModel):
         spatial_preprocessor = 'flags' in self.preprocessor.__dict__ and 'spatial' in self.preprocessor.flags
         if spatial_preprocessor:
             reduced_shape = self.preprocessor.reduced_shape
+            channels = ninp // (reduced_shape[1]*reduced_shape[2])
+            assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
         else:
             reduced_shape = None
+            channels = ninp
                 
         self.model = ReZero_base( \
                          ntoken=ntoken,
-                         channels = ninp,
+                         channels = channels,
                          ninp=ninp,
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
@@ -47,7 +50,7 @@ class RZTX_CNN(BaseModel):
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
                          activation=self.model_args['activation'],
-                         reduced_shape = reduced_shape).to(self.device)
+                         reduced_shape = reduced_shape, device=self.device).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
@@ -127,31 +130,33 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
     
 class CNN(nn.Module):
-    def __init__(self, k1, k2, channels, spatial) -> None:
+    def __init__(self, k1, k2, channels, spatial, device=None) -> None:
         super().__init__()
         assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
         if spatial:
             self.pad_1x = lambda x : nn.functional.pad(x, (k1//2,k1//2,0,0), mode='circular')
-            self.pad_1y = nn.ReflectionPad2d((0,0,k1//2,k1//2))
-            self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
-            self.pad_2x = lambda x : nn.functional.pad(x, (k2//2,k2//2,0,0), mode='circular')
-            self.pad_2y = nn.ReflectionPad2d((0,0,k2//2,k2//2))
-            self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
+            self.pad_1y = nn.ReflectionPad2d((0,0,k1//2,k1//2)).to(device)
+            self.conv1 = nn.Conv2d(channels, channels, (k1, k1), device=device)
+            self.pad_2x = lambda x : nn.functional.pad(x, (k2-1,k2-1,0,0), mode='circular')
+            self.pad_2y = nn.ReflectionPad2d((0,0,k2-1,k2-1)).to(device)
+            self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2), device=device)
             
-            self.seqd = nn.Sequential(self.pad_1y, self.conv1, nn.ReLU(), self.pad_2x, self.pad_2y, self.conv2)
-            self.seq = lambda x: self.seq(self.pad_1x(x))
+            self.rl = nn.ReLU().to(device)
+            self.seqa = lambda x: self.conv1(self.pad_1x(self.pad_1y(x)))
+            self.seqb = lambda x: self.conv2(self.pad_2x(self.pad_2y(x)))
+            self.seq = lambda x: self.seqb(self.rl(self.seqa(x)))
             
         else:
-            self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros')
-            self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8)
+            self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros').to(device)
+            self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8).to(device)
             
             self.seq = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
     
 class ReZero_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None):
+    def __init__(self, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None, device=None):
         super(ReZero_base, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
@@ -161,7 +166,7 @@ class ReZero_base(nn.Module):
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape) #batch_first=False 
+        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape, device=device) #batch_first=False 
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.ninp = ninp
         self.ntoken = ntoken
@@ -267,7 +272,7 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None):
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
         super().__init__()
 
         self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout, batch_first=batch_first)
@@ -279,7 +284,7 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        self.conv = CNN(9,9,channels,spatial=spatial)
+        self.conv = CNN(9,9,channels,spatial=spatial, device=device).to(device)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
