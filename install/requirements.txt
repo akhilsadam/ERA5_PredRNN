@@ -22,3 +22,4 @@ graphviz
 torchview==0.2.6
 adabound
 pydmd
+natten
