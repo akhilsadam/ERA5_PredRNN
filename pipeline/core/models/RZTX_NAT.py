@@ -4,11 +4,11 @@ import torch.nn as nn
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
 
-class RZTX_CNN(BaseModel):
+class RZTX_NAT(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
     
     def __init__(self, num_layers, num_hidden, configs):
-        super(RZTX_CNN, self).__init__(num_layers, num_hidden, configs)
+        super(RZTX_NAT, self).__init__(num_layers, num_hidden, configs)
         self.preprocessor = configs.preprocessor
         self.model_args = configs.model_args
         assert self.preprocessor is not None, "Preprocessor is None, please check config! Cannot operate on raw data."
@@ -38,6 +38,7 @@ class RZTX_CNN(BaseModel):
             reduced_shape = None
                 
         self.model = ReZero_base( \
+                         seq_len = self.input_length,
                          ntoken=ntoken,
                          channels = ninp,
                          ninp=ninp,
@@ -47,7 +48,7 @@ class RZTX_CNN(BaseModel):
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
                          activation=self.model_args['activation'],
-                         reduced_shape = reduced_shape).to(self.device)
+                         reduced_shape = reduced_shape, device=self.device).to(self.device)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)
@@ -126,32 +127,52 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1), :]
         return self.dropout(x)
     
-class CNN(nn.Module):
-    def __init__(self, k1, k2, channels, spatial) -> None:
+class NAT(nn.Module):
+    def __init__(self, d, num_heads, k1, k2, channels, spatial, device) -> None:
         super().__init__()
         assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
+        ###
+        # Modules expect inputs of shape [batch_size, *, dim]:
+        # NA1D: [batch_size, sequence_length, dim]
+        # NA2D: [batch_size, height, width, dim]
+        # NA3D: [batch_size, depth, height, width, dim]
         if spatial:
-            self.pad_1x = lambda x : nn.functional.pad(x, (k1//2,k1//2,0,0), mode='circular')
-            self.pad_1y = nn.ReflectionPad2d((0,0,k1//2,k1//2))
-            self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
-            self.pad_2x = lambda x : nn.functional.pad(x, (k2//2,k2//2,0,0), mode='circular')
-            self.pad_2y = nn.ReflectionPad2d((0,0,k2//2,k2//2))
-            self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
+            from natten import NeighborhoodAttention3D
+            # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
+            # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
+
+            # in is [batch_size, dim, channels, height, width]
             
-            self.seqd = nn.Sequential(self.pad_1y, self.conv1, nn.ReLU(), self.pad_2x, self.pad_2y, self.conv2)
-            self.seq = lambda x: self.seq(self.pad_1x(x))
+            self.perm1 = lambda x : x.permute(0,4,1,2,3)
+            self.rperm1 = lambda x : x.permute(0,2,3,4,1)
+
+            self.conv1 = NeighborhoodAttention3D(dim=d, kernel_size=k1, kernel_size_d=1, dilation=1, dilation_d=1, num_heads=num_heads).to(device)
+            self.conv2 = NeighborhoodAttention3D(dim=d, kernel_size=k2, kernel_size_d=1, dilation=2, dilation_d=1, num_heads=num_heads).to(device)
+            
+            self.combineA = lambda x : self.conv1(self.perm1(x))
+            self.combineB = lambda x : self.rperm1(self.conv2(x))
             
         else:
-            self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros')
-            self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8)
+            from natten import NeighborhoodAttention1D
+            # self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros')
+            # self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8)
+            self.perm1 = lambda x : x.permute(0,2,1)
+            self.rperm1 = lambda x : x.permute(0,2,1)
+            self.conv1 = NeighborhoodAttention1D(dim=d, kernel_size=k1, dilation=1, num_heads=num_heads).to(device)
+            self.conv2 = NeighborhoodAttention1D(dim=d, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)
+            self.pad1 = nn.ConstantPad1d((k1//2,k1//2),0)
+            self.pad2 = nn.ConstantPad1d((k2//2,k2//2),0)     
             
-            self.seq = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
+            self.combineA = lambda x : self.conv1(self.perm1(x))
+            self.combineB = lambda x : self.rperm1(self.conv2(x))
+        self.seq = lambda x : self.combineB(self.combineA(x))      
+            
     
 class ReZero_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None):
+    def __init__(self, seq_len, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None, device=None):
         super(ReZero_base, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
@@ -161,7 +182,7 @@ class ReZero_base(nn.Module):
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape) #batch_first=False 
+        encoder_layers = RZTXEncoderLayer(seq_len, ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape, device=device) #batch_first=False 
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.ninp = ninp
         self.ntoken = ntoken
@@ -267,7 +288,7 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None):
+    def __init__(self, seq_len, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
         super().__init__()
 
         self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout, batch_first=batch_first)
@@ -279,7 +300,7 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        self.conv = CNN(5,5,channels,spatial=spatial)
+        self.conv = NAT(seq_len, nhead, 9,9,channels,spatial=spatial, device=device)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
@@ -317,12 +338,12 @@ class RZTXEncoderLayer(Module):
         src2 = src            
         
         if self.reduced_shape is not None:
-            shape = (src2.shape[0] * src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
+            shape = (src2.shape[0], src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
             src5 = src4.reshape(src2.shape)
         else:
-            shape = (src2.shape[0] * src2.shape[1], 1, src2.shape[2])
+            shape = (src2.shape[0], src2.shape[1], src2.shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
             src5 = src4.reshape(src2.shape)

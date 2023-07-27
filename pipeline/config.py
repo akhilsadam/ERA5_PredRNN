@@ -42,6 +42,32 @@ model_config = \
             'batch_size': 1, # batch size
             'test_batch_size': 1, # batch size for testin
         },
+        'reZeroCNN_POD_v4':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
+        }, 
+        'reZeroCNN_CNN':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
+        }, 
         'reZeroTF_POD':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
@@ -280,6 +306,45 @@ model_config_toy = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
         },
+        'reZeroNAT_POD_v4':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
+        }, 
+        'reZeroCNN_POD_v4':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
+        }, 
+        'reZeroCNN_CNN':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 2, # batch size
+            'test_batch_size': 2, # batch size for testin
+        }, 
         'LSTM':{
             'n_layers': 4, # number of layers 
             'n_embd': 4096, # number of hidden units
@@ -372,7 +437,9 @@ preprocessor_config = \
         'control':{
         },
         'scale':{
-        }
+        },
+        'CNN':{
+        },
         
     }
     

@@ -29,6 +29,7 @@ class RZTX(BaseModel):
         shapey = self.preprocessor.patch_y
         
         ntoken = self.preprocessor.latent_dims[-1] * shapex * shapey
+        print(f"ntoken: {ntoken}")
         ninp = self.model_args['n_embd'] 
         
         self.model = ReZero_base( \
@@ -40,6 +41,9 @@ class RZTX(BaseModel):
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
                          activation=self.model_args['activation']).to(self.device)
+        
+        for t in self.state_dict():
+            print(t)
         
         # transformer
         # B S E: batch, sequence, embedding (latent)

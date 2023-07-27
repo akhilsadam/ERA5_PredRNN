@@ -37,7 +37,7 @@ def visualize(hyp):
             spec.loader.exec_module(genparam)
             varnames = [normalize.short[x] for x in genparam.data['variable']]
         else:
-            varnames = lambda x: f'var {x}'
+            varnames = [f'var {x}' for x in range(5)]
 
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"

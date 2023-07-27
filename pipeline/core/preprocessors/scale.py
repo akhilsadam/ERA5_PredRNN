@@ -23,13 +23,16 @@ class Preprocessor(PreprocessorBase):
         super().__init__(config)
         
         self.wp = 'WP_' if self.weather_prediction else ''                    
-
+        self.flags = ['spatial',# if this flag is present, then we expect a spatial dataset NTCHW with self.reduced_shape (CHW)
+                      ]
         #precompute
         self.precompute()
     
     def precompute(self):
         shape, _ = super().precompute_scale(use_datasets=False)
         self.shape = shape
+        self.reduced_shape = shape[1:]
+        
         
     def load(self, device):
         '''
