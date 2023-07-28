@@ -209,6 +209,9 @@ def visualize(hyp):
             axs[3].set_title(f'med={np.median(allrelmeansa):.4f}\niqr={np.quantile(allrelmeansa,0.75)-np.quantile(allrelmeansa,0.25):.4f}')
             axs[5].hist(allspmeansa, bins=100, color='k', orientation='horizontal')
             axs[5].set_title(f'med={np.median(allspmeansa):.4f}\niqr={np.quantile(allspmeansa,0.75)-np.quantile(allspmeansa,0.25):.4f}')
+            minsy = [np.min(allmeansa),np.min(allrelmeansa),np.min(allspmeansa)]
+            maxsy = [np.max(allmeansa),np.max(allrelmeansa),np.max(allspmeansa)]
+            
             
             divider = make_axes_locatable(axs[5])
             cax = divider.append_axes('right', size='13%', pad=0.20)
@@ -225,8 +228,9 @@ def visualize(hyp):
             # plt.legend()/
             if preprocessor in ['raw','scale','control']:
                 # skip input_length frames
-                for ax in [axs[0],axs[2]]:
-                    ax.set_xlim([input_length, total_length])
+                for maxy,miny, ax in zip(maxsy, minsy,axs[::2]):
+                    ax.set_xlim([input_length, total_length-1])
+                    ax.set_ylim([miny, maxy])
             
             [ax.yaxis.set_major_locator(plt.MaxNLocator(10)) for ax in axs[::2]]
             formatter = mticker.FuncFormatter(lambda y, _: '{:g}'.format(y))
