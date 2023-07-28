@@ -182,7 +182,7 @@ class NAT(nn.Module):
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
-        self.seq = lambda x : self.combineB(self.combineA(x))      
+        self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection     
             
     
 class ReZero_base(nn.Module):

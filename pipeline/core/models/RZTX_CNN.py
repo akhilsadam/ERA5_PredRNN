@@ -145,13 +145,13 @@ class CNN(nn.Module):
             self.rl = nn.ReLU().to(device)
             self.seqa = lambda x: self.conv1(self.pad_1x(self.pad_1y(x)))
             self.seqb = lambda x: self.conv2(self.pad_2x(self.pad_2y(x)))
-            self.seq = lambda x: self.seqb(self.rl(self.seqa(x)))
+            self.seq = lambda x: self.seqb(self.rl(self.seqa(x))) + x # residual connection
             
         else:
             self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros').to(device)
             self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8).to(device)
-            
-            self.seq = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
+            self.seqb = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
+            self.seq = lambda x: self.seqb(x) + x # residual connection
     
 class ReZero_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
