@@ -223,6 +223,11 @@ def visualize(hyp):
                 # ticks=np.arange(0, gt.shape[0] * gt.shape[1] * gt.shape[2], gt.shape[2]).tolist(),
             )
             # plt.legend()/
+            if preprocessor in ['raw','scale','control']:
+                # skip input_length frames
+                for ax in [axs[0],axs[2]]:
+                    ax.set_xlim([input_length, total_length])
+            
             [ax.yaxis.set_major_locator(plt.MaxNLocator(10)) for ax in axs[::2]]
             formatter = mticker.FuncFormatter(lambda y, _: '{:g}'.format(y))
             [ax.yaxis.set_major_formatter(formatter) for ax in axs[::2]]
