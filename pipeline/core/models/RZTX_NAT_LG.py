@@ -134,7 +134,7 @@ class PositionalEncoding(nn.Module):
 class NAT(nn.Module):
     def __init__(self, d, num_heads, k1, k2, channels, spatial, device) -> None:
         super().__init__()
-        assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
+        # assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
         ###
         # Modules expect inputs of shape [batch_size, *, dim]:
