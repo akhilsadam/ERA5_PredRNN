@@ -34,8 +34,9 @@ class RZTX_NAT_LG(BaseModel):
         spatial_preprocessor = 'flags' in self.preprocessor.__dict__ and 'spatial' in self.preprocessor.flags
         if spatial_preprocessor:
             reduced_shape = self.preprocessor.reduced_shape
-            channels = ninp // (reduced_shape[1]*reduced_shape[2])
-            assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
+            # channels = ninp // (reduced_shape[1]*reduced_shape[2])
+            # assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
+            channels = reduced_shape[0]
         else:
             reduced_shape = None
             channels = ninp
