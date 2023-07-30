@@ -82,8 +82,8 @@ model_config = \
             'test_batch_size': 2, # batch size for testin
         }, 
         'reZeroNAT_LG':{
-            'n_layers': 2, # number of layers in the transformer
-            'n_head': 2, # number of heads in the transformer
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer # cannot change at present
             'n_embd': 4096, # number of hidden units in the transformer # unused, set to 1
             'n_ffn_embd': 4096, # number of hidden units in the FFN # unused, set to 1
             'dropout': 0.1, # dropout rate
