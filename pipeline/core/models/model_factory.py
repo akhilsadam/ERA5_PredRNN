@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
-    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, LSTM, rLSTM, ViT_LDM, \
+    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_NAT_LG, LSTM, rLSTM, ViT_LDM, \
     DAT_v2
 from core.utils.ext import prefixprint
 from torchview import draw_graph
@@ -38,6 +38,7 @@ class Model(object):
             'reZeroTF': RZTX.RZTX,
             'reZeroCNN': RZTX_CNN.RZTX_CNN,
             'reZeroNAT': RZTX_NAT.RZTX_NAT,
+            'reZeroNAT_LG': RZTX_NAT_LG.RZTX_NAT_LG,
             'LSTM': LSTM.LSTM,
             'rLSTM': rLSTM.rLSTM,
             'ViT_LDM': ViT_LDM.ViT_LDM,
