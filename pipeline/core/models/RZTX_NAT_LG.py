@@ -319,6 +319,7 @@ class RZTXEncoderLayer(Module):
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
         self.conv = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device)
+        self.conv2 = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
@@ -363,12 +364,14 @@ class RZTXEncoderLayer(Module):
             # print(shape)
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            src5 = src4.reshape(src2.shape)
+            src4b = self.conv2.seq(src4) + src4
+            src5 = src4b.reshape(src2.shape)
         else:
             shape = (src2.shape[0], src2.shape[1], src2.shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            src5 = src4.reshape(src2.shape)
+            src4b = self.conv2.seq(src4) + src4
+            src5 = src4b.reshape(src2.shape)
             
         src2 = self.dropout(src2) + src5
         
