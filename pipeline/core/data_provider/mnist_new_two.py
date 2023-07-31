@@ -90,7 +90,7 @@ class InputHandle:
                 self.refs.append(dat_2)
                 
                 new_shape = get_shape(self.paths[pathi])
-                self.shapes.append(new_shape[0])
+                self.shapes.append(new_shape)
                 
                 next_pos = curr_pos + new_shape[0]
                 temp_clips = dat_2['clips']
