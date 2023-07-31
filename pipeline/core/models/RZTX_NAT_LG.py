@@ -308,7 +308,8 @@ class RZTXEncoderLayer(Module):
     def __init__(self, seq_len, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
         super().__init__()
 
-        self.self_attn = MultiheadAttention(1, nhead, dropout=dropout, batch_first=batch_first)
+        self.self_attn = MultiheadAttention(channels, nhead, dropout=dropout, batch_first=batch_first)
+        self.channels = channels
         # Implementation of Feedforward model
         # self.linear1 = Linear(d_model, dim_feedforward)
         self.dropout = Dropout(dropout)
@@ -345,11 +346,12 @@ class RZTXEncoderLayer(Module):
         """
         # Self attention layer
         src2 = src # batch, seq, dim
-        src3 = src.permute(0,2,1).reshape(src.shape[0]*src.shape[2],-1,1) # batch*dim, seq, 1
+        spatial = src.shape[2]//self.channels
+        src3 = src.reshape(src.shape[0],src.shape[1],self.channels,spatial).permute(0,3,1,2).reshape(-1,src.shape[1],self.channels) # batch*dim, seq, channels
         src3 = self.self_attn(src3, src3, src3, attn_mask=src_mask,
                               key_padding_mask=src_key_padding_mask)
         src3 = src3[0] # no attention weights
-        src2 = src3.reshape(src.shape[0],src.shape[2],-1).permute(0,2,1) # batch, seq, dim,
+        src2 = src3.reshape(src.shape[0],spatial,src.shape[1],self.channels).permute(0,2,3,1).reshape(src.shape[0],src.shape[1],-1) # batch, seq, dim,
         src2 = src2 * self.resweight
         src = src + self.dropout1(src2)
 
