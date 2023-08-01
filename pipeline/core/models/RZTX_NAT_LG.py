@@ -156,7 +156,7 @@ class NAT(nn.Module):
             
         #     self.combineA = lambda x : self.conv1(self.perm1(x))
         #     self.combineB = lambda x : self.rperm1(self.conv2(x))
-        if spatial #and channels == 1:
+        if spatial: #and channels == 1:
             from natten import NeighborhoodAttention2D
             # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
             # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
