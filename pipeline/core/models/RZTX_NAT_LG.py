@@ -163,8 +163,8 @@ class NAT(nn.Module):
 
             # in is [batch_size, height, width, dim]
             
-            self.perm1 = lambda x : x.squeeze(2).permute(0,2,3,1)
-            self.rperm1 = lambda x : x.permute(0,3,1,2).unsqueeze(2)
+            self.perm1 = lambda x : x.permute(0,2,3,1)
+            self.rperm1 = lambda x : x.permute(0,3,1,2)
 
             self.conv1 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
             self.conv2 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)
@@ -321,7 +321,7 @@ class RZTXEncoderLayer(Module):
         # only supports kernel sizes 3, 5, 7, 9, 11, and 13.
         # want a kernel around 32, though
         self.conv = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
-        # self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
+        self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
@@ -348,32 +348,32 @@ class RZTXEncoderLayer(Module):
             see the docs in PyTorch Transformer class.
         """
         # Self attention layer
-        # src2 = src # batch, seq, dim
-        # spatial = src.shape[2]//self.channels
-        # src3 = src.reshape(src.shape[0],src.shape[1],self.channels,spatial).permute(0,3,1,2).reshape(-1,src.shape[1],self.channels) # batch*dim, seq, channels
-        # src3 = self.self_attn(src3, src3, src3, attn_mask=src_mask,
-        #                       key_padding_mask=src_key_padding_mask)
-        # src3 = src3[0] # no attention weights
-        # src2 = src3.reshape(src.shape[0],spatial,src.shape[1],self.channels).permute(0,2,3,1).reshape(src.shape[0],src.shape[1],-1) # batch, seq, dim,
-        # src2 = src2 * self.resweight
-        # src = src + self.dropout1(src2)
+        src2 = src # batch, seq, dim
+        spatial = src.shape[2]//self.channels
+        src3 = src.reshape(src.shape[0],src.shape[1],self.channels,spatial).permute(0,3,1,2).reshape(-1,src.shape[1],self.channels) # batch*dim, seq, channels
+        src3 = self.self_attn(src3, src3, src3, attn_mask=src_mask,
+                              key_padding_mask=src_key_padding_mask)
+        src3 = src3[0] # no attention weights
+        src2 = src3.reshape(src.shape[0],spatial,src.shape[1],self.channels).permute(0,2,3,1).reshape(src.shape[0],src.shape[1],-1) # batch, seq, dim,
+        src2 = src2 * self.resweight
+        src = src + self.dropout1(src2)
 
         # Pointiwse FF Layer
         src2 = src            
         
         if self.reduced_shape is not None:
-            shape = (src2.shape[0], src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
+            shape = (src2.shape[0]*src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
             # print(shape)
-            src3 = src2.reshape(shape).reshape(src2.shape[0],-1,1,self.reduced_shape[1],self.reduced_shape[2])
+            src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            # src4b = self.conv2.seq(src4) + src4
-            src5 = src4.reshape(src2.shape)
+            src4b = self.conv2.seq(src4) + src4
+            src5 = src4b.reshape(src2.shape)
         else:
             shape = (src2.shape[0], src2.shape[1], src2.shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            # src4b = self.conv2.seq(src4) + src4
-            src5 = src4.reshape(src2.shape)
+            src4b = self.conv2.seq(src4) + src4
+            src5 = src4b.reshape(src2.shape)
             
         src2 = self.dropout(src2) + src5
         
