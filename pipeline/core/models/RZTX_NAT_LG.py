@@ -321,7 +321,7 @@ class RZTXEncoderLayer(Module):
         # only supports kernel sizes 3, 5, 7, 9, 11, and 13.
         # want a kernel around 32, though
         self.conv = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
-        self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
+        # self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
@@ -365,7 +365,7 @@ class RZTXEncoderLayer(Module):
             shape = (src2.shape[0], src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
             # print(shape)
             src3 = src2.reshape(shape).reshape(src2.shape[0],-1,1,self.reduced_shape[1],self.reduced_shape[2])
-            src4 = self.conv.seq(src3).reshape(src2.shape[0],src2.shape[1],self.reduced_shape[0],self.reduced_shape[1],self.reduced_shape[2])
+            src4 = self.conv.seq(src3)
             src4b = self.conv2.seq(src4) + src4
             src5 = src4b.reshape(src2.shape)
         else:
