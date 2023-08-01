@@ -166,8 +166,8 @@ class NAT(nn.Module):
             self.perm1 = lambda x : x.squeeze(2).permute(0,2,3,1)
             self.rperm1 = lambda x : x.permute(0,3,1,2).unsqueeze(2)
 
-            self.conv1 = NeighborhoodAttention2D(dim=d, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
-            self.conv2 = NeighborhoodAttention2D(dim=d, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)
+            self.conv1 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
+            self.conv2 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
