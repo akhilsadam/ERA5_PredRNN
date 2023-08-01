@@ -132,7 +132,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
     
 class NAT(nn.Module):
-    def __init__(self, d, num_heads, k1, k2, channels, spatial, device) -> None:
+    def __init__(self, d, num_heads, k1, k2, channels, spatial, device, dil=2) -> None:
         super().__init__()
         assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
@@ -167,7 +167,7 @@ class NAT(nn.Module):
             self.rperm1 = lambda x : x.permute(0,3,1,2).unsqueeze(2)
 
             self.conv1 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
-            self.conv2 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)
+            self.conv2 = NeighborhoodAttention2D(dim=d*channels, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
@@ -179,7 +179,7 @@ class NAT(nn.Module):
             self.perm1 = lambda x : x.permute(0,2,1)
             self.rperm1 = lambda x : x.permute(0,2,1)
             self.conv1 = NeighborhoodAttention1D(dim=d, kernel_size=k1, dilation=1, num_heads=num_heads).to(device)
-            self.conv2 = NeighborhoodAttention1D(dim=d, kernel_size=k2, dilation=2, num_heads=num_heads).to(device)   
+            self.conv2 = NeighborhoodAttention1D(dim=d, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)   
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
@@ -318,8 +318,10 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        self.conv = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device)
-        self.conv2 = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device)
+        # only supports kernel sizes 3, 5, 7, 9, 11, and 13.
+        # want a kernel around 32, though
+        self.conv = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
+        self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
