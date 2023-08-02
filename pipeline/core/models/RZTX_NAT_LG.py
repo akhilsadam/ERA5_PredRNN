@@ -368,10 +368,10 @@ class RZTXEncoderLayer(Module):
             sy2 = sy//2
             
             src3 = src2.reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx,sy)
-            src3d = nn.functional.interpolate(src3, scale_factor=0.5, mode='trilinear', align_corners=False).reshape(src.shape[0],src.shape[1],self.reduced_shape[0],sx2,sy2).permute(0,3,4,1,2).reshape(-1,src.shape[1],self.reduced_shape[0]) # batch*dim, seq, channels
+            src3d = nn.functional.interpolate(src3, scale_factor=0.5, mode='bilinear', align_corners=False).reshape(src.shape[0],src.shape[1],self.reduced_shape[0],sx2,sy2).permute(0,3,4,1,2).reshape(-1,src.shape[1],self.reduced_shape[0]) # batch*dim, seq, channels
             src3d = self.self_attn(src3d, src3d, src3d)[0]
             src2d = src3d.reshape(src.shape[0],sx2,sy2,src.shape[1],self.reduced_shape[0]).permute(0,3,4,1,2).reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx2,sy2)
-            src2 = nn.functional.interpolate(src2d, scale_factor=2.0, mode='trilinear', align_corners=False).reshape(src.shape)
+            src2 = nn.functional.interpolate(src2d, scale_factor=2.0, mode='bilinear', align_corners=False).reshape(src.shape)
             
         else:
             spatial = src2.shape[2]//self.channels
