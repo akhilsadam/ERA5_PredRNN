@@ -267,26 +267,27 @@ class run2:
                             img_channel=args.img_channel, img_layers=args.img_layers,
                             is_testing=False, is_training=True, is_WV=args.is_WV)
                 for itr in range(1, args.max_iterations + 1):
-                    if train_input_handle.no_batch_left():
-                        if curr_pos < len(train_data_files)-1:
-                            curr_pos += 1
-                        else:
-                            curr_pos = 0
-                        curr_train_path = train_data_files[curr_pos]
-                        print(curr_train_path)
-                        #curr_train_path = ','.join(listi)
-                        train_input_handle = datasets_factory.data_provider(
-                            args.dataset_name, curr_train_path, 
-                            args.valid_data_paths, 
-                            args.batch_size, args.img_height, 
-                            args.img_width,
-                            seq_length=args.total_length, 
-                            injection_action=args.injection_action, 
-                            concurent_step=args.concurent_step,
-                            img_channel = args.img_channel,img_layers = args.img_layers,
-                            is_testing=False,is_training=True,is_WV=args.is_WV)
-                    
                     for i in range(model.accumulate_batch):
+                        if train_input_handle.no_batch_left():
+                            if curr_pos < len(train_data_files)-1:
+                                curr_pos += 1
+                            else:
+                                curr_pos = 0
+                            curr_train_path = train_data_files[curr_pos]
+                            print(curr_train_path)
+                            #curr_train_path = ','.join(listi)
+                            train_input_handle = datasets_factory.data_provider(
+                                args.dataset_name, curr_train_path, 
+                                args.valid_data_paths, 
+                                args.batch_size, args.img_height, 
+                                args.img_width,
+                                seq_length=args.total_length, 
+                                injection_action=args.injection_action, 
+                                concurent_step=args.concurent_step,
+                                img_channel = args.img_channel,img_layers = args.img_layers,
+                                is_testing=False,is_training=True,is_WV=args.is_WV)
+                    
+                    
                         ims = train_input_handle.get_batch()
                         ims = ims[:,:,:args.img_channel,:,:]
                         
