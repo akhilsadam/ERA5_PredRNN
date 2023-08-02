@@ -36,7 +36,7 @@ def train(model, ims, real_input_flag, configs, itr):
         c3 = (c31+c32) / 2
     return cost, c2, c3
             
-def update(model, cost,c2,c3, itr):
+def update(model, cost,c2,c3, configs, itr):
     model.step(cost, c2, c3)
     
     if itr % configs.display_interval == 0:

@@ -308,7 +308,7 @@ class run2:
                                 args.curr_best_mse = test_err
                                 model.save(args.save_best_name)
                         train_input_handle.next()
-                    trainer.update(model, *lossargs, itr)
+                    trainer.update(model, *lossargs, args, itr)
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
                         
 
