@@ -8,6 +8,7 @@ from torch.optim.lr_scheduler import CyclicLR
 GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
 # TODO make batch size > 2 possible (at present memory issue, so we need gradient accumulation,
 # also dataset maxes out at 3 batches, so we need to mix datasets)
+WP_GRAD_BATCHES = 4 # batches to accumulate if weather prediction
 model_config = \
     {
         'TF':{
@@ -95,7 +96,7 @@ model_config = \
             'test_batch_size': 1, # batch size for testin
         }, 
         'reZeroCNN_LG':{
-            'n_layers': 2, # number of layers in the transformer
+            'n_layers': 1, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 7*720*1440, # number of hidden units in the transformer
             'kernel_size': 33, # cnn kernel size
@@ -743,4 +744,5 @@ def operate_loop(hyp, device):
         args.test_batch_size = model_args['test_batch_size']
     args.weather_prediction = hyp.weather_prediction
     args.interpret = hyp.interpret
+    args.accumulate_batch = WP_GRAD_BATCHES if hyp.weather_prediction else 1
     run2.main(args)

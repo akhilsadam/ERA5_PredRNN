@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 import random
 import zipfile
 
@@ -174,5 +175,7 @@ class InputHandle:
 
     def get_batch(self):
         input_seq = self.input_batch_f()
+        gc.collect()
+        torch.cuda.empty_cache()
         return input_seq
         

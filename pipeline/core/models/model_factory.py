@@ -52,6 +52,7 @@ class Model(object):
         self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
     
         self.saliency = configs.interpret if hasattr(configs, 'interpret') else False
+        self.accumulate_batch = configs.accumulate_batch if hasattr(configs, 'accumulate_batch') else 1
 
         if configs.model_name in networks_map:
             self.network_handle = networks_map[configs.model_name]
@@ -136,6 +137,8 @@ class Model(object):
         loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
         torch.cuda.empty_cache()
         loss.backward()
+        
+    def step(self):
         self.optimizer.step()
         if self.scheduler is not None:
             self.scheduler.step()

@@ -25,11 +25,15 @@ def center_enhance(img, min_distance = 100, sigma=4, radii=np.arange(0, 20, 2),f
 
 
 def train(model, ims, real_input_flag, configs, itr):
-    cost = model.train(ims, real_input_flag)
-    if configs.reverse_input:
-        ims_rev = np.flip(ims, axis=1).copy()
-        cost += model.train(ims_rev, real_input_flag)
-        cost = cost / 2
+    cost = 0
+    for i in range(model.accumulate_batch):
+        ccost = model.train(ims, real_input_flag)
+        if configs.reverse_input:
+            ims_rev = np.flip(ims, axis=1).copy()
+            ccost += model.train(ims_rev, real_input_flag)
+            ccost = ccost / 2
+        cost += ccost / model.accumulate_batch
+    model.step()
     
     if itr % configs.display_interval == 0:
         print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'itr: ' + str(itr))
