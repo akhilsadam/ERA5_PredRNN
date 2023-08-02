@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import random
 import zipfile
+import gc
 
 def get_shape(path):
     with zipfile.ZipFile(path) as archive:
