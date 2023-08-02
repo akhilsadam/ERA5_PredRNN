@@ -99,7 +99,7 @@ model_config = \
             'n_layers': 1, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 7*720*1440, # number of hidden units in the transformer
-            'kernel_size': 16, # cnn kernel size
+            'kernel_size': 15, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -199,7 +199,7 @@ model_config_toy = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 4096, # number of hidden units in the transformer
-            'kernel_size': 16, # cnn kernel size
+            'kernel_size': 15, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
