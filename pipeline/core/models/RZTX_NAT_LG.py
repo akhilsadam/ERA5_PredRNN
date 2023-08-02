@@ -157,22 +157,20 @@ class NAT(nn.Module):
         #     self.combineA = lambda x : self.conv1(self.perm1(x))
         #     self.combineB = lambda x : self.rperm1(self.conv2(x))
         if spatial: #and channels == 1:
-            from natten import NeighborhoodAttention2D
-            # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
-            # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
+            # from natten import NeighborhoodAttention2D
 
             # in is [batch_size, height, width, dim]
             
-            self.perm1 = lambda x : x.permute(0,2,3,1)
-            self.rperm1 = lambda x : x.permute(0,3,1,2)
+            # self.perm1 = lambda x : x.permute(0,2,3,1)
+            # self.rperm1 = lambda x : x.permute(0,3,1,2)
 
-            self.conv1 = NeighborhoodAttention2D(dim=channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
-            self.conv2 = NeighborhoodAttention2D(dim=channels, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)
+            # self.conv1 = NeighborhoodAttention2D(dim=channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
+            # self.conv2 = NeighborhoodAttention2D(dim=channels, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)
             
-            self.combineA = lambda x : self.conv1(self.perm1(x))
-            self.combineB = lambda x : self.rperm1(self.conv2(x))
+            # self.combineA = lambda x : self.conv1(self.perm1(x))
+            # self.combineB = lambda x : self.rperm1(self.conv2(x))
             
-            self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection    
+            # self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection    
                         
             # def seqf(x):
             #     d0 = x.shape[0]
@@ -184,6 +182,18 @@ class NAT(nn.Module):
             #             out = torch.cat((out,self.seq_ubs(x[i*d:(i+1)*d])),dim=0)
             #     return out
             # self.seq = seqf
+            
+            self.q = nn.Conv2d(channels, channels, (k1, k1), padding=k1//2, padding_mode='zeros')
+            self.k = nn.Conv2d(channels, channels, (k1, k1), padding=k1//2, padding_mode='zeros')
+            self.v = nn.Conv2d(channels, channels, (k1, k1), padding=k1//2, padding_mode='zeros')
+            def self_attention(x):
+                q = self.q(x)
+                k = self.k(x)
+                v = self.v(x)
+                return nn.functional.scaled_dot_product_attention(q,k,v)
+            self.seq = lambda x : self_attention(x) + x # residual connection
+            
+            
             
         else:
             from natten import NeighborhoodAttention1D
@@ -333,8 +343,8 @@ class RZTXEncoderLayer(Module):
         if not spatial: channels = 1
         # only supports kernel sizes 3, 5, 7, 9, 11, and 13.
         # want a kernel around 32, though
-        self.conv = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
-        self.conv2 = NAT(seq_len, nhead, 13, 13, channels,spatial=spatial, device=device, dil=3)
+        self.conv = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device, dil=3)
+        self.conv2 = NAT(seq_len, nhead, 33, 33, channels,spatial=spatial, device=device, dil=3)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
