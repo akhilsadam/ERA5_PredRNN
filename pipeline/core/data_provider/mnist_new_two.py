@@ -175,9 +175,13 @@ class InputHandle:
         return self.input_batch
 
     def clear_refs(self):
-        for ref, pathi in zip(self.refs, range(self.num_paths)):
-            del ref['input_raw_data']
-        gc.collect()
+        for ref in self.refs:
+            del ref
+        self.refs = []
+        gc.collect()    
+        for pathi in range(len(self.paths)):
+            self.refs.append(np.load(self.paths[pathi], mmap_mode='r'))
+        
             
 
     def get_batch(self):
