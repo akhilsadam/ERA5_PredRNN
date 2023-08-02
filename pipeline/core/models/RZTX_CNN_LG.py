@@ -129,11 +129,13 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1), :]
         return self.dropout(x)
     
+from torch.cuda.amp import autocast
 class CNN(nn.Module):
     def __init__(self, k1, k2, channels, spatial, device=None) -> None:
         super().__init__()
         assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
+        torch.backends.cudnn.benchmark = True
         if spatial:
             self.pad_1x = lambda x : nn.functional.pad(x, (k1//2,k1//2,0,0), mode='circular')
             self.pad_1y = nn.ReflectionPad2d((0,0,k1//2,k1//2)).to(device)
@@ -151,7 +153,11 @@ class CNN(nn.Module):
             self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros').to(device)
             self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8).to(device)
             self.seqb = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
-            self.seq = lambda x: self.seqb(x) + x # residual connection
+            
+            @autocast()
+            def seqc(x):
+                return self.seqb(x) + x # residual connection
+            self.seqf = seqc 
     
 class ReZero_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
