@@ -172,6 +172,19 @@ class NAT(nn.Module):
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
             
+            self.seq_ubs = lambda x : self.combineB(self.combineA(x)) + x # residual connection    
+                        
+            def seqf(x):
+                d0 = x.shape[0]
+                assert d0 % d  == 0, f"Batch size must be divisible by number of minibatches {d}!"
+                for i in range(d0//d):
+                    if i == 0:
+                        out = self.seq_ubs(x[:d])
+                    else:
+                        out = torch.cat((out,self.seq_ubs(x[i*d:(i+1)*d])),dim=0)
+                return out
+            self.seq = seqf
+            
         else:
             from natten import NeighborhoodAttention1D
             # self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros')
@@ -183,7 +196,7 @@ class NAT(nn.Module):
             
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
-        self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection     
+            self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection     
             
     
 class ReZero_base(nn.Module):
