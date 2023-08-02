@@ -71,7 +71,7 @@ model_config = \
         'reZeroCNN_CNN':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
-            'n_embd': 100, # number of hidden units in the transformer
+            'n_embd': 7*720*1440,, # number of hidden units in the transformer
             'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
@@ -84,8 +84,8 @@ model_config = \
         'reZeroNAT_LG':{
             'n_layers': 1, # number of layers in the transformer # memory issues with increasing this
             'n_head': 1, # number of heads in the transformer # cannot change at present
-            'n_embd': 4096, # number of hidden units in the transformer # unused, set to 1
-            'n_ffn_embd': 4096, # number of hidden units in the FFN # unused, set to 1
+            'n_embd': 7*720*1440, # number of hidden units in the transformer # unused
+            'n_ffn_embd': 4096, # number of hidden units in the FFN # unused
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -97,7 +97,7 @@ model_config = \
         'reZeroCNN_LG':{
             'n_layers': 2, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
-            'n_embd': 100, # number of hidden units in the transformer
+            'n_embd': 7*720*1440, # number of hidden units in the transformer
             'kernel_size': 33, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
