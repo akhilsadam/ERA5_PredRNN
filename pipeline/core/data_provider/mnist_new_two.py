@@ -174,9 +174,16 @@ class InputHandle:
         self.input_batch = self.input_batch.astype(self.input_data_type)
         return self.input_batch
 
+    def clear_refs(self):
+        for ref, pathi in zip(self.refs, range(self.num_paths)):
+            del ref['input_raw_data']
+        gc.collect()
+            
+
     def get_batch(self):
         input_seq = self.input_batch_f()
         gc.collect()
         torch.cuda.empty_cache()
+        self.clear_refs()
         return input_seq
         

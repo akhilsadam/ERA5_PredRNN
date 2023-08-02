@@ -138,7 +138,14 @@ class Model(object):
         torch.cuda.empty_cache()
         loss.backward()
         
-    def step(self):
+        try:
+            nploss = loss.detach().cpu().numpy()
+        except Exception as e:
+            nploss = 0.0
+            self.print (f"Could not convert loss to numpy: {e}")
+        return nploss, loss_pred, decouple_loss
+        
+    def step(self, nploss, loss_pred, decouple_loss):
         self.optimizer.step()
         if self.scheduler is not None:
             self.scheduler.step()
@@ -147,12 +154,7 @@ class Model(object):
                 self.wrun.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
             except Exception as e:
                 self.print (f"Could not log to wandb: {e}")
-        try:
-            nploss = loss.detach().cpu().numpy()
-        except Exception as e:
-            nploss = 0.0
-            self.print (f"Could not convert loss to numpy: {e}")
-        return nploss
+        
 
     def test(self, frames_tensor, mask_tensor):
         input_length = self.configs.input_length

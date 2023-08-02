@@ -286,14 +286,18 @@ class run2:
                             img_channel = args.img_channel,img_layers = args.img_layers,
                             is_testing=False,is_training=True,is_WV=args.is_WV)
                     
-                    ims = train_input_handle.get_batch()
-                    ims = ims[:,:,:args.img_channel,:,:]
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")
-                    # if args.reverse_scheduled_sampling == 1:
-                    #     real_input_flag = reserve_schedule_sampling_exp(itr)
-                    # else:
-                    #     eta, real_input_flag = schedule_sampling(eta, itr)
-                    trainer.train(model, ims, real_input_flag, args, itr)
+                    for i in range(model.accumulate_batch):
+                        ims = train_input_handle.get_batch()
+                        ims = ims[:,:,:args.img_channel,:,:]
+                        
+                        # if args.reverse_scheduled_sampling == 1:
+                        #     real_input_flag = reserve_schedule_sampling_exp(itr)
+                        # else:
+                        #     eta, real_input_flag = schedule_sampling(eta, itr)
+                        args = trainer.train(model, ims, real_input_flag, args, itr)
+                    trainer.update(model, *args)
+                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
+                    
                     if itr % args.snapshot_interval == 0:
                         model.save(itr)
 
