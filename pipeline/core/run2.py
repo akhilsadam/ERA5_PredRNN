@@ -294,8 +294,8 @@ class run2:
                         #     real_input_flag = reserve_schedule_sampling_exp(itr)
                         # else:
                         #     eta, real_input_flag = schedule_sampling(eta, itr)
-                        args = trainer.train(model, ims, real_input_flag, args, itr)
-                    trainer.update(model, *args)
+                        lossargs = trainer.train(model, ims, real_input_flag, args, itr)
+                    trainer.update(model, *lossargs)
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
                     
                     if itr % args.snapshot_interval == 0:
