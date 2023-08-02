@@ -46,7 +46,7 @@ model_config = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 100, # number of hidden units in the transformer
-            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -72,7 +72,7 @@ model_config = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 100, # number of hidden units in the transformer
-            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -86,6 +86,19 @@ model_config = \
             'n_head': 1, # number of heads in the transformer # cannot change at present
             'n_embd': 4096, # number of hidden units in the transformer # unused, set to 1
             'n_ffn_embd': 4096, # number of hidden units in the FFN # unused, set to 1
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
+        }, 
+        'reZeroCNN_LG':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 100, # number of hidden units in the transformer
+            'kernel_size': 33, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -168,6 +181,32 @@ model_config = \
     }
 model_config_toy = \
     {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
+        'reZeroNAT_LG':{
+            'n_layers': 1, # number of layers in the transformer # memory issues with increasing this
+            'n_head': 1, # number of heads in the transformer # cannot change at present
+            'n_embd': 4096, # number of hidden units in the transformer # unused, set to 1
+            'n_ffn_embd': 4096, # number of hidden units in the FFN # unused, set to 1
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
+        }, 
+        'reZeroCNN_LG':{
+            'n_layers': 4, # number of layers in the transformer
+            'n_head': 1, # number of heads in the transformer
+            'n_embd': 4096, # number of hidden units in the transformer
+            'kernel_size': 33, # cnn kernel size
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=2e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
+        }, 
         'TF':{
             'n_encoder_layers': 2, # number of layers in the encoder
             'n_decoder_layers': 2, # number of layers in the decoder
@@ -301,7 +340,7 @@ model_config_toy = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 4096, # number of hidden units in the transformer
-            'n_ffn_embd': 4096, # number of hidden units in the FFN
+            'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -375,7 +414,7 @@ model_config_toy = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
             'n_embd': 400, # number of hidden units in the transformer
-            'n_ffn_embd': 400, # number of hidden units in the FFN
+            'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
@@ -388,7 +427,7 @@ model_config_toy = \
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 100, # number of hidden units in the transformer
-            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function

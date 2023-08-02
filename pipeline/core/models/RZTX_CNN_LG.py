@@ -4,11 +4,11 @@ import torch.nn as nn
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
 
-class RZTX_NAT_LG(BaseModel):
+class RZTX_CNN(BaseModel):
     # copies a lot of code from https://github.com/pytorch/examples/blob/main/word_language_model/model.py
     
     def __init__(self, num_layers, num_hidden, configs):
-        super(RZTX_NAT_LG, self).__init__(num_layers, num_hidden, configs)
+        super(RZTX_CNN, self).__init__(num_layers, num_hidden, configs)
         self.preprocessor = configs.preprocessor
         self.model_args = configs.model_args
         assert self.preprocessor is not None, "Preprocessor is None, please check config! Cannot operate on raw data."
@@ -34,20 +34,18 @@ class RZTX_NAT_LG(BaseModel):
         spatial_preprocessor = 'flags' in self.preprocessor.__dict__ and 'spatial' in self.preprocessor.flags
         if spatial_preprocessor:
             reduced_shape = self.preprocessor.reduced_shape
-            # channels = ninp // (reduced_shape[1]*reduced_shape[2])
-            # assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
-            channels = reduced_shape[0]
+            channels = ninp // (reduced_shape[1]*reduced_shape[2])
+            assert ninp % (reduced_shape[1]*reduced_shape[2]) == 0, "ninp must be divisible by reduced_shape[1]*reduced_shape[2]"
         else:
             reduced_shape = None
             channels = ninp
                 
         self.model = ReZero_base( \
-                         seq_len = self.input_length,
                          ntoken=ntoken,
                          channels = channels,
                          ninp=ninp,
                          nhead=self.model_args['n_head'],
-                         nhid=self.model_args['n_ffn_embd'],
+                         nhid=self.model_args['kernel_size'],
                          nlayers=self.model_args['n_layers'],
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
@@ -131,132 +129,34 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1), :]
         return self.dropout(x)
     
-from torchvision.models.swin_transformer import ShiftedWindowAttentionV2
-class NAT(nn.Module):
-    def __init__(self, d, num_heads, k1, k2, channels, spatial, device) -> None:
+class CNN(nn.Module):
+    def __init__(self, k1, k2, channels, spatial, device=None) -> None:
         super().__init__()
-        
+        assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
         # standard conv layer, then atrous conv layer such that the entire region is covered
-        ###
-        # Modules expect inputs of shape [batch_size, *, dim]:
-        # NA1D: [batch_size, sequence_length, dim]
-        # NA2D: [batch_size, height, width, dim]
-        # NA3D: [batch_size, depth, height, width, dim]
-        # if spatial and channels > 1:
-        #     from natten import NeighborhoodAttention3D
-        #     # self.conv1 = nn.Conv2d(channels, channels, (k1, k1))
-        #     # self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2))
-
-        #     # in is [batch_size, dim, channels, height, width]
+        if spatial:
+            self.pad_1x = lambda x : nn.functional.pad(x, (k1//2,k1//2,0,0), mode='circular')
+            self.pad_1y = nn.ReflectionPad2d((0,0,k1//2,k1//2)).to(device)
+            self.conv1 = nn.Conv2d(channels, channels, (k1, k1), device=device)
+            self.pad_2x = lambda x : nn.functional.pad(x, (k2-1,k2-1,0,0), mode='circular')
+            self.pad_2y = nn.ReflectionPad2d((0,0,k2-1,k2-1)).to(device)
+            self.conv2 = nn.Conv2d(channels, channels, (k2, k2), dilation=(2,2), device=device)
             
-        #     self.rperm1 = lambda x : x.permute(0,4,1,2,3)
-        #     self.perm1 = lambda x : x.permute(0,2,3,4,1)
-
-        #     self.conv1 = NeighborhoodAttention3D(dim=d, kernel_size=k1,dilation=1, kernel_size_d=channels, dilation_d=1, num_heads=num_heads).to(device) 
-        #     self.conv2 = NeighborhoodAttention3D(dim=d, kernel_size=k2, dilation=2, kernel_size_d=channels, dilation_d=1, num_heads=num_heads).to(device)
+            self.rl = nn.ReLU().to(device)
+            self.seqa = lambda x: self.conv1(self.pad_1x(self.pad_1y(x)))
+            self.seqb = lambda x: self.conv2(self.pad_2x(self.pad_2y(x)))
+            self.seq = lambda x: self.seqb(self.rl(self.seqa(x))) + x # residual connection
             
-        #     self.combineA = lambda x : self.conv1(self.perm1(x))
-        #     self.combineB = lambda x : self.rperm1(self.conv2(x))
-        if spatial: #and channels == 1:
-            torch.backends.cuda.enable_mem_efficient_sdp(True)
-            # from natten import NeighborhoodAttention2D
-
-            # in is [batch_size, height, width, dim]
-            
-            # self.perm1 = lambda x : x.permute(0,2,3,1)
-            # self.rperm1 = lambda x : x.permute(0,3,1,2)
-
-            # self.conv1 = NeighborhoodAttention2D(dim=channels, kernel_size=k1, dilation=1, num_heads=num_heads).to(device) 
-            # self.conv2 = NeighborhoodAttention2D(dim=channels, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)
-            
-            # self.combineA = lambda x : self.conv1(self.perm1(x))
-            # self.combineB = lambda x : self.rperm1(self.conv2(x))
-            
-            # self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection    
-                        
-            # def seqf(x):
-            #     d0 = x.shape[0]
-            #     assert d0 % d  == 0, f"Batch size must be divisible by number of minibatches {d}!"
-            #     for i in range(d0//d):
-            #         if i == 0:
-            #             out = self.seq_ubs(x[:d])
-            #         else:
-            #             out = torch.cat((out,self.seq_ubs(x[i*d:(i+1)*d])),dim=0)
-            #     return out
-            # self.seq = seqf
-            
-            # shape is [batch_size, time, channels, height, width]
-            
-            # # neighborhood attention
-            # self.qw = nn.Parameter(torch.rand(channels, k1, k1, k1, k1).to(device))
-            # self.qb = nn.Parameter(torch.zeros(channels, k1, k1).to(device))
-            # self.kw = nn.Parameter(torch.rand(channels, k1, k1, k1, k1).to(device))
-            # self.kb = nn.Parameter(torch.zeros(channels, k1, k1).to(device))
-            # self.vw = nn.Parameter(torch.rand(channels, k1, k1, k1, k1).to(device))
-            # self.vb = nn.Parameter(torch.zeros(channels, k1, k1).to(device))
-            
-            
-            
-            # def neighbor_self_attention(x):
-            #     q = (torch.einsum('btsxy,sxyhw->btshw',x,self.qw) + self.qb).reshape(x.shape[0]*x.shape[1],channels,-1).permute(0,2,1)
-            #     k = (torch.einsum('btsxy,sxyhw->btshw',x,self.kw) + self.kb).reshape(x.shape[0]*x.shape[1],channels,-1).permute(0,2,1)
-            #     v = (torch.einsum('btsxy,sxyhw->btshw',x,self.vw) + self.vb).reshape(x.shape[0]*x.shape[1],channels,-1).permute(0,2,1)
-            #     return torch.nn.functional.scaled_dot_product_attention(q,k,v).permute(0,2,1).reshape(x.shape[0],x.shape[1],channels,k1,k1)
-            #     # scale_factor = 1.0 / math.sqrt(x.shape[3])
-            #     # return (torch.softmax((q @ k.transpose(-2, -1) * scale_factor), dim=-1) @ v).permute(0,2,1).reshape(x.shape[0],x.shape[1],channels,k1,k1)
-           
-            # # @torch.compile(options={"triton.cudagraphs": True})
-            # def self_attention(x):
-            #     x2 = torch.clone(x)
-            #     for i in range(0,x.shape[3]-k1+1,k1):
-            #         for j in range(0,x.shape[4]-k1+1,k1):
-            #             x2[:,:,:,i:i+k1,j:j+k1] = neighbor_self_attention(x[:,:,:,i:i+k1,j:j+k1]) + x2[:,:,:,i:i+k1,j:j+k1]
-            #     return x2
-                        
-            
-            # self.seq = lambda x : self_attention(x) # residual connection
-            
-            self.attn_space = ShiftedWindowAttentionV2(dim=channels, window_size=[k1,k1], shift_size=[0,0], num_heads=num_heads, qkv_bias=True).to(device)
-            self.attn_space_2 = ShiftedWindowAttentionV2(dim=channels, window_size=[k2,k2], shift_size=[k2//2,k2//2], num_heads=num_heads, qkv_bias=True).to(device)
-
-            def seqf(src):
-                ##########
-                # self-attention layer in space
-                ##########
-                # permute
-                # currently B, T, C, H, W
-                # want B*T, H, W, C
-                src2 = src.reshape(src.size(0)*src.size(1),-1,src.size(3),src.size(4)).permute(0,2,3,1)
-                    
-                src3 = src2 + self.attn_space(src2)
-                src4 = src3 + self.attn_space_2(src3)
-
-                return src4.permute(0,3,1,2).reshape(src.size())
-            
-            self.seq = seqf
-        
-                
-                
-                
         else:
-            assert k1%2==1 and k2%2==1, "Kernel sizes must be odd!"
-            from natten import NeighborhoodAttention1D
-            # self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros')
-            # self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8)
-            self.perm1 = lambda x : x.permute(0,2,1)
-            self.rperm1 = lambda x : x.permute(0,2,1)
-            self.conv1 = NeighborhoodAttention1D(dim=d, kernel_size=k1, dilation=1, num_heads=num_heads).to(device)
-            self.conv2 = NeighborhoodAttention1D(dim=d, kernel_size=k2, dilation=dil, num_heads=num_heads).to(device)   
-            
-            self.combineA = lambda x : self.conv1(self.perm1(x))
-            self.combineB = lambda x : self.rperm1(self.conv2(x))
-            self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection     
-            
+            self.conv1 = nn.Conv1d(channels, channels, k1, padding=k1//2, padding_mode='zeros').to(device)
+            self.conv2 = nn.Conv1d(channels, channels, k2, padding='same', padding_mode='circular', dilation=8).to(device)
+            self.seqb = nn.Sequential(self.conv1, nn.ReLU(), self.conv2)
+            self.seq = lambda x: self.seqb(x) + x # residual connection
     
 class ReZero_base(nn.Module):
     """Container module with an encoder, a recurrent or transformer module, and a fully-connected output layer."""
 
-    def __init__(self, seq_len, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None, device=None):
+    def __init__(self, ntoken, channels, ninp, nhead, nhid, nlayers, dropout=0.5, initialization=None, activation='relu', reduced_shape=None, device=None):
         super(ReZero_base, self).__init__()
         try:
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
@@ -266,7 +166,7 @@ class ReZero_base(nn.Module):
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = RZTXEncoderLayer(seq_len, ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape, device=device) #batch_first=False 
+        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape, device=device) #batch_first=False 
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.ninp = ninp
         self.ntoken = ntoken
@@ -372,7 +272,7 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, seq_len, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
+    def __init__(self, d_model, nhead, kernel=9, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
         super().__init__()
 
         self.self_attn = MultiheadAttention(channels, nhead, dropout=dropout, batch_first=batch_first)
@@ -385,10 +285,7 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        # only supports kernel sizes 3, 5, 7, 9, 11, and 13.
-        # want a kernel around 32, though
-        self.conv = NAT(seq_len, nhead, 32, 32, channels,spatial=spatial, device=device)
-        self.conv2 = NAT(seq_len, nhead, 32, 32, channels,spatial=spatial, device=device)
+        self.conv = CNN(kernel,kernel,channels,spatial=spatial, device=device).to(device)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
@@ -440,18 +337,15 @@ class RZTXEncoderLayer(Module):
         src2 = src            
         
         if self.reduced_shape is not None:
-            shape = (src2.shape[0], src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
-            # print(shape)
+            shape = (src2.shape[0] * src2.shape[1], self.reduced_shape[0], self.reduced_shape[1], self.reduced_shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            src4b = self.conv2.seq(src4) + src4
-            src5 = src4b.reshape(src2.shape)
+            src5 = src4.reshape(src2.shape)
         else:
-            shape = (src2.shape[0], src2.shape[1], src2.shape[2])
+            shape = (src2.shape[0] * src2.shape[1], 1, src2.shape[2])
             src3 = src2.reshape(shape)
             src4 = self.conv.seq(src3)
-            src4b = self.conv2.seq(src4) + src4
-            src5 = src4b.reshape(src2.shape)
+            src5 = src4.reshape(src2.shape)
             
         src2 = self.dropout(src2) + src5
         

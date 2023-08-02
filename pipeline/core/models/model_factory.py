@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
-    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_NAT_LG, LSTM, rLSTM, ViT_LDM, \
+    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
     DAT_v2
 from core.utils.ext import prefixprint
 from torchview import draw_graph
@@ -37,6 +37,7 @@ class Model(object):
             'rBERT': rBERT.rBERT,
             'reZeroTF': RZTX.RZTX,
             'reZeroCNN': RZTX_CNN.RZTX_CNN,
+            'reZeroCNN_LG': RZTX_CNN_LG.RZTX_CNN,
             'reZeroNAT': RZTX_NAT.RZTX_NAT,
             'reZeroNAT_LG': RZTX_NAT_LG.RZTX_NAT_LG,
             'LSTM': LSTM.LSTM,
@@ -58,7 +59,7 @@ class Model(object):
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
         
-        if 'predrnn' not in configs.model_name and configs.is_training :#and 'pretrained_model' not in configs.__dict__:
+        if 'predrnn' not in configs.model_name and self.saliency:#and 'pretrained_model' not in configs.__dict__:
             try:
                 self.modelvis()
             except Exception as e:

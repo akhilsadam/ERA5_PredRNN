@@ -45,7 +45,7 @@ class RZTX_CNN(BaseModel):
                          channels = channels,
                          ninp=ninp,
                          nhead=self.model_args['n_head'],
-                         nhid=self.model_args['n_ffn_embd'],
+                         nhid=self.model_args['kernel_size'],
                          nlayers=self.model_args['n_layers'],
                          dropout=self.model_args['dropout'],
                          initialization=self.model_args['initialization'],
@@ -272,7 +272,7 @@ class RZTXEncoderLayer(Module):
         >>> src = torch.rand(10, 32, 512)
         >>> out = encoder_layer(src)
     """
-    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
+    def __init__(self, d_model, nhead, kernel=9, dropout=0.1, activation='relu', batch_first=True, channels=1, reduced_shape=None, device=None):
         super().__init__()
 
         self.self_attn = MultiheadAttention(d_model, nhead, dropout=dropout, batch_first=batch_first)
@@ -284,7 +284,7 @@ class RZTXEncoderLayer(Module):
         spatial = reduced_shape is not None        
         self.reduced_shape = reduced_shape
         if not spatial: channels = 1
-        self.conv = CNN(9,9,channels,spatial=spatial, device=device).to(device)
+        self.conv = CNN(kernel,kernel,channels,spatial=spatial, device=device).to(device)
         
         self.dropout1 = Dropout(dropout)
         self.dropout2 = Dropout(dropout)
