@@ -362,12 +362,23 @@ class RZTXEncoderLayer(Module):
         """
         # Self attention layer
         src2 = src # batch, seq, dim
-        spatial = src.shape[2]//self.channels
-        src3 = src.reshape(src.shape[0],src.shape[1],self.channels,spatial).permute(0,3,1,2).reshape(-1,src.shape[1],self.channels) # batch*dim, seq, channels
-        src3 = self.self_attn(src3, src3, src3, attn_mask=src_mask,
-                              key_padding_mask=src_key_padding_mask)
-        src3 = src3[0] # no attention weights
-        src2 = src3.reshape(src.shape[0],spatial,src.shape[1],self.channels).permute(0,2,3,1).reshape(src.shape[0],src.shape[1],-1) # batch, seq, dim,
+        if self.reduced_shape is not None:
+            sx,sy = self.reduced_shape[1],self.reduced_shape[2]
+            sx2 = sx//2
+            sy2 = sy//2
+            
+            src3 = src2.reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx,sy)
+            src3d = nn.functional.interpolate(src3, scale_factor=0.5, mode='trilinear', align_corners=False).reshape(src.shape[0],src.shape[1],self.reduced_shape[0],sx2,sy2).permute(0,3,4,1,2).reshape(-1,src.shape[1],self.reduced_shape[0]) # batch*dim, seq, channels
+            src3d = self.self_attn(src3d, src3d, src3d)[0]
+            src2d = src3d.reshape(src.shape[0],sx2,sy2,src.shape[1],self.reduced_shape[0]).permute(0,3,4,1,2).reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx2,sy2)
+            src2 = nn.functional.interpolate(src2d, scale_factor=2.0, mode='trilinear', align_corners=False).reshape(src.shape)
+            
+        else:
+            spatial = src2.shape[2]//self.channels
+            src3 = src.reshape(src.shape[0],src.shape[1],self.channels,spatial).permute(0,3,1,2).reshape(-1,src.shape[1],self.channels) # batch*dim, seq, channels
+            src3 = self.self_attn(src3, src3, src3)
+            src3 = src3[0] # no attention weights
+            src2 = src3.reshape(src.shape[0],spatial,src.shape[1],self.channels).permute(0,2,3,1).reshape(src.shape[0],src.shape[1],-1) # batch, seq, dim,
         src2 = src2 * self.resweight
         src = src + self.dropout1(src2)
 
