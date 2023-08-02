@@ -172,7 +172,8 @@ class NAT(nn.Module):
             self.combineA = lambda x : self.conv1(self.perm1(x))
             self.combineB = lambda x : self.rperm1(self.conv2(x))
             
-            self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection    
+            # self.seq = lambda x : self.combineB(self.combineA(x)) + x # residual connection  
+            self.seq = lambda x:x  
                         
             # def seqf(x):
             #     d0 = x.shape[0]
