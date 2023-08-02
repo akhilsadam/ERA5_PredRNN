@@ -151,7 +151,7 @@ class Model(object):
             self.scheduler.step()
         if self.configs.upload_run:
             try:
-                self.wrun.log({"Total Loss": float(loss), "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
+                self.wrun.log({"Total Loss": nploss, "Pred Loss": loss_pred, 'Decop Loss': decouple_loss})
             except Exception as e:
                 self.print (f"Could not log to wandb: {e}")
         

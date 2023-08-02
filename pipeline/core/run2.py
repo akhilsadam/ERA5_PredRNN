@@ -295,21 +295,21 @@ class run2:
                         # else:
                         #     eta, real_input_flag = schedule_sampling(eta, itr)
                         lossargs = trainer.train(model, ims, real_input_flag, args, itr)
-                    trainer.update(model, *lossargs)
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
                     
-                    if itr % args.snapshot_interval == 0:
-                        model.save(itr)
+                        if itr % args.snapshot_interval == 0:
+                            model.save(itr)
 
-                    if itr % args.test_interval == 0:
-                        test_input_handle.begin(do_shuffle=False)
-                        test_err = trainer.test(model, test_input_handle, args, 'test_result')
-                        print('current test mse: '+str(np.round(test_err,6)))
-                        if test_err < args.curr_best_mse:
-                            print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
-                            args.curr_best_mse = test_err
-                            model.save(args.save_best_name)
-                    train_input_handle.next()
+                        if itr % args.test_interval == 0:
+                            test_input_handle.begin(do_shuffle=False)
+                            test_err = trainer.test(model, test_input_handle, args, 'test_result')
+                            print('current test mse: '+str(np.round(test_err,6)))
+                            if test_err < args.curr_best_mse:
+                                print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
+                                args.curr_best_mse = test_err
+                                model.save(args.save_best_name)
+                        train_input_handle.next()
+                    trainer.update(model, *lossargs, itr)
+                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
                         
 
         def test_wrapper(model):

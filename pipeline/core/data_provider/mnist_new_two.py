@@ -177,8 +177,10 @@ class InputHandle:
     def clear_refs(self):
         for ref in self.refs:
             del ref
-        self.refs = []
-        gc.collect()    
+        del self.refs
+        gc.collect()
+        
+        self.refs = []  
         for pathi in range(len(self.paths)):
             self.refs.append(np.load(self.paths[pathi], mmap_mode='r'))
         

@@ -27,17 +27,16 @@ def center_enhance(img, min_distance = 100, sigma=4, radii=np.arange(0, 20, 2),f
 def train(model, ims, real_input_flag, configs, itr):
     cost = 0
     c2, c3 = 0, 0
-    for i in range(model.accumulate_batch):
-        c11, c21, c31 = model.train(ims, real_input_flag)
-        if configs.reverse_input:
-            ims_rev = np.flip(ims, axis=1).copy()
-            c12, c22, c32= model.train(ims_rev, real_input_flag)
-            cost += (c11+c12) / 2
-            c2 += (c21+c22) / 2
-            c3 = (c31+c32) / 2
+    c11, c21, c31 = model.train(ims, real_input_flag)
+    if configs.reverse_input:
+        ims_rev = np.flip(ims, axis=1).copy()
+        c12, c22, c32= model.train(ims_rev, real_input_flag)
+        cost += (c11+c12) / 2
+        c2 += (c21+c22) / 2
+        c3 = (c31+c32) / 2
     return cost, c2, c3
             
-def update(model, cost,c2,c3):
+def update(model, cost,c2,c3, itr):
     model.step(cost, c2, c3)
     
     if itr % configs.display_interval == 0:
