@@ -71,7 +71,7 @@ model_config = \
         'reZeroCNN_CNN':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
-            'n_embd': 7*720*1440,, # number of hidden units in the transformer
+            'n_embd': 7*720*1440, # number of hidden units in the transformer
             'kernel_size': 9, # cnn kernel size
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
