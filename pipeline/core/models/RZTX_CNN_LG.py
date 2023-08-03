@@ -172,7 +172,10 @@ class ReZero_base(nn.Module):
         self.model_type = 'Transformer'
         self.src_mask = None
         # self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape, device=device) #batch_first=False 
+        
+        reduced_shape2 = (reduced_shape[0], reduced_shape[1]//2, reduced_shape[2]//2) if reduced_shape is not None else None
+        
+        encoder_layers = RZTXEncoderLayer(ninp, nhead, nhid, dropout, activation, batch_first=True, channels=channels, reduced_shape=reduced_shape2, device=device) #batch_first=False 
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.ninp = ninp
         self.ntoken = ntoken
@@ -186,8 +189,22 @@ class ReZero_base(nn.Module):
             self.encoder = self.encoder1D
             self.decoder = self.decoder1D
         else:
-            self.encoder = lambda x: x
-            self.decoder = lambda x: x
+            sx = reduced_shape[1]
+            sy = reduced_shape[2]
+            sx2 = sx//2
+            sy2 = sy//2
+            def ec(x):
+                xr = x.reshape(x.shape[0]*x.shape[1],reduced_shape[0],sx,sy)
+                xs = nn.functional.interpolate(xr, scale_factor=0.5, mode='bilinear', align_corners=False).reshape(x.shape[0],x.shape[1],-1)
+                return xs
+                
+            def dc(x):
+                xs = x.reshape(x.shape[0]*x.shape[1],reduced_shape[0],sx2,sy2)
+                xr = nn.functional.interpolate(xs, scale_factor=2, mode='bilinear', align_corners=False).reshape(x.shape[0],x.shape[1],-1)
+                return xr
+            
+            self.encoder = ec
+            self.decoder = dc
 
         # self.init_weights()
         # for i,tf_encoder_layer in enumerate(self.transformer_encoder.layers):
@@ -323,14 +340,14 @@ class RZTXEncoderLayer(Module):
         src2 = src # batch, seq, dim
         if self.reduced_shape is not None:
             sx,sy = self.reduced_shape[1],self.reduced_shape[2]
-            sx2 = sx//4
-            sy2 = sy//4
+            sx2 = sx//2
+            sy2 = sy//2
             
             src3 = src2.reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx,sy)
-            src3d = nn.functional.interpolate(src3, scale_factor=0.25, mode='bilinear', align_corners=False).reshape(src.shape[0],src.shape[1],self.reduced_shape[0],sx2,sy2).permute(0,3,4,1,2).reshape(-1,src.shape[1],self.reduced_shape[0]) # batch*dim, seq, channels
+            src3d = nn.functional.interpolate(src3, scale_factor=0.5, mode='bilinear', align_corners=False).reshape(src.shape[0],src.shape[1],self.reduced_shape[0],sx2,sy2).permute(0,3,4,1,2).reshape(-1,src.shape[1],self.reduced_shape[0]) # batch*dim, seq, channels
             src3d = self.self_attn(src3d, src3d, src3d)[0]
             src2d = src3d.reshape(src.shape[0],sx2,sy2,src.shape[1],self.reduced_shape[0]).permute(0,3,4,1,2).reshape(src.shape[0]*src.shape[1],self.reduced_shape[0],sx2,sy2)
-            src2 = nn.functional.interpolate(src2d, scale_factor=4.0, mode='bilinear', align_corners=False).reshape(src.shape)
+            src2 = nn.functional.interpolate(src2d, scale_factor=2.0, mode='bilinear', align_corners=False).reshape(src.shape)
             
         else:
             spatial = src2.shape[2]//self.channels
