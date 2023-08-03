@@ -67,14 +67,17 @@ class RZTX_CNN(BaseModel):
         nc, sx, sy = inpt.shape[-3:]
         inpt = inpt.reshape(inpt.shape[0],inpt.shape[1],-1)
    
-        predictions = []
-        for i in range(self.predict_length):
-            outpt = self.model(inpt)
-            out = outpt.mean(dim=1)
-            predictions.append(out.unsqueeze(1))
-            inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
+        # predictions = []
+        # for i in range(self.predict_length):
+        #     outpt = self.model(inpt)
+        #     out = outpt.mean(dim=1)
+        #     predictions.append(out.unsqueeze(1))
+        #     inpt = torch.cat((inpt[:,:self.input_length-1,:],out.unsqueeze(1)),dim=1)
         
-        outpt = torch.cat(predictions,dim=1)
+        # outpt = torch.cat(predictions,dim=1)
+        
+        outpt = self.model(inpt)
+        
         outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)
         out = torch.cat((total[:,:self.input_length,:],outpt),dim=1)  
         out = self.preprocessor.batched_output_transform(out)
