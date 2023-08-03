@@ -96,7 +96,7 @@ model_config = \
             'test_batch_size': 1, # batch size for testin
         }, 
         'reZeroCNN_LG':{
-            'n_layers': 2, # number of layers in the transformer
+            'n_layers': 1, # number of layers in the transformer
             'n_head': 1, # number of heads in the transformer
             'n_embd': 7*720*1440, # number of hidden units in the transformer
             'kernel_size': 15, # cnn kernel size
