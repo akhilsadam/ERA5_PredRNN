@@ -1,7 +1,7 @@
-from core.data_provider import kth_action, mnist_new_two #, bair
+from core.data_provider import kth_action, mnist_new_three #, bair
 
 datasets_map = {
-    'mnist': mnist_new_two,
+    'mnist': mnist_new_three,
     'action': kth_action,
     # 'bair': bair,
 }
