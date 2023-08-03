@@ -313,7 +313,7 @@ class RZTXEncoderLayer(Module):
 
         
         self.dropout1 = Dropout(dropout)
-        self.dropout2 = Dropout(dropout)
+        # self.dropout2 = Dropout(dropout)
         self.resweight = nn.Parameter(torch.Tensor([0]))
 
         if activation == "relu":
@@ -375,6 +375,5 @@ class RZTXEncoderLayer(Module):
         src2 = self.dropout(src2) + src5
         
         # src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
-        src2 = src2 * self.resweight
-        src = src + self.dropout2(src2)
+        src = src + src2 * self.resweight
         return src
