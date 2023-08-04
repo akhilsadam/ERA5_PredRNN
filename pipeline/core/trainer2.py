@@ -76,8 +76,15 @@ def test(model, test_input_handle, configs, itr):
             n+=1
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
-            test_ims_ALL.append(test_ims)
-            img_out_ALL.append(img_out)
+            if configs.weather_prediction and configs.save_output:
+                test_ims_ALL.append(test_ims.cpu().numpy())
+                img_out_ALL.append(img_out.cpu().numpy())
+                del test_ims
+                del img_out
+                torch.cuda.empty_cache()
+            else:
+                test_ims_ALL.append(test_ims)
+                img_out_ALL.append(img_out)
             
             test_input_handle.next()
 
@@ -112,8 +119,8 @@ def test(model, test_input_handle, configs, itr):
             print('trainer.test function found path:', res_path)
             
         if configs.weather_prediction:
-            A = np.stack([t.cpu().numpy() for t in test_ims_ALL])
-            B = np.stack([t.cpu().numpy() for t in img_out_ALL])
+            A = np.stack(test_ims_ALL)
+            B = np.stack(img_out_ALL)
             
         else:
             A =  torch.stack(test_ims_ALL).cpu().numpy()

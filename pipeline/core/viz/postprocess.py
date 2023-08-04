@@ -41,8 +41,13 @@ def visualize(hyp):
 
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
-        n = max([int(i.split('_')[1].split('.')[0]) for i in os.listdir(checkpoint_dir) if ('.ckpt' in i and 'best' not in i)])
-        model = f"{modelname}-{preprocessor}-{options}-{n}it" #WV_0_PC_0_EH_0_PS_1
+                
+        try: 
+            n = int(hyp.pretrain_name.split('_')[1].split('.')[0])
+            model = f"{modelname}-{preprocessor}-{options}-{n}it"
+        except:
+            n = max([int(i.split('_')[1].split('.')[0]) for i in os.listdir(checkpoint_dir) if ('.ckpt' in i and 'best' not in i)])
+            model = f"{modelname}-{preprocessor}-{options}~={n}it" #WV_0_PC_0_EH_0_PS_1
         
         result_path = f"{checkpoint_dir}test_result/"
         
