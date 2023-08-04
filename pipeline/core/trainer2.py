@@ -110,8 +110,17 @@ def test(model, test_input_handle, configs, itr):
             print('trainer.test function created path:', res_path)
         else:
             print('trainer.test function found path:', res_path)
-        np.save(os.path.join(res_path,'true_data.npy'), torch.stack(test_ims_ALL).cpu().numpy())
-        np.save(os.path.join(res_path,'pred_data.npy'), torch.stack(img_out_ALL).cpu().numpy())
+            
+        if configs.weather_prediction:
+            A = np.stack([t.cpu().numpy() for t in test_ims_ALL])
+            B = np.stack([t.cpu().numpy() for t in img_out_ALL])
+            
+        else:
+            A =  torch.stack(test_ims_ALL).cpu().numpy()
+            B =  torch.stack(img_out_ALL).cpu().numpy()
+            
+        np.save(os.path.join(res_path,'true_data.npy'), A)
+        np.save(os.path.join(res_path,'pred_data.npy'), B)
 
     if configs.upload_run:
         wandb.log({"Test mse": float(avg_mse)})
