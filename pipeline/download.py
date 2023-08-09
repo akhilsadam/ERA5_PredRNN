@@ -50,7 +50,14 @@ def run(i):
 
             paths = []
             for var in variables:
-                sname = short[var]
+                if ' ' in var:
+                    var, pressure_level = var.split(' ')[:2]
+                    location = 'reanalysis-era5-pressure-levels'
+                    sname = short[var] + '_' + pressure_level
+                else:
+                    location = 'reanalysis-era5-single-levels'
+                    pressure_level = None
+                    sname = short[var]
                 logger.info(f'Opening CDS API ... saving to {cdatadir}/{sname}.grib')
                 if kwargs['resave_data'] or not os.path.exists(f'{cdatadir}/{sname}.grib'):
 
@@ -59,7 +66,10 @@ def run(i):
                     params['year'] = str(current_year)
                     params['month'] = str(month)
                     params['variable'] = var
-                    c.retrieve('reanalysis-era5-single-levels',
+                    if pressure_level is not None:
+                        params['pressure_level'] = pressure_level
+                        
+                    c.retrieve(location,
                         params,
                         f'{cdatadir}/{sname}.grib')
 

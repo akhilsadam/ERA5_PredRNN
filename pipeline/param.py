@@ -6,7 +6,8 @@ data= \
     'variable': [
         '10m_u_component_of_wind', '10m_v_component_of_wind', '2m_temperature',
         'surface_pressure', 'total_precipitation',
-        'vertical_integral_of_potential_internal_and_latent_energy', # moist static energy 
+        # 'vertical_integral_of_potential_internal_and_latent_energy', # moist static energy (DNE)
+        'geopotential 500', # geopotential height @ 500 hPa (need a space to denote pressure level - no spaces in other variables!)
         'vertical_integral_of_potential_and_internal_energy', # dry static energy
         # will split these up and download separately
     ],

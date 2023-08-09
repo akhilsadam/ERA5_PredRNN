@@ -15,7 +15,7 @@ def convert(path, directory, logger=None, pygrib_fmt=True, final_data=None, inpu
     os.makedirs(directory, exist_ok=True)
     os.makedirs(f'{directory}/snapshots', exist_ok=True)
 
-    varnames = [normalize.short[x] for x in param.data['variable']]
+    varnames = [normalize.short[x.split(' ')[0]] for x in param.data['variable']]
     n_var = len(varnames)
     
     if pygrib_fmt:
