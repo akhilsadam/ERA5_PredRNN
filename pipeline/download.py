@@ -19,8 +19,10 @@ parser.add_argument('--save_movie', type=bool, default=False)
 parser.add_argument('--resave_data', type=bool, default=False)
 parser.add_argument('--max_processes', type=int, default=5)
 parser.add_argument('--download_only', type=bool, default=False)
+parser.add_argument('--starting_month', type=int, default=0)
 kwargs = vars(parser.parse_args())
 max_processes = kwargs['max_processes']
+mstart = kwargs['starting_month']
 
 logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler('filename.log'), logging.StreamHandler()])
@@ -44,7 +46,7 @@ def run(i):
         current_year = end_year - i
         months = param.data['month']
         variables = param.data['variable']
-        for month in months:
+        for month in months[mstart:]:
             cdatadir = f'{datadir}/CDS_{current_year}_{month}/'
             os.makedirs(cdatadir, exist_ok=True)
 
