@@ -1,8 +1,9 @@
-from core.data_provider import kth_action, mnist_new #, bair
+from core.data_provider import custom, mnist_new #, bair
 
 datasets_map = {
     'mnist': mnist_new,
-    'action': kth_action,
+    'custom': custom,
+    #'action': kth_action,
     # 'bair': bair,
 }
 
@@ -13,7 +14,7 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
     if dataset_name not in datasets_map:
         raise ValueError('Name of dataset unknown %s' % dataset_name)
     img_layers = [int(x) for x in img_layers.split(',')]
-    if dataset_name == 'mnist':
+    if dataset_name in ['mnist', 'custom'] :
         if is_testing:
             valid_data_list = valid_data_paths.split(',')
             test_input_param = {'paths': valid_data_list,
@@ -32,7 +33,10 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
             test_input_handle = datasets_map[dataset_name].InputHandle(test_input_param)
             test_input_handle.begin(do_shuffle=False)
         if is_training:
-            train_data_list = train_data_paths.split(',')
+            if isinstance(train_data_paths,list):
+                train_data_list = train_data_paths
+            else:
+                train_data_list = train_data_paths.split(',')
             # print(f"train_data_list:{train_data_list}")
             train_input_param = {'paths': train_data_list,
                                  'minibatch_size': batch_size,

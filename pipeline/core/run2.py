@@ -243,9 +243,12 @@ class run2:
             if len(train_data_files) > 0:
                 print(f"train_data_files nums: {len(train_data_files)}")
                 eta = args.sampling_start_value
-                random.shuffle(train_data_files)
-                curr_pos = 0
-                curr_train_path = train_data_files[curr_pos]
+                if args.dataset_name == 'custom':
+                    curr_train_path = train_data_files
+                else:
+                    random.shuffle(train_data_files)
+                    curr_pos = 0
+                    curr_train_path = train_data_files[curr_pos]
                 test_input_handle = datasets_factory.data_provider(
                             args.dataset_name, curr_train_path, 
                             args.valid_data_paths, 
