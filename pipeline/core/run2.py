@@ -235,43 +235,47 @@ class run2:
             if args.pretrained_model and os.path.exists(args.pretrained_model):
                 model.load(args.pretrained_model)
             model.network.train()
+            curr_pos = 0
             real_input_flag = np.zeros((args.batch_size, args.total_length-1-1, 1, 1, 1))
             real_input_flag[:, :args.input_length - 1, :, :] = 1.0
             train_data_files = args.train_data_paths.split(',')
-            for file in train_data_files:
-                print(file)
-            if len(train_data_files) > 0:
-                print(f"train_data_files nums: {len(train_data_files)}")
-                eta = args.sampling_start_value
-                if args.dataset_name == 'custom':
-                    curr_train_path = train_data_files
-                else:
+            # for file in train_data_files:
+            #     print(file)
+            
+            slow = args.dataset_name != 'custom'
+            
+            if slow:
+                print(train_data_files)
+                if len(train_data_files) > 0:
+                    print(f"train_data_files nums: {len(train_data_files)}")
+                    eta = args.sampling_start_value
                     random.shuffle(train_data_files)
                     curr_pos = 0
                     curr_train_path = train_data_files[curr_pos]
-                test_input_handle = datasets_factory.data_provider(
-                            args.dataset_name, curr_train_path, 
-                            args.valid_data_paths, 
-                            args.test_batch_size, args.img_height, 
-                            args.img_width,
-                            seq_length=args.total_length, 
-                            injection_action=args.injection_action, 
-                            concurent_step=args.concurent_step,
-                            img_channel=args.img_channel, img_layers=args.img_layers,
-                            is_testing=True, is_training=False, is_WV=args.is_WV)
-                train_input_handle = datasets_factory.data_provider(
-                            args.dataset_name, curr_train_path, 
-                            args.valid_data_paths, 
-                            args.batch_size, args.img_height, 
-                            args.img_width,
-                            seq_length=args.total_length, 
-                            injection_action=args.injection_action, 
-                            concurent_step=args.concurent_step,
-                            img_channel=args.img_channel, img_layers=args.img_layers,
-                            is_testing=False, is_training=True, is_WV=args.is_WV)
+                    test_input_handle = datasets_factory.data_provider(
+                                args.dataset_name, curr_train_path, 
+                                args.valid_data_paths, 
+                                args.test_batch_size, args.img_height, 
+                                args.img_width,
+                                seq_length=args.total_length, 
+                                injection_action=args.injection_action, 
+                                concurent_step=args.concurent_step,
+                                img_channel=args.img_channel, img_layers=args.img_layers,
+                                is_testing=True, is_training=False, is_WV=args.is_WV)
+                    train_input_handle = datasets_factory.data_provider(
+                                args.dataset_name, curr_train_path, 
+                                args.valid_data_paths, 
+                                args.batch_size, args.img_height, 
+                                args.img_width,
+                                seq_length=args.total_length, 
+                                injection_action=args.injection_action, 
+                                concurent_step=args.concurent_step,
+                                img_channel=args.img_channel, img_layers=args.img_layers,
+                                is_testing=False, is_training=True, is_WV=args.is_WV)
+                
                 for itr in range(1, args.max_iterations + 1):
                     for i in range(model.accumulate_batch):
-                        if train_input_handle.no_batch_left():
+                        if slow and train_input_handle.no_batch_left():
                             if curr_pos < len(train_data_files)-1:
                                 curr_pos += 1
                             else:
@@ -313,16 +317,80 @@ class run2:
                                 model.save(args.save_best_name)
                         train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
+                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
+                    
+            else:
+                # not slow
+                if 'test_input_handle' not in model.__dict__:
+                    # one time setup
+                    test_input_handle = datasets_factory.data_provider(
+                        args.dataset_name, train_data_files, 
+                        args.valid_data_paths, 
+                        args.test_batch_size, args.img_height, 
+                        args.img_width,
+                        seq_length=args.total_length, 
+                        injection_action=args.injection_action, 
+                        concurent_step=args.concurent_step,
+                        img_channel=args.img_channel, img_layers=args.img_layers,
+                        is_testing=True, is_training=False, is_WV=args.is_WV)
+                    train_input_handle = datasets_factory.data_provider(
+                        args.dataset_name, train_data_files, 
+                        args.valid_data_paths, 
+                        args.batch_size, args.img_height, 
+                        args.img_width,
+                        seq_length=args.total_length, 
+                        injection_action=args.injection_action, 
+                        concurent_step=args.concurent_step,
+                        img_channel=args.img_channel, img_layers=args.img_layers,
+                        is_testing=False, is_training=True, is_WV=args.is_WV)
+                    model.test_input_handle = test_input_handle
+                    model.train_input_handle = train_input_handle
+                    
+                    
+                test_input_handle = model.test_input_handle
+                train_input_handle = model.train_input_handle
+                
+                for itr in range(1, args.max_iterations + 1):
+                    for i in range(model.accumulate_batch):
+                        
+                        ims = train_input_handle.get_batch()
+                        ims = ims[:,:,:args.img_channel,:,:]
+                        
+                        # if args.reverse_scheduled_sampling == 1:
+                        #     real_input_flag = reserve_schedule_sampling_exp(itr)
+                        # else:
+                        #     eta, real_input_flag = schedule_sampling(eta, itr)
+                        lossargs = trainer.train(model, ims, real_input_flag, args, itr)
+                    
+                        if itr % args.snapshot_interval == 0:
+                            model.save(itr)
+
+                        if itr % args.test_interval == 0:
+                            test_input_handle.begin(do_shuffle=False)
+                            test_err = trainer.test(model, test_input_handle, args, 'test_result')
+                            print('current test mse: '+str(np.round(test_err,6)))
+                            if test_err < args.curr_best_mse:
+                                print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
+                                args.curr_best_mse = test_err
+                                model.save(args.save_best_name)
+                        train_input_handle.next()
+                    trainer.update(model, *lossargs, args, itr)
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
                         
 
         def test_wrapper(model):
             model.load(args.pretrained_model)
-            test_input_handle = datasets_factory.data_provider(
-                args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, args.img_width,
-                seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
-                img_channel = args.img_channel,img_layers = args.img_layers,
-                is_testing=True,is_training=False,is_WV=args.is_WV)
+            slow = args.dataset_name != 'custom'
+            
+            if 'test_input_handle' not in model.__dict__ or slow:
+                # one time setup
+                test_input_handle = datasets_factory.data_provider(
+                    args.dataset_name, args.train_data_paths, args.valid_data_paths, args.batch_size, args.img_height, args.img_width,
+                    seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
+                    img_channel = args.img_channel,img_layers = args.img_layers,
+                    is_testing=True,is_training=False,is_WV=args.is_WV)
+                model.test_input_handle = test_input_handle
+                
             test_err = trainer.test(model, test_input_handle, args, 'test_result')
             print(f"The test mse is {test_err}")
 

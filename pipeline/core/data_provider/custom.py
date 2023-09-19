@@ -50,7 +50,7 @@ class DataUnit:
     def connect(self,i):
         # connect data unit to a particular file
         self.cpath=self.paths[i]
-        self.clpath=self.cpath.split('/')[-2][:8]
+        self.clpath=self.cpath.split('/')[-2]#[:8]
         logger.info(f"\tDataUnit {self.id} connected to {self.clpath} or index {i}")
     
     def allocate(self, k):
@@ -80,6 +80,8 @@ class DataUnit:
         
 
 def make_valid(paths):
+    logger.info("*************************************************")
+    logger.info(f"Making valid paths from {paths}")
     cp = []
     for i in range(len(paths)):
         if paths[i].endswith('.npz'):
@@ -89,6 +91,8 @@ def make_valid(paths):
                 pass
             else:
                 cp.append(paths[i])
+    logger.info(f"Valid paths: {cp}")
+    logger.info("*************************************************")
     return cp
 
 
@@ -103,6 +107,11 @@ class DataBatch(torch.utils.data.Dataset):
         self.name = name
         
         self.load()
+        
+        
+        # if self.batch_size > len(self.paths):
+        #     logger.warning(f"Batch size {self.batch_size} must be less than number of paths {len(self.paths)}")
+        #     self.batch_size = len(self.paths)
         
         # shape data is [frame, channel, height, width]
         self.max_batches = min([s[0] for s in self.shapes]) - self.total_length + 1 # exclusive
@@ -126,6 +135,7 @@ class DataBatch(torch.utils.data.Dataset):
         # connect and allocate if starting new dataset
         if self.step == 0:
             # get index
+            # logger.info(self.paths)
             logger.info(f"High = {len(self.paths)}")
             index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
             # TODO make striated (skip used indices)
