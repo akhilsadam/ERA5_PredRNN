@@ -79,7 +79,7 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     for i in range(test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
-            
+            print(f"test_ims shape: {test_ims.shape}")
             
             test_ims = torch.FloatTensor(test_ims).to(configs.device)
             output_length = configs.total_length - configs.input_length

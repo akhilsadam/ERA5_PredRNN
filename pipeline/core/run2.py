@@ -394,9 +394,9 @@ class run2:
                     is_testing=True,is_training=False,is_WV=args.is_WV)
                 model.test_input_handle = test_input_handle
                 
-            print("#########################################+++++++++++++++++++")
-            print(test_input_handle.paths)
-            print(test_input_handle.dataset.batch_size)
+            # print("#########################################+++++++++++++++++++")
+            # print(test_input_handle.paths)
+            # print(test_input_handle.dataset.batch_size)
             
                 
             test_err = trainer.test(model, test_input_handle, args, 'test_result', last)
