@@ -396,6 +396,7 @@ class run2:
                 
             print("#########################################+++++++++++++++++++")
             print(test_input_handle.paths)
+            print(test_input_handle.dataset.batch_size)
             
                 
             test_err = trainer.test(model, test_input_handle, args, 'test_result', last)
