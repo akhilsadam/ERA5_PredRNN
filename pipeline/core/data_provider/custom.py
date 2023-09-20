@@ -40,11 +40,14 @@ class DataUnit:
         
         
         # note last batch is skipped
-        self.data = torch.empty((prefetch_size * total_length, img_channel1, shapes[0][2], shapes[0][3]), dtype=torch.float32)
+        self.dsize = (prefetch_size+1) * total_length 
+        logger.info(f"DataUnit {self.id} created with size: {self.dsize}")
+        self.data = torch.empty((self.dsize, img_channel1, shapes[0][2], shapes[0][3]), dtype=torch.float32)
         self.start_index = 0
         self.up_index = -total_length # update index (for the next batch)
         
     def get_index(self, gpu_index=0):
+        # logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}")
         return (self.start_index + gpu_index) % self.max_batches # this is data index, for a gpu index < max_batches.
         
     def connect(self,i):
@@ -57,25 +60,32 @@ class DataUnit:
         # prefetch all at once, starting from image k... (gpu_index is set to 0 at this point)
         self.start_index = k
         self.data = torch.from_numpy(
-            np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.prefetch_size*self.total_length, self.img_layers, :, :]
+            np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :]
             ).to(torch.float32)
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
         
         gc.collect()
         
     def update(self, gpu_index):
+        
+        # move start_index
+        self.start_index += self.total_length * (self.prefetch_size + 1)
+        self.start_index %= (self.max_batches - self.prefetch_size * self.total_length)
+        
         # update data unit with new data, starting from image gpu_index... when gpu_index % total_length == 0 and this is not immediately after allocate
-        set_index = gpu_index - self.total_length
-        cu_index = self.get_index(gpu_index) - self.total_length
+        set_index = gpu_index
+        cu_index = self.get_index(gpu_index)
         torch.roll(self.data,set_index,dims=0)[:self.total_length] = torch.from_numpy(
             np.roll(np.load(self.cpath, mmap_mode='r')["input_raw_data"],cu_index,axis=0)[:self.total_length, self.img_layers, :, :]
             ).to(torch.float32)
         
-        logger.info(f"\tDataUnit {self.id} updated from {self.clpath}:{set_index}:{self.total_length+set_index} <- {cu_index}:{cu_index+self.total_length}")
+
+        
+        logger.info(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) updated from {self.clpath}: ({cu_index}:{cu_index+self.total_length})")
         
     def get(self, gpu_index):
         # get data unit, starting from image gpu_index... when gpu_index % total_length == 0
-        logger.info(f"\tDataUnit {self.id} GET from {self.clpath}:{gpu_index}:{self.total_length+gpu_index}")
+        logger.info(f"\tDataUnit {self.id} GET from buffer:{gpu_index}:{(self.total_length+gpu_index) % self.dsize} or {self.clpath}:{self.get_index(gpu_index)}:{self.get_index(gpu_index)+self.total_length}")
         return torch.roll(self.data,gpu_index,dims=0)[:self.total_length]
         
 
@@ -165,7 +175,7 @@ class DataBatch(torch.utils.data.Dataset):
             
         # step after all units (every batch)
         if self.unit_selector == 0:
-            self.gpu_index = (self.gpu_index + 1) % (self.total_length*self.prefetch_size)
+            self.gpu_index = (self.gpu_index + 1) % (self.total_length*(self.prefetch_size+1))
             self.step = (self.step + 1) % self.max_batches
             logger.info(f"Step {self.step} of {self.max_batches}")
         
@@ -174,7 +184,7 @@ class DataBatch(torch.utils.data.Dataset):
             # print(self.gpu_index // self.total_length + 1)
             # async updating
             logger.info(f"Starting update thread {self.gpu_index // self.total_length + 1}")
-            t = threading.Thread(target=unit.update, args=(self.gpu_index,) )
+            t = threading.Thread(target=unit.update, args=((self.gpu_index - self.total_length) % (self.total_length*(self.prefetch_size+1)),) )
             t.start()
             self.threads.append(t)
             
@@ -219,7 +229,7 @@ class InputHandle:
             self.img_channel1 = input_param['img_channel']
 
         self.total_length = input_param['total_length']
-        self.prefetch_size = input_param.get('prefetch_size', 1) # holds CPU pinned memory of size 2x a single GPU minibatch (timeseries sample) per DataUnit
+        self.prefetch_size = input_param.get('prefetch_size', 1) # holds CPU pinned memory of size prefetch+1 x a single GPU minibatch (timeseries sample) per DataUnit
         
         testing = input_param.get('testing', False)
         
