@@ -612,13 +612,13 @@ def operate_loop(hyp, device):
         concurrency = f'--save_dir {checkpoint_dir}'
         train_int = '1'
         test_batch = '9'
-        test_iterations = 100; # number of test iterations to run
+        test_iterations = 10; # number of test iterations to run
     else:
         save = ''
         concurrency = '--concurent_step 1' # not sure what this does - keep it off for now
         train_int = '0'
         test_batch = '9'
-        test_iterations = 200; # number of test iterations to run
+        test_iterations = 10; # number of test iterations to run
 
     batch = '3'
     if hyp.pretrain_name is None:

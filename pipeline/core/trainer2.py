@@ -42,7 +42,7 @@ def update(model, cost,c2,c3, configs, itr):
         print('training loss: ' + str(cost))
 
 
-def test(model, test_input_handle, configs, itr):
+def test(model, test_input_handle, configs, itr, last_test=False):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
     
     memory_saving = True # configs.weather_prediction
@@ -64,7 +64,19 @@ def test(model, test_input_handle, configs, itr):
     img_out_ALL = []
     avg_mse = 0
     n = 0
-    for i in range(configs.test_iterations):
+    
+    test_iterations = configs.test_iterations
+    
+    if last_test:
+        try:
+            mab = test_input_handle.get_max_batches()
+            test_input_handle.reset_for_full_test()
+        except:
+            pass
+        else:
+            test_iterations = mab
+    
+    for i in range(test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
             
@@ -113,7 +125,7 @@ def test(model, test_input_handle, configs, itr):
     # print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
     # test_input_handle.next()
 
-    if configs.save_output:
+    if last_test and configs.save_output:
         res_path = os.path.join(configs.gen_frm_dir, str(itr))
         if not os.path.exists(res_path):
             os.makedirs(res_path)

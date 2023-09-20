@@ -375,10 +375,13 @@ class run2:
                                 model.save(args.save_best_name)
                         train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
+                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
+                    
+            print('Training done')
+            test_wrapper(model, last=True) 
                         
 
-        def test_wrapper(model):
+        def test_wrapper(model, last=False):
             model.load(args.pretrained_model)
             slow = args.dataset_name != 'custom'
             
@@ -391,7 +394,7 @@ class run2:
                     is_testing=True,is_training=False,is_WV=args.is_WV)
                 model.test_input_handle = test_input_handle
                 
-            test_err = trainer.test(model, test_input_handle, args, 'test_result')
+            test_err = trainer.test(model, test_input_handle, args, 'test_result', last)
             print(f"The test mse is {test_err}")
 
 

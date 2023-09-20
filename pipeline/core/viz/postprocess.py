@@ -5,8 +5,22 @@ import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.ticker as mticker
 import traceback
+import zipfile
 
 import normalize
+
+custom = True
+
+
+def get_shape(path):
+    with zipfile.ZipFile(path) as archive:
+        for name in archive.namelist():
+            if name.endswith('input_raw_data.npy'):
+                npy = archive.open(name)
+                version = np.lib.format.read_magic(npy)
+                shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
+                break
+    return shape
 
 def visualize(hyp):
     user=os.popen('whoami').read().replace('\n','')
@@ -15,7 +29,9 @@ def visualize(hyp):
         modelname = hyp.model_name
         preprocessor = hyp.preprocessor_name
         input_length = int(hyp.input_length)
+        total_length = int(hyp.total_length)
         assert input_length > 0
+        assert total_length > input_length
 
 
         spec = importlib.util.spec_from_file_location("module.name", f'./user/{user}_param.py')
@@ -23,9 +39,11 @@ def visualize(hyp):
         sys.modules["module.name"] = userparam
         spec.loader.exec_module(userparam)
         
+        datadir = userparam.param['data_dir']
+        folders = os.listdir(datadir)
+        
         if hyp.weather_prediction:        
-            datadir = userparam.param['data_dir']
-            folders = os.listdir(datadir)
+
             header = 'CDS'
             # get first folder with header
             path = [f for f in folders if header in f][0]
@@ -38,7 +56,19 @@ def visualize(hyp):
             varnames = [normalize.short[x] for x in genparam.data['variable']]
         else:
             varnames = [f'var {x}' for x in range(5)]
-
+            
+            header = 'PDE'
+            # get first folder with header
+            path = [f for f in folders if header in f][0]
+            fullpath = f'{datadir}/{path}'
+            
+        # data_shape = get_shape(f'{fullpath}/data.npz')
+        
+        # # shape is (time, var, x, y)
+        # n_in_batch = data_shape[0] - total_length + 1
+        # n_batch = hyp.n_valid
+        
+        
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
                 

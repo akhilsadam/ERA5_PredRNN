@@ -97,7 +97,7 @@ def make_valid(paths):
 
 
 class DataBatch(torch.utils.data.Dataset):
-    def __init__(self, name, paths, total_length, img_channel1, img_layers, prefetch_size, batch_size):
+    def __init__(self, name, paths, total_length, img_channel1, img_layers, prefetch_size, batch_size, testing):
         self.paths = make_valid(paths)
         self.total_length = total_length
         self.img_channel1 = img_channel1
@@ -109,6 +109,12 @@ class DataBatch(torch.utils.data.Dataset):
         self.load()
         
         
+        if testing:
+            logger.info("Testing, setting batch size to match number of paths")
+            self.batch_size = len(self.paths)
+            self.path_index = 0
+        self.testing = testing
+        self.ordered_testing = False
         # if self.batch_size > len(self.paths):
         #     logger.warning(f"Batch size {self.batch_size} must be less than number of paths {len(self.paths)}")
         #     self.batch_size = len(self.paths)
@@ -124,6 +130,14 @@ class DataBatch(torch.utils.data.Dataset):
         self.step = 0
         self.threads = []
         
+    def reset_for_full_test(self):
+        self.path_index = 0
+        self.ordered_testing = True
+        self.unit_selector = 0
+        self.gpu_index = 0
+        self.step = 0
+        self.threads = []    
+        
     def __len__(self):
         return self.max_batches
     
@@ -137,7 +151,11 @@ class DataBatch(torch.utils.data.Dataset):
             # get index
             # logger.info(self.paths)
             logger.info(f"High = {len(self.paths)}")
-            index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
+            if self.ordered_testing:
+                index = self.path_index
+                self.path_index = (self.path_index + 1) % len(self.paths)
+            else:
+                index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
             # TODO make striated (skip used indices)
             unit.connect(index)
             unit.allocate(index)
@@ -203,8 +221,15 @@ class InputHandle:
         self.total_length = input_param['total_length']
         self.prefetch_size = input_param.get('prefetch_size', 1) # holds CPU pinned memory of size 2x a single GPU minibatch (timeseries sample) per DataUnit
         
+        testing = input_param.get('testing', False)
         
-        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size)       
+        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size, testing)       
+        
+    def get_max_batches(self):
+        return self.dataset.max_batches
+    
+    def reset_for_full_test(self):
+        self.dataset.reset_for_full_test()
 
     def total(self):
         return self.dataset.total
