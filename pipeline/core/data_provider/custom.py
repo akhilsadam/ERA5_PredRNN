@@ -235,7 +235,7 @@ class InputHandle:
         return self.dataset.total
 
     def begin(self, do_shuffle=True):
-        self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.batch_size, shuffle = do_shuffle)
+        self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.dataset.batch_size, shuffle = do_shuffle)
 
     def next(self):
         pass
