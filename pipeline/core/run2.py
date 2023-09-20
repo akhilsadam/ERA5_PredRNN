@@ -381,7 +381,7 @@ class run2:
             test_wrapper(model, last=True) 
                         
 
-        def test_wrapper(model, last=False):
+        def test_wrapper(model, last=True):
             model.load(args.pretrained_model)
             slow = args.dataset_name != 'custom'
             
@@ -393,6 +393,8 @@ class run2:
                     img_channel = args.img_channel,img_layers = args.img_layers,
                     is_testing=True,is_training=False,is_WV=args.is_WV)
                 model.test_input_handle = test_input_handle
+                
+            
                 
             test_err = trainer.test(model, test_input_handle, args, 'test_result', last)
             print(f"The test mse is {test_err}")
