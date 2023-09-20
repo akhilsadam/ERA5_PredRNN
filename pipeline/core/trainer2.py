@@ -44,6 +44,9 @@ def update(model, cost,c2,c3, configs, itr):
 
 def test(model, test_input_handle, configs, itr):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
+    
+    memory_saving = True # configs.weather_prediction
+    
     # reverse schedule sampling
     if configs.reverse_scheduled_sampling == 1:
         mask_input = 1
@@ -76,7 +79,7 @@ def test(model, test_input_handle, configs, itr):
             n+=1
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
-            if configs.weather_prediction and configs.save_output:
+            if memory_saving and configs.save_output:
                 test_ims_ALL.append(test_ims.cpu().numpy())
                 img_out_ALL.append(img_out.cpu().numpy())
                 del test_ims
@@ -118,7 +121,10 @@ def test(model, test_input_handle, configs, itr):
         else:
             print('trainer.test function found path:', res_path)
             
-        if configs.weather_prediction:
+        if memory_saving:
+            # print("saving test results to:", res_path)
+            # import gc
+            # gc.collect()
             A = np.stack(test_ims_ALL)
             B = np.stack(img_out_ALL)
             
@@ -126,9 +132,10 @@ def test(model, test_input_handle, configs, itr):
             A =  torch.stack(test_ims_ALL).cpu().numpy()
             B =  torch.stack(img_out_ALL).cpu().numpy()
             
+        print(f"A shape: {A.shape}, B shape: {B.shape}")
         np.save(os.path.join(res_path,'true_data.npy'), A)
         np.save(os.path.join(res_path,'pred_data.npy'), B)
-
+        print('saved test results to:', res_path)
     if configs.upload_run:
         wandb.log({"Test mse": float(avg_mse)})
     return avg_mse

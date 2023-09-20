@@ -13,7 +13,7 @@ logging.basicConfig(filename="data_provider.log",
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-logger = logging.getLogger('CustomDataProvider')
+logger = logging.getLogger('CDP')
 # logger.setLevel(logging.CRITICAL) # to disable logging
 
 def get_shape(path):
@@ -50,7 +50,7 @@ class DataUnit:
     def connect(self,i):
         # connect data unit to a particular file
         self.cpath=self.paths[i]
-        self.clpath=self.cpath.split('/')[-2]#[:8]
+        self.clpath=self.cpath.split('/')[-2][:12]
         logger.info(f"\tDataUnit {self.id} connected to {self.clpath} or index {i}")
     
     def allocate(self, k):
