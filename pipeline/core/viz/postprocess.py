@@ -104,7 +104,9 @@ def visualize(hyp):
             # stepi =34
 
             bs = gt.shape[0] * gt.shape[1]
-            bts = np.arange(0,bs-0.9,3).astype(int)
+            # bts = np.arange(0,bs-0.9,3).astype(int)
+            # linspace instead at 5 points
+            bts = np.linspace(0,bs-0.9,5).astype(int)
             sps = [0,5,25,30,38]
 
             variables = gt.shape[3]
