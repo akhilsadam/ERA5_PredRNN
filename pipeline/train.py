@@ -59,7 +59,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 401
+hyp.max_iterations = 1001
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]
