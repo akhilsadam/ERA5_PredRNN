@@ -45,9 +45,10 @@ class DataUnit:
         self.data = torch.empty((self.dsize, img_channel1, shapes[0][2], shapes[0][3]), dtype=torch.float32)
         self.start_index = 0
         self.up_index = -total_length # update index (for the next batch)
+        self.recently_allocated = False
         
     def get_index(self, gpu_index=0):
-        # logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}")
+        logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}, start_index: {self.start_index}")
         return (self.start_index + gpu_index) % self.max_batches # this is data index, for a gpu index < max_batches.
         
     def connect(self,i):
@@ -63,25 +64,34 @@ class DataUnit:
             np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :]
             ).to(torch.float32)
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
+        self.recently_allocated = True
         
         gc.collect()
         
     def update(self, gpu_index):
         
+        save_index = self.start_index
+        
         # move start_index
-        self.start_index += self.total_length * (self.prefetch_size + 1)
+        self.start_index += self.total_length
         self.start_index %= (self.max_batches - self.prefetch_size * self.total_length)
         
         # update data unit with new data, starting from image gpu_index... when gpu_index % total_length == 0 and this is not immediately after allocate
         set_index = gpu_index
-        cu_index = self.get_index(gpu_index)
+        cu_index = self.get_index(gpu_index + self.total_length)
         torch.roll(self.data,set_index,dims=0)[:self.total_length] = torch.from_numpy(
             np.roll(np.load(self.cpath, mmap_mode='r')["input_raw_data"],cu_index,axis=0)[:self.total_length, self.img_layers, :, :]
             ).to(torch.float32)
-        
 
         
         logger.info(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) updated from {self.clpath}: ({cu_index}:{cu_index+self.total_length})")
+        
+        # move start index back to current image
+        if self.recently_allocated:
+            self.recently_allocated = False
+            self.start_index -= self.total_length
+        else:
+            self.start_index = save_index
         
     def get(self, gpu_index):
         # get data unit, starting from image gpu_index... when gpu_index % total_length == 0
@@ -130,7 +140,7 @@ class DataBatch(torch.utils.data.Dataset):
         #     self.batch_size = len(self.paths)
         
         # shape data is [frame, channel, height, width]
-        self.max_batches = min([s[0] for s in self.shapes]) - self.total_length + 1 # exclusive
+        self.max_batches = min([s[0] for s in self.shapes]) - self.total_length - 1 # exclusive
         self.units = [DataUnit(paths, self.shapes, prefetch_size, img_channel1, img_layers, total_length, self.max_batches) for _ in range(self.batch_size)]
         
         self.total = self.max_batches * len(self.paths)

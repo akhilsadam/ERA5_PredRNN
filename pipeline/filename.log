@@ -2722,3 +2722,33 @@
 23-07-25 10:19 cdsapi       INFO     Sending request to https://cds.climate.copernicus.eu/api/v2/resources/reanalysis-era5-single-levels
 23-07-25 10:19 cdsapi       INFO     Request is completed
 23-07-25 10:19 cdsapi       INFO     Downloading https://download-0002-clone.copernicus-climate.eu/cache-compute-0002/cache/data0/adaptor.mars.internal-1690297932.8088903-13633-3-8f3196bb-565e-4b4c-b7cf-80d5a50ddafe.grib to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/CDS_2021_02//u_wind.grib (221.8M)
+23-09-21 21:37 __main__     INFO     User: mitt-wsl
+23-09-21 21:37 __main__     INFO     UID: 2ed1b0b0-a8dd-4a5f-a41c-093334917b6f
+23-09-21 21:37 pde.tools.numba INFO     Compile `mpi_send` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `mpi_recv` with parallel=False
+23-09-21 21:37 __main__     INFO     Operating PDE API ... will save to /mnt/c/Users/sadam/Desktop/Research/PHO_Project/ERA5_PredRNN/data/PDE_2ed1b0b0-a8dd-4a5f-a41c-093334917b6f/
+23-09-21 21:37 pde          INFO     Generating data...
+23-09-21 21:37 pde.tools.numba INFO     Compile `modify_after_step` with parallel=False
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-09-21 21:37 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-09-21 21:37 pde.tools.numba INFO     Compile `diff` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-09-21 21:37 pde.tools.numba INFO     Compile `laplace` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `set_valid` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `apply_op_compiled` with parallel=False
+23-09-21 21:37 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-09-21 21:37 pde.tools.numba INFO     Compile `_heaviside_implemention` with parallel=False
+23-09-21 21:37 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-09-21 21:37 pde.tools.numba INFO     Compile `_lambdifygenerated` with parallel=False
+23-09-21 21:37 pde.tools.numba INFO     Compile `rhs_func` with parallel=False
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dx` in PDE for `c`
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `d_dy` in PDE for `c`
+23-09-21 21:37 PDE          INFO     Using boundary condition `['periodic', 'periodic']` for operator `laplace` in PDE for `c`
+23-09-21 21:37 PDE          INFO     RHS for `c` has signature ('c', 't', 'none', 'bc_args', 'x', 'y')
+23-09-21 21:37 ScalarExpression INFO     Parse sympy expression `-0.05*c*(c**2 - 1) - 0.005*d_dx(c*y, none, bc_args) + 0.005*d_dy(c*x, none, bc_args) + 0.05*laplace(c, none, bc_args)`
+23-09-21 21:38 ExplicitSolver INFO     Initialized explicit Euler stepper with dt=0.005
