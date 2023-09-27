@@ -5,6 +5,7 @@ import subprocess,argparse,sys,os,numpy as np
 import multiprocessing
 multiprocessing.set_start_method('spawn', True)
 from multiprocessing import Process, Value, Array, Lock
+import logging
 import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
@@ -143,6 +144,10 @@ def run(i, device):
     hyp.input_length = il
     hyp.project_name = project_names[i]
     hyp.opt_str = f"{hyp.opt_str}{ilstrs[i]}"
+    
+    logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler(f'run_{i}.log'), logging.StreamHandler()])
+    
     if mode < 3:
         for t,p,s in zip(tr,ptn,sal):
             hyp.training = t

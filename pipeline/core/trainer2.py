@@ -145,8 +145,13 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             B =  torch.stack(img_out_ALL).cpu().numpy()
             
         print(f"A shape: {A.shape}, B shape: {B.shape}")
-        np.save(os.path.join(res_path,'true_data.npy'), A)
-        np.save(os.path.join(res_path,'pred_data.npy'), B)
+        tdp = os.path.join(res_path,'true_data.npy')
+        pdp = os.path.join(res_path,'pred_data.npy')
+        # # touch the files to make sure they exist
+        # os.system(f"touch {tdp}")
+        # os.system(f"touch {pdp}")
+        np.save(tdp, A)
+        np.save(pdp, B)
         print('saved test results to:', res_path)
     if configs.upload_run:
         wandb.log({"Test mse": float(avg_mse)})
