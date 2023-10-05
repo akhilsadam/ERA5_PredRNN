@@ -110,6 +110,8 @@ def visualize(hyp):
             bts = np.linspace(0,bs-0.9,5).astype(int)
             sps = [0,5,25,30,38]
             # sps = list(range(39))
+            
+            cmw = jpcm.get('fuyu')
 
             variables = gt.shape[3]
             for var in range(variables):
@@ -125,13 +127,13 @@ def visualize(hyp):
 
                         fig, axs = plt.subplots(2,3, figsize=(15,10))
                         ax0 = axs[0,0]
-                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:], vmin=rm, vmax=rx)
+                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:], vmin=rm, vmax=rx, cmap=cmw)
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
                         ax0.set_title(f'GT (ERA5) {varnames[var]}')
                         ax1 = axs[0,1]
-                        im1 = ax1.imshow(pd[b,a,stepi,var,:,:], vmin=rm, vmax=rx)
+                        im1 = ax1.imshow(pd[b,a,stepi,var,:,:], vmin=rm, vmax=rx, cmap=cmw)
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
@@ -142,14 +144,14 @@ def visualize(hyp):
                         rx2 = np.max(gt[b,a,shift+stepi+1,var,:,:]-gt[b,a,shift+stepi,var,:,:])
 
                         ax0 = axs[1,0]
-                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:]-gt[b,a,shift+stepd,var,:,:], vmin=rm2, vmax=rx2)
+                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:]-gt[b,a,shift+stepd,var,:,:], vmin=rm2, vmax=rx2, cmap=cmw)
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
                         ax0.set_title(f'GT (ERA5) (change from last true) {varnames[var]}')
 
                         ax1 = axs[1,1]
-                        im1 = ax1.imshow((pd[b,a,stepi,var,:,:]-pd[b,a,stepd,var,:,:]), vmin=rm2, vmax=rx2)
+                        im1 = ax1.imshow((pd[b,a,stepi,var,:,:]-pd[b,a,stepd,var,:,:]), vmin=rm2, vmax=rx2, cmap=cmw)
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
@@ -158,7 +160,7 @@ def visualize(hyp):
                         ax2 = axs[0,2]
                         d = gt[b,a,shift+stepi,var,:,:]-pd[b,a,stepi,var,:,:]
                         d0 = gt[b,a,shift+stepi+1,var,:,:]-gt[b,a,shift+stepi,var,:,:]
-                        im2 = ax2.imshow(np.abs(d))
+                        im2 = ax2.imshow(np.abs(d), cmap=cmw)
                         divider = make_axes_locatable(ax2)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im2, cax=cax, orientation='vertical')
