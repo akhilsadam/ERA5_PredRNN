@@ -41,6 +41,7 @@ def run(i):
     userparam=importlib.import_module(f'user.{user}_param')
     datadir = userparam.param['data_dir']
     os.makedirs(datadir, exist_ok=True)
+    print(datadir)
 
     if 'year' in param.data.keys():
         current_year = end_year - i
@@ -85,6 +86,7 @@ def run(i):
                 convert.convert(paths, cdatadir, logging.getLogger('convert'), pygrib_fmt=True, **kwargs)
     else:
         cdatadir = f'{datadir}/PDE_{uid}/'
+        print(cdatadir)
         os.makedirs(cdatadir, exist_ok=True)
         gen=importlib.import_module('PDE', package='pipeline')
         

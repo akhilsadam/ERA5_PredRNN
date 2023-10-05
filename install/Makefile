@@ -10,8 +10,8 @@ venv:
 install_requirements: 
 	- apt-get install graphviz
 	@source ../venv/bin/activate
-	@pip install -r ../install/requirements.txt
-	@pip install -r ../PDE/requirements.txt
+	@pip install --no-cache-dir -r ../install/requirements.txt
+	@pip install --no-cache-dir -r ../PDE/requirements.txt
 pypath:
 	@echo "PYTHONPATH=$$PYTHONPATH:$(BASE)" >> ../venv/bin/activate
 	@echo "$$PYTHONPATH"

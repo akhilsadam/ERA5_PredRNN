@@ -27,10 +27,10 @@
 #SBATCH -p rtx          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes (must be 1 for serial)
 #SBATCH -n 1               # Total # of mpi tasks (should be 1 for serial)
-#SBATCH -t 08:00:00        # Run time (hh:mm:ss)
+#SBATCH -t 04:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
 ### #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
-#SBATCH --mail-user=akhil.sadam@utexas.edu
+#SBATCH --mail-user=ajseth@utexas.edu
 
 # Any other commands must follow all #SBATCH directives...
 module load python3/3.9.2
@@ -41,4 +41,5 @@ date
 # Launch serial code...
 source ../venv/bin/activate
 #python3 train.py -m predrnn_v2 predrnn_v2 predrnn_v2 -il 3 5 20 -pn LS6_toy1_control_predrnnTests LS6_toy1_control_predrnnTests LS6_toy1_control_predrnnTests # Do not use ibrun or any other MPI launcher
-python3 train.py -m reZeroTF predrnn_v2 BERT LSTM
+# python3 train.py -m reZeroTF predrnn_v2 BERT LSTM
+python train.py -m LSTM -pre DMD
