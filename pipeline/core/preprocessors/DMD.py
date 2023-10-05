@@ -100,6 +100,7 @@ class Preprocessor(PreprocessorBase):
             #     logger.info(f'PVE threshold {self.PVE_threshold} reached at {loc} eigenvectors.')
             # # truncate
             eigenvectors = dmd.modes
+            print(eigenvectors)
             # input transformation is a = U.T @ x, output transformation is y = U @ a
             latent_dimension = self.randomized_svd_k
             

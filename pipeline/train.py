@@ -5,6 +5,7 @@ import subprocess,argparse,sys,os,numpy as np
 import multiprocessing
 multiprocessing.set_start_method('spawn', True)
 from multiprocessing import Process, Value, Array, Lock
+import logging
 import signal, time
 ###############################################
 parser=argparse.ArgumentParser()
@@ -34,7 +35,7 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 200 # save model every n iterations
+    snapshot_interval = 1 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
@@ -59,7 +60,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 401
+hyp.max_iterations = 3001
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]
@@ -143,6 +144,10 @@ def run(i, device):
     hyp.input_length = il
     hyp.project_name = project_names[i]
     hyp.opt_str = f"{hyp.opt_str}{ilstrs[i]}"
+    
+    logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler(f'run_{i}.log'), logging.StreamHandler()])
+    
     if mode < 3:
         for t,p,s in zip(tr,ptn,sal):
             hyp.training = t

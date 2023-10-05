@@ -481,6 +481,12 @@ model_config_toy = \
             'batch_size': 16, # batch size
             'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+        },
+        'linint':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
     }
 # note predrnn_v2 does not work with any preprocessing or other options
@@ -521,6 +527,13 @@ preprocessor_config = \
         },
         'DMD':{
             'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
+            # (var is the variable name)
+            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
+            'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
+        },
+        'stdDMD':{
+            'eigenvector': lambda var: f'stdDMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
             'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
@@ -644,7 +657,7 @@ def operate_loop(hyp, device):
     --test_iterations {test_iterations} \
     {concurrency} \
     --device {device} \
-    --dataset_name custom \
+    --dataset_name mnist \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \
     {save} \
