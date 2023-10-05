@@ -161,6 +161,8 @@ class DataBatch(torch.utils.data.Dataset):
         
         self.load()
         
+        # odd issue with first batch, we will skip it
+        
         self.dsize = (prefetch_size+1) * total_length # total size of data unit
         self.base_start_index = 0
         if testing:
@@ -174,7 +176,7 @@ class DataBatch(torch.utils.data.Dataset):
         #     self.batch_size = len(self.paths)
         
         # shape data is [frame, channel, height, width]
-        self.max_batches = min([s[0] for s in self.shapes]) - self.total_length + 1 # exclusive
+        self.max_batches = min([s[0] for s in self.shapes]) - self.total_length -1# exclusive
         self.units = [DataUnit(paths, self.shapes, prefetch_size, img_channel1, img_layers, total_length, self.max_batches) for _ in range(self.batch_size)]
         
         self.total = self.max_batches * len(self.paths)
@@ -195,7 +197,7 @@ class DataBatch(torch.utils.data.Dataset):
     def __len__(self):
         return self.max_batches
     
-    def __getitem__(self, dummy_index):        
+    def get(self, dummy_index):        
         # get unit
         unit = self.units[self.unit_selector]
         self.unit_selector = (self.unit_selector + 1) % self.batch_size
@@ -211,9 +213,17 @@ class DataBatch(torch.utils.data.Dataset):
             else:
                 index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
             # TODO make striated (skip used indices)
+            
             unit.connect(index)
-            unit.allocate(self.base_start_index) # need to randomize this TODO if not testing
-            out = unit.get(self.gpu_index)
+            
+            # unit.allocate(self.base_start_index) # need to randomize this if not testing
+            
+            if self.ordered_testing:
+                unit.allocate(self.base_start_index)
+            else:
+                unit.allocate(torch.randint(low=0, high=self.max_batches//self.dsize, size=(1,)).item()*self.dsize)
+
+            out = unit.get(self.gpu_index) # discard first batch
         else:
             out = unit.get(self.gpu_index)
             
@@ -245,6 +255,11 @@ class DataBatch(torch.utils.data.Dataset):
             
         
         return out
+    
+    def __getitem__(self, dummy_index):
+        if self.step ==0:
+            self.get(dummy_index) # discard first batch
+        return self.get(dummy_index)
         
     def load(self):
         print(f"{self.name}, Loading data from {self.paths}")
