@@ -42,7 +42,7 @@ def update(model, cost,c2,c3, configs, itr):
         print('training loss: ' + str(cost))
 
 
-def test(model, test_input_handle, configs, itr):
+def test(model, test_input_handle, configs, itr, last_test=False):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
     
     memory_saving = True # configs.weather_prediction
@@ -64,10 +64,22 @@ def test(model, test_input_handle, configs, itr):
     img_out_ALL = []
     avg_mse = 0
     n = 0
-    for i in range(configs.test_iterations):
+    
+    test_iterations = configs.test_iterations
+    
+    if last_test:
+        try:
+            mab = test_input_handle.get_max_batches()
+            test_input_handle.reset_for_full_test()
+        except:
+            pass
+        else:
+            test_iterations = mab
+    
+    for i in range(test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
-            
+            # print(f"test_ims shape: {test_ims.shape}")
             
             test_ims = torch.FloatTensor(test_ims).to(configs.device)
             output_length = configs.total_length - configs.input_length
@@ -113,7 +125,7 @@ def test(model, test_input_handle, configs, itr):
     # print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
     # test_input_handle.next()
 
-    if configs.save_output:
+    if last_test and configs.save_output:
         res_path = os.path.join(configs.gen_frm_dir, str(itr))
         if not os.path.exists(res_path):
             os.makedirs(res_path)
@@ -133,8 +145,13 @@ def test(model, test_input_handle, configs, itr):
             B =  torch.stack(img_out_ALL).cpu().numpy()
             
         print(f"A shape: {A.shape}, B shape: {B.shape}")
-        np.save(os.path.join(res_path,'true_data.npy'), A)
-        np.save(os.path.join(res_path,'pred_data.npy'), B)
+        tdp = os.path.join(res_path,'true_data.npy')
+        pdp = os.path.join(res_path,'pred_data.npy')
+        # # touch the files to make sure they exist
+        # os.system(f"touch {tdp}")
+        # os.system(f"touch {pdp}")
+        np.save(tdp, A)
+        np.save(pdp, B)
         print('saved test results to:', res_path)
     if configs.upload_run:
         wandb.log({"Test mse": float(avg_mse)})

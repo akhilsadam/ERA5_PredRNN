@@ -375,11 +375,15 @@ class run2:
                                 model.save(args.save_best_name)
                         train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")    
+                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
+                    
+            print('Training done')
+            test_wrapper(model, last=True, load=False) 
                         
 
-        def test_wrapper(model):
-            model.load(args.pretrained_model)
+        def test_wrapper(model, last=True, load=True):
+            if load:
+                model.load(args.pretrained_model)
             slow = args.dataset_name != 'custom'
             
             if 'test_input_handle' not in model.__dict__ or slow:
@@ -389,9 +393,15 @@ class run2:
                     seq_length=args.total_length, injection_action=args.injection_action, concurent_step=args.concurent_step,
                     img_channel = args.img_channel,img_layers = args.img_layers,
                     is_testing=True,is_training=False,is_WV=args.is_WV)
-                model.test_input_handle = test_input_handle
+            else:
+                test_input_handle = model.test_input_handle
                 
-            test_err = trainer.test(model, test_input_handle, args, 'test_result')
+            # print("#########################################+++++++++++++++++++")
+            # print(test_input_handle.paths)
+            # print(test_input_handle.dataset.batch_size)
+            
+                
+            test_err = trainer.test(model, test_input_handle, args, 'test_result', last)
             print(f"The test mse is {test_err}")
 
 

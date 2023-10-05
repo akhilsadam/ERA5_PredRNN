@@ -528,7 +528,7 @@ preprocessor_config = \
         'DMD':{
             'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
-            'make_eigenvector': False, # whether to compute eigenvectors or not (only needs to be done once)
+            'make_eigenvector': True, # whether to compute eigenvectors or not (only needs to be done once)
             'max_n_eigenvectors': 100, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
         },
@@ -625,13 +625,13 @@ def operate_loop(hyp, device):
         concurrency = f'--save_dir {checkpoint_dir}'
         train_int = '1'
         test_batch = '9'
-        test_iterations = 100; # number of test iterations to run
+        test_iterations = 10; # number of test iterations to run
     else:
         save = ''
         concurrency = '--concurent_step 1' # not sure what this does - keep it off for now
         train_int = '0'
         test_batch = '9'
-        test_iterations = 200; # number of test iterations to run
+        test_iterations = 10; # number of test iterations to run
 
     batch = '3'
     if hyp.pretrain_name is None:

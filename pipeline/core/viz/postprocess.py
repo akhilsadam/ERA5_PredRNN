@@ -5,8 +5,22 @@ import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.ticker as mticker
 import traceback
+import zipfile
 
 import normalize
+
+custom = True
+
+
+def get_shape(path):
+    with zipfile.ZipFile(path) as archive:
+        for name in archive.namelist():
+            if name.endswith('input_raw_data.npy'):
+                npy = archive.open(name)
+                version = np.lib.format.read_magic(npy)
+                shape, fortran, dtype = np.lib.format._read_array_header(npy, version)
+                break
+    return shape
 
 def visualize(hyp):
     user=os.popen('whoami').read().replace('\n','')
@@ -15,7 +29,9 @@ def visualize(hyp):
         modelname = hyp.model_name
         preprocessor = hyp.preprocessor_name
         input_length = int(hyp.input_length)
+        total_length = int(hyp.total_length)
         assert input_length > 0
+        assert total_length > input_length
 
 
         spec = importlib.util.spec_from_file_location("module.name", f'./user/{user}_param.py')
@@ -23,9 +39,11 @@ def visualize(hyp):
         sys.modules["module.name"] = userparam
         spec.loader.exec_module(userparam)
         
+        datadir = userparam.param['data_dir']
+        folders = os.listdir(datadir)
+        
         if hyp.weather_prediction:        
-            datadir = userparam.param['data_dir']
-            folders = os.listdir(datadir)
+
             header = 'CDS'
             # get first folder with header
             path = [f for f in folders if header in f][0]
@@ -38,7 +56,19 @@ def visualize(hyp):
             varnames = [normalize.short[x] for x in genparam.data['variable']]
         else:
             varnames = [f'var {x}' for x in range(5)]
-
+            
+            header = 'PDE'
+            # get first folder with header
+            path = [f for f in folders if header in f][0]
+            fullpath = f'{datadir}/{path}'
+            
+        # data_shape = get_shape(f'{fullpath}/data.npz')
+        
+        # # shape is (time, var, x, y)
+        # n_in_batch = data_shape[0] - total_length + 1
+        # n_batch = hyp.n_valid
+        
+        
         options=hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
                 
@@ -74,8 +104,14 @@ def visualize(hyp):
             # stepi =34
 
             bs = gt.shape[0] * gt.shape[1]
-            bts = np.arange(0,bs-0.9,3).astype(int)
+            # bts = [0]
+            # bts = np.arange(0,bs-0.9,1).astype(int)
+            # linspace instead at 5 points
+            bts = np.linspace(0,bs-0.9,5).astype(int)
             sps = [0,5,25,30,38]
+            # sps = list(range(39))
+            
+            cmw = jpcm.get('fuyu')
 
             variables = gt.shape[3]
             for var in range(variables):
@@ -91,13 +127,13 @@ def visualize(hyp):
 
                         fig, axs = plt.subplots(2,3, figsize=(15,10))
                         ax0 = axs[0,0]
-                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:], vmin=rm, vmax=rx)
+                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:], vmin=rm, vmax=rx, cmap=cmw)
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
                         ax0.set_title(f'GT (ERA5) {varnames[var]}')
                         ax1 = axs[0,1]
-                        im1 = ax1.imshow(pd[b,a,stepi,var,:,:], vmin=rm, vmax=rx)
+                        im1 = ax1.imshow(pd[b,a,stepi,var,:,:], vmin=rm, vmax=rx, cmap=cmw)
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
@@ -108,14 +144,14 @@ def visualize(hyp):
                         rx2 = np.max(gt[b,a,shift+stepi+1,var,:,:]-gt[b,a,shift+stepi,var,:,:])
 
                         ax0 = axs[1,0]
-                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:]-gt[b,a,shift+stepd,var,:,:], vmin=rm2, vmax=rx2)
+                        im0 = ax0.imshow(gt[b,a,shift+stepi,var,:,:]-gt[b,a,shift+stepd,var,:,:], vmin=rm2, vmax=rx2, cmap=cmw)
                         divider = make_axes_locatable(ax0)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im0, cax=cax, orientation='vertical')
                         ax0.set_title(f'GT (ERA5) (change from last true) {varnames[var]}')
 
                         ax1 = axs[1,1]
-                        im1 = ax1.imshow((pd[b,a,stepi,var,:,:]-pd[b,a,stepd,var,:,:]), vmin=rm2, vmax=rx2)
+                        im1 = ax1.imshow((pd[b,a,stepi,var,:,:]-pd[b,a,stepd,var,:,:]), vmin=rm2, vmax=rx2, cmap=cmw)
                         divider = make_axes_locatable(ax1)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im1, cax=cax, orientation='vertical')
@@ -124,7 +160,7 @@ def visualize(hyp):
                         ax2 = axs[0,2]
                         d = gt[b,a,shift+stepi,var,:,:]-pd[b,a,stepi,var,:,:]
                         d0 = gt[b,a,shift+stepi+1,var,:,:]-gt[b,a,shift+stepi,var,:,:]
-                        im2 = ax2.imshow(np.abs(d))
+                        im2 = ax2.imshow(np.abs(d), cmap=cmw)
                         divider = make_axes_locatable(ax2)
                         cax = divider.append_axes('right', size='5%', pad=0.05)
                         fig.colorbar(im2, cax=cax, orientation='vertical')
