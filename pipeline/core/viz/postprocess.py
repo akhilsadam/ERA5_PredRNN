@@ -111,7 +111,7 @@ def visualize(hyp):
             sps = [0,5,25,30,38]
             # sps = list(range(39))
             
-            cmw = jpcm.get('fuyu')
+            cmw = jpcm.get('desert')
 
             variables = gt.shape[3]
             for var in range(variables):

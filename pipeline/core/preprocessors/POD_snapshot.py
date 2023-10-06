@@ -15,22 +15,41 @@ from .base import PreprocessorBase
 
 logger = logging.getLogger('POD_by_snapshot-preprocessor')
 
-def simple_randomized_torch_svd(M, k=10):
-    # citation: https://github.com/smortezavi/Randomized_SVD_GPU/blob/master/pytorch_randomized_svd.ipynb
-    B = M.clone().detach()
-    m, n = B.size()
-    transpose = False
-    if m < n:
-        transpose = True
-        B = B.transpose(0, 1)
-        m, n = B.size()
+def make_US(D, D_t, PVE_threshold, max_v, us=True):
+    with torch.no_grad():        
+        # lower dim in time
+        cov = D_t @ D # [T, T]
+        # print(cov.shape)
+        # get eigenvectors and eigenvalues
+        eig, Q = torch.linalg.eigh(cov) # [T, in ascending order], [T, T] 
+        # flip for descending order
+        eig = eig.flip(0)
+        Q = Q.flip(1)
+        # Q @ torch.diag(eig) @ Q^T = cov
+        # D = USV^T -> D_t @ D = V @ S^2 @ V^T, so US = DV = D @ Q
         
-    rand_matrix = torch.randn((n,k), dtype=torch.float, device=M.device)  # short side by k
-    Q, _ = torch.linalg.qr(B @ rand_matrix)                              # long side by k
-    smaller_matrix = (Q.transpose(0, 1) @ B)            # k by short side
-    U_hat, s, Vt = torch.linalg.svd(smaller_matrix,True)
-    U = (Q @ U_hat)
-    return (Vt.transpose(0, 1), s, U.transpose(0, 1)) if transpose else (U, s, Vt)
+        # reduce Q
+        PVE = torch.cumsum(eig**2, dim=0) / torch.sum(eig**2)
+        n = torch.where(PVE > PVE_threshold)[0][0]
+        print(n, PVE[n])
+        
+        if n > max_v:
+            logger.warning(f"Warning: PVE threshold of {PVE_threshold} is too high. Limiting to {max_v} eigenvectors instead.")
+            n = max_v
+        
+        Q_red = Q[:,:n] # [T, n]
+        
+        if us:
+            out = D @ Q_red # [S, n]  
+        
+        # return U = D @ Q_red @ S^-1
+        out = D @ Q_red @ torch.diag(1/torch.sqrt(eig[:n])) # [S, n]
+        
+        del D, D_t, cov, eig, Q, Q_red
+        gc.collect()
+        return out
+              
+    
 
 
 class Preprocessor(PreprocessorBase):
@@ -39,21 +58,22 @@ class Preprocessor(PreprocessorBase):
             'datadir': 'data', # directory where data is stored
             'eigenvector': lambda var: f'POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
             'make_eigenvector': True, # whether to compute eigenvectors or not
-            'max_n_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
-            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'max_eigenvectors': 400,
+            'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.9999,
+            'n_sets': 1, # number of datasets to use, -1 for all
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         }
         cdict.update(config)
         for k,v in cdict.items():
             setattr(self, k, v)
         
-        self.randomized_svd_k = self.max_n_eigenvectors 
-            
         super().__init__(config)
         
         self.wp = 'WP_' if self.weather_prediction else ''    
         self.eigenvector_path = lambda var: f"{self.datadir}/{self.wp}{self.eigenvector(var)}"
-        self.eigenvector_vis_path =  f"{self.datadir}/{self.wp}POD_4_eigen_vis/"
+        self.eigenvector_vis_path =  f"{self.datadir}/{self.wp}POD_snap_eigen_vis/"
         
         self.cmap = jpcm.get('desert')        
         with torch.no_grad():
@@ -78,30 +98,35 @@ class Preprocessor(PreprocessorBase):
             
 
         # for v in tqdm(range(shape[1])):
-        logger.info(f'Computing eigenvectors for all variables...')
+        logger.info(f'Computing eigenvectors for all variables (each dataset)...')
         # print(dataset.shape)
         # Make SVD
-        skip = 1 if self.weather_prediction else 0
         
+        with torch.no_grad():
         
-        U, s = randomized_torch_svd(datasets, devices, rows, cols, k=self.randomized_svd_k, skip=skip, savepath=self.eigenvector_path(""))
-        
-        
-        
-        
-        gc.collect()
-        torch.cuda.empty_cache()
-        # Get PVE and truncate
-        PVE = torch.cumsum(s**2, dim=0) / torch.sum(s**2)
-        loc = torch.where(PVE > self.PVE_threshold)[0][0]
-        if loc > self.max_n_eigenvectors:
-            logger.warn(f'PVE threshold {self.PVE_threshold} not reached! Using {self.max_n_eigenvectors} eigenvectors instead of {loc} eigenvectors.')
-            loc = self.max_n_eigenvectors
-        else:
-            logger.info(f'PVE threshold {self.PVE_threshold} reached at {loc} eigenvectors.')
-        # truncate
-        eigenvectors = U[:,:loc].cpu().numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
-        latent_dimension = loc.item()
+            USs = []
+            dsets = datasets if self.n_sets == -1 else datasets[:self.n_sets]
+            if len(dsets) > 1:
+                for dset in tqdm(dsets):
+                    D_t = torch.from_numpy(dset.load()).float().reshape(dset.shape[0],-1) # [T, S=C*H*W]
+                    D = D_t.T # [S, T]
+                    USs.append(make_US(D, D_t, self.PVE_threshold, max_v=self.max_set_eigenvectors))
+                    gc.collect()
+                    
+                M = torch.cat(USs, dim=1) # [S, n*n_sets]
+            else: 
+                M = torch.from_numpy(dsets[0].load()).float().reshape(dsets[0].shape[0],-1).T # [S, T]
+                
+            M_t = M.T # [T, S]
+            logger.info(f'Computing eigenvectors for all variables (together)...')
+            U = make_US(M, M_t, self.PVE_threshold_2, max_v = self.max_eigenvectors, us=False) # [S, n]   
+
+
+
+
+        eigenvectors = U.numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
+        print(eigenvectors.shape)
+        latent_dimension = eigenvectors.shape[1]
         
         # save eigenvectors
         logger.info(f'Saving eigenvectors ...')
@@ -130,7 +155,7 @@ class Preprocessor(PreprocessorBase):
                 imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/{i}.png", imc, format='JPEG')
             
         torch.cuda.synchronize()            
-        del datasets, U, s, PVE, loc, eigenvectors, latent_dimension, vdict
+        del datasets, U, eigenvectors, latent_dimension, vdict
         gc.collect()
         torch.cuda.empty_cache()
         
