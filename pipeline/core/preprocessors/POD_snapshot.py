@@ -29,8 +29,8 @@ def make_US(D, D_t, PVE_threshold, max_v, us=True):
         # D = USV^T -> D_t @ D = V @ S^2 @ V^T, so US = DV = D @ Q
         
         # reduce Q
-        PVE = torch.cumsum(eig**2, dim=0) / torch.sum(eig**2)
-        n = torch.where(PVE > PVE_threshold)[0][0]
+        PVE = torch.cumsum(eig[1:]**2, dim=0) / torch.sum(eig[1:]**2) # make sure to skip the mean
+        n = min(torch.where(PVE > PVE_threshold)[0][0] + 1, len(eig))
         print(n, PVE[n])
         
         if n > max_v:

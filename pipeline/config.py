@@ -555,8 +555,8 @@ preprocessor_config = \
             'make_eigenvector': True, # whether to compute eigenvectors or not
             'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'max_eigenvectors': 400,
-            'PVE_threshold': 0.9999, # PVE threshold to determine number of eigenvectors
-            'PVE_threshold_2': 0.99999,
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.999,
             'n_sets': -1, # number of datasets to use, -1 for all
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
