@@ -22,4 +22,4 @@ graphviz
 torchview==0.2.6
 adabound
 pydmd
-natten # natten@git+https://github.com/SHI-Labs/NATTEN.git # may need to install cuda 11.7 on TACC, be prepared 
+natten@git+https://github.com/SHI-Labs/NATTEN.git # may need to install cuda 11.7 on TACC, be prepared 

@@ -1,1 +1,4 @@
 **/*.log
+wandb
+weather_prediction.o*
+weather_prediction.e*
