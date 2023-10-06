@@ -552,7 +552,7 @@ preprocessor_config = \
         },
         'POD_snapshot':{
             'eigenvector': lambda var: f'POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
-            'make_eigenvector': True, # whether to compute eigenvectors or not
+            'make_eigenvector': False, # whether to compute eigenvectors or not
             'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
             'max_eigenvectors': 400,
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
