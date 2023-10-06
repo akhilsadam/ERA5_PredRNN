@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 from torch.optim import ASGD, Adam, SGD
 from torch.optim.lr_scheduler import CyclicLR
 ###############################################
-GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
+# GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
 # TODO make batch size > 2 possible (at present memory issue, so we need gradient accumulation,
 # also dataset maxes out at 3 batches, so we need to mix datasets)
 WP_GRAD_BATCHES = 4 # batches to accumulate if weather prediction

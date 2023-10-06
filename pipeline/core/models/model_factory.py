@@ -11,6 +11,7 @@ from torchview import draw_graph
 import traceback, sys
 import wandb
 import gc
+from accelerate import Accelerator
 
 from core.utils import saliency
 from core.viz.viz_salient import viz
@@ -46,8 +47,14 @@ class Model(object):
             'linint': linint.LinearIntegrator, 
         }
         torch.backends.cuda.matmul.allow_tf32 = True
-        device = configs.device
-        self.device = device
+        device = configs.device # this is plural if Accelerate is used
+        # self.device = device
+        
+
+
+        self.accelerator = Accelerator()
+        self.device = self.accelerator.device
+        
         thread = threading.current_thread().name
         name = configs.model_name
         self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
@@ -75,18 +82,21 @@ class Model(object):
                 self.print("Exception type : %s " % ex_type.__name__)
                 self.print("Exception message : %s" %ex_value)
                 self.print("Stack trace : %s" %stack_trace)
-                
-
+        
+        
         self.optimizer = configs.optim_lm(self.network.parameters(), configs.lr) \
             if configs.optim_lm is not None else Adam(self.network.parameters(), lr=configs.lr)
         self.scheduler = configs.scheduler(self.optimizer) if configs.scheduler is not None else None
+        self.network, self.optimizer, self.scheduler = self.accelerator.prepare(self.network, self.optimizer, self.scheduler)
+        
         if self.configs.upload_run:
             self.upload_wandb()
     
     def init_net(self):                
         self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs)
-        self.network = torch.nn.DataParallel(self.network,device_ids=[self.device,], output_device=self.device)
-        self.network.to(self.device)
+        # self.network = torch.nn.DataParallel(self.network,device_ids=[self.device,], output_device=self.device)
+        # self.network.to(self.device)
+
 
     def modelvis(self):
         draw_graph(self.network, input_size= \
@@ -117,27 +127,33 @@ class Model(object):
         self.wrun.finish()
 
     def save(self, itr):
-        stats = {}
-        stats['net_param'] = self.network.state_dict()
+        # stats = {}
+        # stats['net_param'] = self.network.state_dict()
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(itr)+'.ckpt')
-        torch.save(stats, checkpoint_path)
-        self.print("save model to %s" % checkpoint_path)
+        # torch.save(stats, checkpoint_path)
+        self.accelerator.wait_for_everyone()
+        self.accelerator.save_model(self.network, checkpoint_path, max_shard_size="1GB")
+        self.print("saved model to %s" % checkpoint_path)
 
     def load(self, checkpoint_path):
-        self.print('load model:', checkpoint_path)
-        stats = torch.load(checkpoint_path, map_location=torch.device(self.device))
-        # self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
-        self.network.load_state_dict(stats['net_param'])
+        self.print('loading model from', checkpoint_path)
+        # stats = torch.load(checkpoint_path, map_location=torch.device(self.device))
+        #### self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
+        # self.network.load_state_dict(stats['net_param'])
+        unwrapped_model = self.accelerator.unwrap_model(self.network)
+        unwrapped_model.load_state_dict(torch.load(checkpoint_path))
 
     def train(self, frames, mask, istrain=True):
         gc.collect()
         torch.cuda.empty_cache()
         frames_tensor = torch.FloatTensor(frames).to(self.device)
         mask_tensor = torch.FloatTensor(mask).to(self.device)
-        self.optimizer.zero_grad()
-        loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
-        torch.cuda.empty_cache()
-        loss.backward()
+        with self.accelerator.accumulate(self.network):
+            self.optimizer.zero_grad()
+            loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
+            torch.cuda.empty_cache()
+            # loss.backward()
+            self.accelerator.backward(loss)
         
         try:
             nploss = loss.detach().cpu().numpy()
