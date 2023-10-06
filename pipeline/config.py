@@ -692,7 +692,7 @@ def operate_loop(hyp, device):
     --test_iterations {test_iterations} \
     {concurrency} \
     --device {device} \
-    --dataset_name mnist \
+    --dataset_name custom \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \
     {save} \
