@@ -68,7 +68,7 @@ class DMDIntegrator(BaseModel):
 
         # Reshape
         # outpt = torch.real(torch.cat(outpt, dim=1)) # BT(W*H)
-        # out = torch.cat([seq_total[:,:self.input_length,:,:,:], outpt.reshape((dim_b, self.predict_length, dim_c, dim_x, dim_y))],dim=1)
+        out = out.reshape((dim_b, self.total_length, dim_c, dim_x, dim_y))
 
         loss_pred = self.resweight
         loss_decouple = torch.tensor(0.0)
