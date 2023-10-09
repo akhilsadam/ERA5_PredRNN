@@ -487,6 +487,12 @@ model_config_toy = \
             'batch_size': 16, # batch size
             'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+        },
+        'itrDMD':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
     }
 # note predrnn_v2 does not work with any preprocessing or other options

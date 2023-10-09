@@ -1,4 +1,0 @@
-#%%
-from pydmd import DMD
-
-#%%
