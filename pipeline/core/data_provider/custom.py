@@ -221,8 +221,7 @@ class DataBatch(torch.utils.data.Dataset):
             if self.ordered_testing:
                 unit.allocate(self.base_start_index)
             else:
-                unit.allocate(torch.randint(low=0, high=self.max_batches//self.dsize, size=(1,)).item()*self.dsize)
-
+                unit.allocate(torch.randint(low=0, high=self.max_batches, size=(1,)).item())
             out = unit.get(self.gpu_index) # discard first batch
         else:
             out = unit.get(self.gpu_index)

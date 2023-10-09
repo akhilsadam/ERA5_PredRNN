@@ -42,7 +42,7 @@ class run2:
         parser = argparse.ArgumentParser(description='PyTorch video prediction model - PredRNN')
 
         # more params on model selection (added by Akhil)
-        parser.add_argument('--multigpu', type=bool, default=False)
+        parser.add_argument('--multigpu', type=bool, default=False) # not used TODO remove after adding accelerator
 
         # option to save test output
         parser.add_argument('--save_output', type=str2bool, default=False)
@@ -158,7 +158,8 @@ class run2:
             from core.models.model_factory_multiGPU import Model
         else:
             args.gpu_num = int(args.device.split(':')[1])
-            torch.cuda.set_device(args.gpu_num)
+            # torch.cuda.set_device(args.gpu_num)  # old code for picking a GPU
+            
             from core.models.model_factory import Model
 
 
@@ -343,6 +344,8 @@ class run2:
                         concurent_step=args.concurent_step,
                         img_channel=args.img_channel, img_layers=args.img_layers,
                         is_testing=False, is_training=True, is_WV=args.is_WV)
+                    train_input_handle = model.accelerator.prepare(train_input_handle)
+                    test_input_handle = model.accelerator.prepare(test_input_handle)
                     model.test_input_handle = test_input_handle
                     model.train_input_handle = train_input_handle
                     
