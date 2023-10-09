@@ -140,8 +140,9 @@ class Model(object):
         # stats = torch.load(checkpoint_path, map_location=torch.device(self.device))
         #### self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
         # self.network.load_state_dict(stats['net_param'])
-        unwrapped_model = self.accelerator.unwrap_model(self.network)
-        unwrapped_model.load_state_dict(torch.load(checkpoint_path))
+        # unwrapped_model = self.accelerator.unwrap_model(self.network)
+        # unwrapped_model.load_state_dict(torch.load(checkpoint_path))
+        self.accelerator.load_checkpoint_in_model(self.network, checkpoint_path)
 
     def train(self, frames, mask, istrain=True):
         gc.collect()
