@@ -73,7 +73,7 @@ class BaseModel(nn.Module):
     
 
     def reshape_back_tensor(self, img_tensor, patch_size):
-        assert 5 == img_tensor.ndim
+        assert 5 == img_tensor.ndim, f"img_tensor.ndim: {img_tensor.ndim} != 5 in reshape_back_tensor"
         batch_size = img_tensor.shape[0]
         seq_length = img_tensor.shape[1]
         channels = img_tensor.shape[2]
