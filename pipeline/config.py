@@ -564,6 +564,7 @@ preprocessor_config = \
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
             'PVE_threshold_2': 0.999,
             'n_sets': -1, # number of datasets to use, -1 for all
+            'sampling_rate': 1, # sampling rate for new time batches
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
         'POD_snapshot_3D_v2':{
@@ -574,6 +575,7 @@ preprocessor_config = \
             'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
             'PVE_threshold_2': 0.999,
             'n_sets': -1, # number of datasets to use, -1 for all
+            'sampling_rate': 10, # sampling rate for new time batches (increase to cut down on memory)
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
         'POD_snapshot':{

@@ -75,6 +75,7 @@ class Preprocessor(PreprocessorBase):
             'PVE_threshold_2': 0.9999,
             'PVE_threshold_3': 0.99,
             'n_sets': 1, # number of datasets to use, -1 for all
+            'sampling_rate': 1, # sampling rate for new time batches
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         }
         cdict.update(config)
@@ -123,7 +124,7 @@ class Preprocessor(PreprocessorBase):
                     D_t_raw = torch.from_numpy(dset.load()).float().reshape(dset.shape[0],-1) # [T, S=C*H*W]
                     
                     # chopping into new T-sets:
-                    D_t = D_t_raw.unfold(0, self.total_length, 1).permute((0,2,1)) # [# sets (new T), total_length, C*H*W]
+                    D_t = D_t_raw.unfold(0, self.total_length, self.sampling_rate).permute((0,2,1)) # [# sets (new T), total_length, C*H*W]
                     D_t = D_t.reshape((D_t.size(0), -1)) # [# sets (new T), total_length*C*H*W]
                     
                     D = D_t.T # [S, T]
@@ -135,7 +136,7 @@ class Preprocessor(PreprocessorBase):
                 D_t_raw = torch.from_numpy(dsets[0].load()).float().reshape(dsets[0].shape[0],-1) # [S, T]
                 
                 # chopping into new T-sets:
-                D_t = D_t_raw.unfold(0, self.total_length, 1).permute((0,2,1)) # [# sets (new T), total_length, C*H*W]
+                D_t = D_t_raw.unfold(0, self.total_length, self.sampling_rate).permute((0,2,1)) # [# sets (new T), total_length, C*H*W]
                 M = D_t.reshape((D_t.size(0), -1)).T # [# sets (new T), total_length*C*H*W]
                 
                 
