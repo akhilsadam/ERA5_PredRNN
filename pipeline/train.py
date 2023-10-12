@@ -43,7 +43,7 @@ class hyperparam:
     interpret = False # interpret model
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
