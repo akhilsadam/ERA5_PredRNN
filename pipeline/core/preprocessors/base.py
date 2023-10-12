@@ -26,6 +26,8 @@ class PreprocessorBase:
         wp = '_WP' if self.weather_prediction else ''
         self.scale_path =  f"{self.datadir}/scale{wp}.txt"
         
+        self.input_length = config['input_length']
+        self.total_length = config['total_length']
         
         
     def precompute_check(self):

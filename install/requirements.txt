@@ -17,7 +17,7 @@ cdsapi
 pygrib
 tqdm
 imageio
-jpcm
+jpcm==0.1.24
 graphviz
 torchview==0.2.6
 adabound

@@ -381,7 +381,7 @@ class run2:
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
                     
             print('Training done')
-            test_wrapper(model, last=True, load=False) 
+            # test_wrapper(model, last=True, load=False) 
                         
 
         def test_wrapper(model, last=True, load=True):

@@ -512,6 +512,12 @@ model_config_toy = \
             'batch_size': 16, # batch size
             'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+        },
+        'identity':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         }
     }
 # note predrnn_v2 does not work with any preprocessing or other options
@@ -549,6 +555,16 @@ preprocessor_config = \
             'max_n_eigenvectors': 400, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99999, # PVE threshold to determine number of eigenvectors
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
+        },
+        'POD_snapshot_3D':{
+            'eigenvector': lambda var: f'POD_snap3d_eigenvector_{var}.npz', # place to store precomputed eigenvectors
+            'make_eigenvector': False, # whether to compute eigenvectors or not
+            'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'max_eigenvectors': 400,
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.999,
+            'n_sets': -1, # number of datasets to use, -1 for all
+            # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
         'POD_snapshot':{
             'eigenvector': lambda var: f'POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
@@ -779,7 +795,10 @@ def operate_loop(hyp, device):
         else:
             key = hnm
     
-    model_args = cmodel_config[key]
+    try:
+        model_args = cmodel_config[key]
+    except Exception as e:
+        raise ValueError(f'Likely invalid model name: {hyp.model_name}; {e}')
         
     for k,v in hyp.overrides.items():
         if k in model_args:
