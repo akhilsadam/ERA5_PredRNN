@@ -15,7 +15,7 @@ from .base import PreprocessorBase
 
 logger = logging.getLogger('POD3D_by_snapshot-preprocessor') 
 
-# modified to get individual times by learning DMD?
+# modified with compression
 
 def make_US(D, D_t, PVE_threshold, max_v, us=True, full_decomp=False):
     with torch.no_grad():        
