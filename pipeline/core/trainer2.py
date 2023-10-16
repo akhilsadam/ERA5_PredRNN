@@ -59,7 +59,7 @@ def test(model, test_input_handle, configs, itr, last_test=False):
         real_input_flag[:, :configs.input_length - 1, :, :] = 1.0
 
     # test_ims = test_input_handle.get_batch()
-    real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)
+    real_input_flag = torch.FloatTensor(real_input_flag)#.to(configs.device)
     test_ims_ALL = []
     img_out_ALL = []
     avg_mse = 0
@@ -81,7 +81,7 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             test_ims = test_input_handle.get_batch()
             # print(f"test_ims shape: {test_ims.shape}")
             
-            test_ims = torch.FloatTensor(test_ims).to(configs.device)
+            test_ims = torch.FloatTensor(test_ims)#.to(configs.device)
             output_length = configs.total_length - configs.input_length
             torch.cuda.empty_cache()
             img_out, loss, loss_pred, decouple_loss = model.test(test_ims, real_input_flag)

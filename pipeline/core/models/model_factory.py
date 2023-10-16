@@ -49,13 +49,14 @@ class Model(object):
             'identity': identity.Identity,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
-        device = configs.device # this is plural if Accelerate is used
+        # device = configs.device # this is plural if Accelerate is used
         # self.device = device
         
         self.start_itr = 0
 
         self.accelerator = Accelerator()
         self.device = self.accelerator.device
+        device = self.device
         
         thread = threading.current_thread().name
         name = configs.model_name

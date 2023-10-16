@@ -732,11 +732,10 @@ def operate_loop(hyp, device):
 
     from core.run2 import run2
 
-
+#     --device {device} \
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --device {device} \
     --dataset_name custom \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \
