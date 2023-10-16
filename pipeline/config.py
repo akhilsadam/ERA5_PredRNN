@@ -442,16 +442,16 @@ model_config_toy = \
             'n_embd': 40, # number of hidden units in the transformer
             'n_ffn_embd': 40, # number of hidden units in the FFN
             'n_siren_layers': 4, # number of layers in the siren
-            'n_siren_embd': 20, # number of hidden units in the siren
+            'n_siren_embd': 256, # number of hidden units in the siren
             'siren_dim': 40, # number of modes
-            'siren_freq': 20, # frequency of the siren activations
+            'siren_freq': 64, # frequency of the siren activations
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
-            'test_batch_size': 2, # batch size for testin
+            'batch_size': 16, # batch size
+            'test_batch_size': 10, # batch size for testin
         }, 
         'reZeroCNN_POD_v4':{
             'n_layers': 4, # number of layers in the transformer

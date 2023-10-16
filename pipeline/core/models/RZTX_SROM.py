@@ -42,18 +42,18 @@ class RZTX(BaseModel):
         # number of modes is self.siren_dim
         # so input shape is [mode, time, channels, shapex, shapey]
         
-        self.siren = MLP(5,self.n_siren_embd,1,self.n_siren_layers,"sin",omega_0=math.floor(self.sfreq / torch.pi)).to(self.device)
+        self.siren = MLP(4,self.n_siren_embd,1,self.n_siren_layers,"sin",omega_0= self.sfreq / torch.pi,train_omega=True).to(self.device)
         
-        m = torch.arange(self.siren_dim).to(torch.float32)/self.siren_dim
-        t = torch.arange(self.input_length).to(torch.float32)/self.input_length
-        c = torch.arange(self.preprocessor.latent_dims[-1]).to(torch.float32)/self.preprocessor.latent_dims[-1]
-        sx = torch.arange(shapex).to(torch.float32)/shapex
-        sy = torch.arange(shapey).to(torch.float32)/shapey
-        self.in_mesh = torch.stack(torch.meshgrid(m,t,c,sx,sy, indexing='ij'), dim=0).to(self.device)
-        self.siren_shape = (self.siren_dim, self.input_length, self.preprocessor.latent_dims[-1], shapex, shapey)
+        m = 2*torch.arange(self.siren_dim).to(torch.float32)/self.siren_dim - 1
+        # t = torch.arange(self.input_length).to(torch.float32)/self.input_length
+        c = 2*torch.arange(self.preprocessor.latent_dims[-1]).to(torch.float32)/self.preprocessor.latent_dims[-1] - 1
+        sx = 2*torch.arange(shapex).to(torch.float32)/shapex - 1
+        sy = 2*torch.arange(shapey).to(torch.float32)/shapey - 1
+        self.in_mesh = torch.stack(torch.meshgrid(m,c,sx,sy, indexing='ij'), dim=0).to(self.device)
+        self.siren_shape = (self.siren_dim, self.preprocessor.latent_dims[-1], shapex, shapey)
             
         self.model = ReZero_base( \
-                         ntoken=self.siren_dim,
+                         ntoken=self.siren_dim, # attend along time dimension , so mode dim here
                          ninp=ninp,
                          nhead=self.model_args['n_head'],
                          nhid=self.model_args['n_ffn_embd'],
@@ -77,14 +77,16 @@ class RZTX(BaseModel):
     def core_forward(self, seq_total, istrain=True, **kwargs):
         total_raw = self.preprocessor.batched_input_transform(seq_total) # B T C H W
         
-        #### convert to modes of T C H W
+        #### convert to modes of C H W
         inpt_raw = total_raw[:,:self.input_length,:,:,:]
         # dot product with siren
         modes = self.siren(self.in_mesh.flatten(start_dim=1).T).T.reshape(self.siren_shape) # M T C H W
-        inpt = torch.einsum('mtchw,btchw->btm',modes,inpt_raw)
-        inpt_restored = torch.einsum('mtchw,btm->btchw',modes,inpt)
+        inpt = torch.einsum('mchw,btchw->btm',modes,inpt_raw)
+        inpt_restored = torch.einsum('mchw,btm->btchw',modes,inpt)
         
         # return # B T M
+        # att dim is middle dimension
+        time_dim = 1 # 
         
         # inpt = total[:,:self.input_length,:]
         # b, _ , nc, sx, sy = inpt.shape
@@ -93,13 +95,13 @@ class RZTX(BaseModel):
         predictions = []
         for i in range(self.predict_length):
             outpt = self.model(inpt)
-            out = outpt.mean(dim=1)
-            predictions.append(out.unsqueeze(1))
-            inpt = torch.cat((inpt,out.unsqueeze(1)),dim=1)[:,-self.input_length:,:]
+            out = outpt.mean(dim=time_dim) # B M
+            predictions.append(out.unsqueeze(time_dim))
+            inpt = torch.cat((inpt,out.unsqueeze(time_dim)),dim=time_dim)[:,-self.input_length:,:] # slice along time dimension
         
-        outpt = torch.cat(predictions,dim=1)        
+        outpt = torch.cat(predictions,dim=time_dim)        
         
-        outpt_raw = torch.einsum('btm,mtchw->btchw',outpt,modes)
+        outpt_raw = torch.einsum('btm,mchw->btchw',outpt,modes)
         # outpt= outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)
         out = torch.cat((inpt_restored,outpt_raw),dim=1)  
         out = self.preprocessor.batched_output_transform(out)
