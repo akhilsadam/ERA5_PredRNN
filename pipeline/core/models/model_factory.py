@@ -57,6 +57,7 @@ class Model(object):
         self.accelerator = Accelerator()
         self.device = self.accelerator.device
         device = self.device
+        configs.device = device
         
         thread = threading.current_thread().name
         name = configs.model_name
