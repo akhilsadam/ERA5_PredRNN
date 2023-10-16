@@ -175,23 +175,23 @@ def signal_handler(sig, frame):
 
 
 if __name__ == '__main__':
+    run(0, 'cuda:0')    
     
-    
-    # start workers
-    processes = []
+    # # start workers
+    # processes = []
 
-    signal.signal(signal.SIGINT, signal_handler)
-    value = Value('i', 0)
-    for gpu_id in gpus:
-        for thread in range(hyt):
-            env = os.environ.copy()
-            # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
-            t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
-            processes.append(t)
-            t.start()
-            # time.sleep(0.01)
+    # signal.signal(signal.SIGINT, signal_handler)
+    # value = Value('i', 0)
+    # for gpu_id in gpus:
+    #     for thread in range(hyt):
+    #         env = os.environ.copy()
+    #         # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
+    #         t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
+    #         processes.append(t)
+    #         t.start()
+    #         # time.sleep(0.01)
 
-    print("Started workers.\nPlease kill with Ctrl-C if necessary.")
+    # print("Started workers.\nPlease kill with Ctrl-C if necessary.")
     
-    for t in processes:
-        t.join()
+    # for t in processes:
+    #     t.join()
