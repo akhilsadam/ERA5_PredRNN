@@ -23,8 +23,8 @@ def loss_laplace(out, seq_total, input_length):
 #     # print(f"o2 shape: {o2.shape}, sq2 shape: {sq2.shape}")
 #     return perceptual(o3,sq3).mean()
 
-def loss_mixed(out, seq_total, input_length):
-    return loss_mse(out, seq_total, input_length) + loss_grad(out, seq_total, input_length) + 0.1 * loss_laplace(out, seq_total, input_length)
+def loss_mixed(out, seq_total, input_length, a=0.1, b=0.01):
+    return loss_mse(out, seq_total, input_length) + a*loss_grad(out, seq_total, input_length) + b * loss_laplace(out, seq_total, input_length)
 
-def loss_mixed_additional(out, seq_total, input_length):
-    return loss_grad(out, seq_total, input_length) + 0.1 * loss_laplace(out, seq_total, input_length)
+def loss_mixed_additional(out, seq_total, input_length, a=0.1):
+    return loss_grad(out, seq_total, input_length) + a * loss_laplace(out, seq_total, input_length)

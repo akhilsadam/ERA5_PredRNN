@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
-    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
+    TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_SROM, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
     DAT_v2, linint, itrDMD
 from core.utils.ext import prefixprint
 from torchview import draw_graph
@@ -41,6 +41,7 @@ class Model(object):
             'reZeroCNN_LG': RZTX_CNN_LG.RZTX_CNN,
             'reZeroNAT': RZTX_NAT.RZTX_NAT,
             'reZeroNAT_LG': RZTX_NAT_LG.RZTX_NAT_LG,
+            'reZeroSROM': RZTX_SROM.RZTX,
             'LSTM': LSTM.LSTM,
             'rLSTM': rLSTM.rLSTM,
             'ViT_LDM': ViT_LDM.ViT_LDM,
@@ -48,13 +49,15 @@ class Model(object):
             'itrDMD': itrDMD.DMDIntegrator,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
-        device = configs.device # this is plural if Accelerate is used
+        # device = configs.device # this is plural if Accelerate is used
         # self.device = device
         
-
+        self.start_itr = 0
 
         self.accelerator = Accelerator()
         self.device = self.accelerator.device
+        device = self.device
+        configs.device = device
         
         thread = threading.current_thread().name
         name = configs.model_name
@@ -128,9 +131,10 @@ class Model(object):
         self.wrun.finish()
 
     def save(self, itr):
+        citr = itr + self.start_itr
         # stats = {}
         # stats['net_param'] = self.network.state_dict()
-        checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(itr)+'.ckpt')
+        checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(citr)+'.ckpt')
         # torch.save(stats, checkpoint_path)
         self.accelerator.wait_for_everyone()
         self.accelerator.save_model(self.network, checkpoint_path, max_shard_size="1GB")
@@ -138,6 +142,14 @@ class Model(object):
 
     def load(self, checkpoint_path):
         self.print('loading model from', checkpoint_path)
+        
+        try:
+            chk_itr = int(checkpoint_path.split('_')[-1].split('.')[0])
+        except Exception as e:
+            self.start_itr = 0
+            self.print(f"Could not get iteration from checkpoint path: {e}")
+        else:
+            self.start_itr = chk_itr
         # stats = torch.load(checkpoint_path, map_location=torch.device(self.device))
         #### self.print('model.transformer_encoder.layers.0.self_attn.in_proj_weight', stats['net_param']['model.transformer_encoder.layers.0.self_attn.in_proj_weight'])
         # self.network.load_state_dict(stats['net_param'])

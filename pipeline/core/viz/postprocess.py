@@ -256,14 +256,14 @@ def visualize(hyp):
             
             divider = make_axes_locatable(axs[5])
             cax = divider.append_axes('right', size='13%', pad=0.20)
-            
+                       
             fig.colorbar(
                 mpl.cm.ScalarMappable(
-                    norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap
+                    norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap # * gt.shape[2] if  not using custom dataloader
                 ),
                 cax=cax,
                 orientation='vertical',
-                label=f'Timestep Start Time (every {gt.shape[2]} frames)',
+                label=f'Timestep Start Time',
                 # ticks=np.arange(0, gt.shape[0] * gt.shape[1] * gt.shape[2], gt.shape[2]).tolist(),
             )
             # plt.legend()/

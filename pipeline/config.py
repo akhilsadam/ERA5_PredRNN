@@ -122,8 +122,8 @@ model_config = \
             'test_batch_size': 1, # batch size for testin
         },        
         'reZeroTF_POD_snapshot':{
-            'n_layers': 16, # number of layers in the transformer
-            'n_head': 4, # number of heads in the transformer
+            'n_layers': 8, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
             'n_embd': 400, # number of hidden units in the transformer
             'n_ffn_embd': 400, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
@@ -419,14 +419,14 @@ model_config_toy = \
         'reZeroTF_POD_snapshot':{
             'n_layers': 8, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
-            'n_embd': 400, # number of hidden units in the transformer
-            'n_ffn_embd': 400, # number of hidden units in the FFN
+            'n_embd': 100, # number of hidden units in the transformer
+            'n_ffn_embd': 100, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 16, # batch size
+            'batch_size': 4, # batch size
         },
         'reZeroNAT_POD_v4':{
             'n_layers': 4, # number of layers in the transformer
@@ -440,6 +440,23 @@ model_config_toy = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testin
+        }, 
+        'reZeroSROM':{
+            'n_layers': 1, # number of layers in the transformer
+            'n_head': 2, # number of heads in the transformer
+            'n_embd': 40, # number of hidden units in the transformer
+            'n_ffn_embd': 40, # number of hidden units in the FFN
+            'n_siren_layers': 4, # number of layers in the siren
+            'n_siren_embd': 256, # number of hidden units in the siren
+            'siren_dim': 40, # number of modes
+            'siren_freq': 40, # frequency of the siren activations
+            'dropout': 0.1, # dropout rate
+            'initialization': None, # initialization method as list of functions
+            'activation': 'relu', # activation function
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
+            'test_batch_size': 10, # batch size for testin
         }, 
         'reZeroCNN_POD_v4':{
             'n_layers': 4, # number of layers in the transformer
@@ -560,6 +577,28 @@ preprocessor_config = \
             'max_n_eigenvectors': 400, # ballpark number of eigenvectors (otherwise uses PVE to determine)
             'PVE_threshold': 0.99999, # PVE threshold to determine number of eigenvectors
             'n_patch': 1, # x,y patch number (so 8x8 of patches = full image)
+        },
+        'POD_snapshot_3D':{
+            'eigenvector': lambda var: f'POD_snap3d_eigenvector_{var}.npz', # place to store precomputed eigenvectors
+            'make_eigenvector': False, # whether to compute eigenvectors or not
+            'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'max_eigenvectors': 400,
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.999,
+            'n_sets': -1, # number of datasets to use, -1 for all
+            'sampling_rate': 1, # sampling rate for new time batches
+            # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
+        },
+        'POD_snapshot_3D_v2':{
+            'eigenvector': lambda var: f'POD_snap3d2_eigenvector_{var}.npz', # place to store precomputed eigenvectors
+            'make_eigenvector': True, # whether to compute eigenvectors or not
+            'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
+            'max_eigenvectors': 400,
+            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.999,
+            'n_sets': -1, # number of datasets to use, -1 for all
+            'sampling_rate': 1, # sampling rate for new time batches (increase to cut down on memory)
+            # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
         'POD_snapshot':{
             'eigenvector': lambda var: f'POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
@@ -698,11 +737,10 @@ def operate_loop(hyp, device):
 
     from core.run2 import run2
 
-
+#     --device {device} \
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --device {device} \
     --dataset_name custom \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \
@@ -790,7 +828,10 @@ def operate_loop(hyp, device):
         else:
             key = hnm
     
-    model_args = cmodel_config[key]
+    try:
+        model_args = cmodel_config[key]
+    except Exception as e:
+        raise ValueError(f'Likely invalid model name / config: {hyp.model_name}; {e}')
         
     for k,v in hyp.overrides.items():
         if k in model_args:

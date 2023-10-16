@@ -34,16 +34,16 @@ if visualize:
 class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
-    pretrain_name=None #'model_3000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 1 # save model every n iterations
+    pretrain_name=None #model_40000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+    snapshot_interval = 1000 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'reZeroVAR_WP_2' # name of wandb project
+    project_name = 'reZeroPOD_WP' # name of wandb project
     interpret = False # interpret model
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
@@ -60,7 +60,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 2
+hyp.max_iterations = 20000
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]
@@ -70,7 +70,7 @@ if mode == -1:
         ptn = [f'model_{args.preload}.ckpt']
 elif mode == 0:
     tr = [True, False]
-    ptn = [None, 'last']
+    ptn = [hyp.pretrain_name, 'last']
     sal = [False, False]
 elif mode == 1:
     tr = [True]
@@ -175,23 +175,23 @@ def signal_handler(sig, frame):
 
 
 if __name__ == '__main__':
+    run(0, 'cuda:0')    
     
-    
-    # start workers
-    processes = []
+    # # start workers
+    # processes = []
 
-    signal.signal(signal.SIGINT, signal_handler)
-    value = Value('i', 0)
-    for gpu_id in gpus:
-        for thread in range(hyt):
-            env = os.environ.copy()
-            # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
-            t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
-            processes.append(t)
-            t.start()
-            # time.sleep(0.01)
+    # signal.signal(signal.SIGINT, signal_handler)
+    # value = Value('i', 0)
+    # for gpu_id in gpus:
+    #     for thread in range(hyt):
+    #         env = os.environ.copy()
+    #         # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
+    #         t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
+    #         processes.append(t)
+    #         t.start()
+    #         # time.sleep(0.01)
 
-    print("Started workers.\nPlease kill with Ctrl-C if necessary.")
+    # print("Started workers.\nPlease kill with Ctrl-C if necessary.")
     
-    for t in processes:
-        t.join()
+    # for t in processes:
+    #     t.join()
