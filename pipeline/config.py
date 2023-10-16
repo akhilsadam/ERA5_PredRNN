@@ -190,8 +190,13 @@ model_config = \
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-        }
-
+        },
+        'linint':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+        },
     }
 model_config_toy = \
     {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
