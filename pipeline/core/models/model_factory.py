@@ -190,18 +190,18 @@ class Model(object):
         total_length = self.configs.total_length
         output_length = total_length - input_length
         final_next_frames = []
-        if self.configs.concurent_step > 1:
-            # I have not modified it to make it work.
-            for i in range(self.configs.concurent_step):
-                self.print(i)
-                with torch.no_grad():
-                    next_frames, loss, loss_pred, decouple_loss= self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], mask_tensor, istrain=False)
-                self.print(f"next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
-                frames_tensor[:,input_length*i+input_length:input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
-                final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())
-                del next_frames
-                torch.cuda.empty_cache()
-        elif self.saliency and not self.configs.is_training:
+        # if self.configs.concurent_step > 1:
+        #     # I have not modified it to make it work.
+        #     for i in range(self.configs.concurent_step):
+        #         self.print(i)
+        #         with torch.no_grad():
+        #             next_frames, loss, loss_pred, decouple_loss= self.network(frames_tensor[:,input_length*i:input_length*i+total_length,:,:,:], mask_tensor, istrain=False)
+        #         self.print(f"next_frames shape:{next_frames.shape}, frames_tensor shape:{frames_tensor.shape}")
+        #         frames_tensor[:,input_length*i+input_length:input_length*i+total_length,:,:,:] = next_frames[:,-output_length:,:,:,:]
+        #         final_next_frames.append(next_frames[:,-output_length:,:,:,:].detach().cpu().numpy())
+        #         del next_frames
+        #         torch.cuda.empty_cache()
+        if self.saliency and not self.configs.is_training:
             # add handles
             handles = saliency.modify_model(self.network)
             # backprop

@@ -166,8 +166,9 @@ class DataBatch(torch.utils.data.Dataset):
         self.dsize = (prefetch_size+1) * total_length # total size of data unit
         self.base_start_index = 0
         if testing:
-            logger.info("Testing, setting batch size to match number of paths")
-            self.batch_size = len(self.paths)
+            logger.info("Testing, setting batch size to match number of paths if larger")
+            if self.batch_size > len(self.paths):
+                self.batch_size = len(self.paths)
             self.path_index = 0
         self.testing = testing
         self.ordered_testing = False
