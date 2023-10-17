@@ -124,8 +124,8 @@ model_config = \
         'reZeroTF_POD_snapshot':{
             'n_layers': 8, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
-            'n_embd': 400, # number of hidden units in the transformer
-            'n_ffn_embd': 400, # number of hidden units in the FFN
+            'n_embd': 200, # number of hidden units in the transformer
+            'n_ffn_embd': 200, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
