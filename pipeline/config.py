@@ -122,7 +122,7 @@ model_config = \
             'test_batch_size': 1, # batch size for testin
         },        
         'reZeroTF_POD_snapshot':{
-            'n_layers': 8, # number of layers in the transformer
+            'n_layers': 6, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
             'n_embd': 200, # number of hidden units in the transformer
             'n_ffn_embd': 200, # number of hidden units in the FFN
