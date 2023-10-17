@@ -441,8 +441,8 @@ model_config_toy = \
             'n_head': 2, # number of heads in the transformer
             'n_embd': 40, # number of hidden units in the transformer
             'n_ffn_embd': 40, # number of hidden units in the FFN
-            'n_siren_layers': 4, # number of layers in the siren
-            'n_siren_embd': 256, # number of hidden units in the siren
+            'n_siren_layers': 6, # number of layers in the siren
+            'n_siren_embd': 20, # number of hidden units in the siren
             'siren_dim': 40, # number of modes
             'siren_freq': 40, # frequency of the siren activations
             'dropout': 0.1, # dropout rate
