@@ -704,13 +704,13 @@ def operate_loop(hyp, device):
         save = f"--save_dir {checkpoint_dir}"
         concurrency = f'--save_dir {checkpoint_dir}'
         train_int = '1'
-        test_batch = '9'
+        test_batch = '1'
         test_iterations = 10; # number of test iterations to run
     else:
         save = ''
         concurrency = '--concurent_step 1' # not sure what this does - keep it off for now
         train_int = '0'
-        test_batch = '9'
+        test_batch = '1'
         test_iterations = 10; # number of test iterations to run
 
     batch = '3'
