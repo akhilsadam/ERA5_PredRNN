@@ -47,9 +47,9 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
     
     memory_saving = True # configs.weather_prediction
-    max_batches = 1000
+    max_batches = 10000
     if configs.weather_prediction:
-        max_batches = 25
+        max_batches = 25 # hack to make sure we don't run out of memory
     
     # reverse schedule sampling
     if configs.reverse_scheduled_sampling == 1:
