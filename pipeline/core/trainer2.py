@@ -47,6 +47,9 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
     
     memory_saving = True # configs.weather_prediction
+    max_batches = 1000
+    if configs.weather_prediction:
+        max_batches = 25
     
     # reverse schedule sampling
     if configs.reverse_scheduled_sampling == 1:
@@ -86,6 +89,8 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             pass
         else:
             test_iterations = mab
+        test_iterations = min(test_iterations, max_batches)
+        print(f"test_iterations: {test_iterations}")
     
     with NAA(tdp, delete_if_exists=True) as naa:
         pass
