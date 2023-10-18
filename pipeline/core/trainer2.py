@@ -92,10 +92,11 @@ def test(model, test_input_handle, configs, itr, last_test=False):
         test_iterations = min(test_iterations, max_batches)
         print(f"test_iterations: {test_iterations}")
     
-    with NAA(tdp, delete_if_exists=True) as naa:
-        pass
-    with NAA(pdp, delete_if_exists=True) as naa:
-        pass
+        if configs.save_output:
+            with NAA(tdp, delete_if_exists=True) as naa:
+                pass
+            with NAA(pdp, delete_if_exists=True) as naa:
+                pass
     
     for i in range(test_iterations):
         try:
