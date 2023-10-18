@@ -34,7 +34,7 @@ if visualize:
 class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
-    pretrain_name=None #model_40000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+    pretrain_name='model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
     snapshot_interval = 1000 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
@@ -60,7 +60,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 20000
+hyp.max_iterations = 3000
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]
