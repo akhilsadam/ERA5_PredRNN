@@ -5,16 +5,13 @@ import torch
 # perceptual = lpips.LPIPS(net='vgg').cuda()
 
 def loss_mse(out, seq_total, input_length, weight):
-    return torch.mean( \ 
-        weight * (out[:,input_length:,:] - seq_total[:,input_length:,:])**2)
+    return torch.mean( weight * (out[:,input_length:,:] - seq_total[:,input_length:,:])**2)
 
 def loss_grad(out, seq_total, input_length, weight):
-    return torch.mean( \
-        weight * ((out[:,input_length+1:,:] - out[:,input_length:-1,:]) - (seq_total[:,input_length+1:,:] - seq_total[:,input_length:-1,:]))**2)
+    return torch.mean( weight * ((out[:,input_length+1:,:] - out[:,input_length:-1,:]) - (seq_total[:,input_length+1:,:] - seq_total[:,input_length:-1,:]))**2)
 
 def loss_laplace(out, seq_total, input_length, weight):
-    return torch.mean( \
-        weight * ((out[:,input_length+2:,:] - 2*out[:,input_length+1:-1,:] + out[:,input_length:-2,:]) \
+    return torch.mean( weight * ((out[:,input_length+2:,:] - 2*out[:,input_length+1:-1,:] + out[:,input_length:-2,:]) \
             -  (seq_total[:,input_length+2:,:] - 2*seq_total[:,input_length+1:-1,:] + seq_total[:,input_length:-2,:]))**2)
 
 # def loss_perceptual(out, seq_total, input_length):
