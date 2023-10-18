@@ -119,9 +119,9 @@ def test(model, test_input_handle, configs, itr, last_test=False):
                 # del test_ims
                 # del img_out
                 with NAA(tdp) as naa:
-                    naa.append(test_ims.cpu().numpy())
+                    naa.append(test_ims.unsqueeze(0).cpu().numpy())
                 with NAA(pdp) as naa:
-                    naa.append(img_out.cpu().numpy())
+                    naa.append(img_out.unsqueeze(0).cpu().numpy())
                 torch.cuda.empty_cache()
                 gc.collect()
             else:
