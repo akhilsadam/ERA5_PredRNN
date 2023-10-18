@@ -7,7 +7,8 @@ from core.utils import preprocess, metrics
 # import lpips
 import torch
 import wandb
-
+import gc
+from npy_append_array import NpyAppendArray as NAA
 from scipy import ndimage
 
 
@@ -65,6 +66,16 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     avg_mse = 0
     n = 0
     
+    if last_test and configs.save_output:
+        res_path = os.path.join(configs.gen_frm_dir, str(itr))
+        if not os.path.exists(res_path):
+            os.makedirs(res_path)
+            print('trainer.test function created path:', res_path)
+        else:
+            print('trainer.test function found path:', res_path)
+        tdp = os.path.join(res_path,'true_data.npy')
+        pdp = os.path.join(res_path,'pred_data.npy')
+    
     test_iterations = configs.test_iterations
     
     if last_test:
@@ -84,6 +95,7 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             test_ims = torch.FloatTensor(test_ims).to(configs.device)
             output_length = configs.total_length - configs.input_length
             torch.cuda.empty_cache()
+            gc.collect()
             img_out, loss, loss_pred, decouple_loss = model.test(test_ims, real_input_flag)
             img_out = img_out.detach()
 
@@ -92,11 +104,16 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
             if memory_saving and configs.save_output:
-                test_ims_ALL.append(test_ims.cpu().numpy())
-                img_out_ALL.append(img_out.cpu().numpy())
-                del test_ims
-                del img_out
+                # test_ims_ALL.append(test_ims.cpu().numpy())
+                # img_out_ALL.append(img_out.cpu().numpy())
+                # del test_ims
+                # del img_out
+                with NAA(tdp) as naa:
+                    naa.append(test_ims.cpu().numpy())
+                with NAA(pdp) as naa:
+                    naa.append(img_out.cpu().numpy())
                 torch.cuda.empty_cache()
+                gc.collect()
             else:
                 test_ims_ALL.append(test_ims)
                 img_out_ALL.append(img_out)
@@ -126,32 +143,26 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     # test_input_handle.next()
 
     if last_test and configs.save_output:
-        res_path = os.path.join(configs.gen_frm_dir, str(itr))
-        if not os.path.exists(res_path):
-            os.makedirs(res_path)
-            print('trainer.test function created path:', res_path)
-        else:
-            print('trainer.test function found path:', res_path)
             
         if memory_saving:
             # print("saving test results to:", res_path)
             # import gc
             # gc.collect()
-            A = np.stack(test_ims_ALL)
-            B = np.stack(img_out_ALL)
+            # A = np.stack(test_ims_ALL)
+            # B = np.stack(img_out_ALL)
+            pass
             
         else:
             A =  torch.stack(test_ims_ALL).cpu().numpy()
             B =  torch.stack(img_out_ALL).cpu().numpy()
             
-        print(f"A shape: {A.shape}, B shape: {B.shape}")
-        tdp = os.path.join(res_path,'true_data.npy')
-        pdp = os.path.join(res_path,'pred_data.npy')
-        # # touch the files to make sure they exist
-        # os.system(f"touch {tdp}")
-        # os.system(f"touch {pdp}")
-        np.save(tdp, A)
-        np.save(pdp, B)
+            print(f"A shape: {A.shape}, B shape: {B.shape}")
+
+            # # touch the files to make sure they exist
+            # os.system(f"touch {tdp}")
+            # os.system(f"touch {pdp}")
+            np.save(tdp, A)
+            np.save(pdp, B)
         print('saved test results to:', res_path)
     if configs.upload_run:
         wandb.log({"Test mse": float(avg_mse)})
