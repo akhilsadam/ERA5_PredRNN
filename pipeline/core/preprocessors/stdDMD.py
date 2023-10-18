@@ -67,6 +67,7 @@ class Preprocessor(PreprocessorBase):
 
             # Make DMD
             dmd = DMD(svd_rank=self.randomized_svd_k)
+            self.dmd = dmd
             dmd.fit(dataset)
 
             # Get eigenmodes
@@ -87,7 +88,7 @@ class Preprocessor(PreprocessorBase):
             }
             np.savez(self.eigenvector_path(v), **vdict)
             
-            del dataset, dmd, eigenvectors, latent_dimension, vdict
+            del dataset, eigenvectors, latent_dimension, vdict
             gc.collect()
             
     def load(self, device):

@@ -190,8 +190,13 @@ model_config = \
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-        }
-
+        },
+        'linint':{
+            "optimizer": None, # uses default Adam as configured below
+            'batch_size': 16, # batch size
+            'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
+            'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
+        },
     }
 model_config_toy = \
     {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
@@ -412,7 +417,7 @@ model_config_toy = \
             'batch_size': 32, # batch size
         },
         'reZeroTF_POD_snapshot':{
-            'n_layers': 4, # number of layers in the transformer
+            'n_layers': 8, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
             'n_embd': 100, # number of hidden units in the transformer
             'n_ffn_embd': 100, # number of hidden units in the FFN
@@ -421,7 +426,7 @@ model_config_toy = \
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
+            'batch_size': 4, # batch size
         },
         'reZeroNAT_POD_v4':{
             'n_layers': 4, # number of layers in the transformer
@@ -530,7 +535,7 @@ model_config_toy = \
             'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
         },
-        'identity':{
+        'itrDMD':{
             "optimizer": None, # uses default Adam as configured below
             'batch_size': 16, # batch size
             'test_batch_size': 16, # batch size for testing -- for some reason this needs to be the same as batch_size
@@ -732,11 +737,10 @@ def operate_loop(hyp, device):
 
     from core.run2 import run2
 
-
+#     --device {device} \
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --device {device} \
     --dataset_name custom \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \

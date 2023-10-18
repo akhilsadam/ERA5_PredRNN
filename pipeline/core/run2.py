@@ -52,7 +52,7 @@ class run2:
         ##
         # training/test
         parser.add_argument('--is_training', type=int, default=1)
-        parser.add_argument('--device', type=str, default='cpu:0')
+        # parser.add_argument('--device', type=str, default='cpu:0')
         parser.add_argument('--test_batch_size', type=int, default=15)
 
         # data
@@ -157,7 +157,7 @@ class run2:
         if args.multigpu:
             from core.models.model_factory_multiGPU import Model
         else:
-            args.gpu_num = int(args.device.split(':')[1])
+            # args.gpu_num = int(args.device.split(':')[1])
             # torch.cuda.set_device(args.gpu_num)  # old code for picking a GPU
             
             from core.models.model_factory import Model
@@ -411,10 +411,10 @@ class run2:
         lat = torch.linspace(-np.pi/2, np.pi/2, args.img_height+1)
         lat = (lat[1:] + lat[:-1])*0.5
         cos_lat = torch.reshape(torch.cos(lat), (-1,1))
-        args.area_weight = (cos_lat*720/torch.sum(cos_lat)).to(args.device)
+        args.area_weight = (cos_lat*720/torch.sum(cos_lat))#.to(args.device)
         
         if not args.weather_prediction:
-            args.area_weight = torch.ones_like(args.area_weight).to(args.device)
+            args.area_weight = torch.ones_like(args.area_weight)#.to(args.device)
 
         # save_file = ['WV', str(args.is_WV), 'PC', str(args.press_constraint), 'EH', str(args.center_enhance), 'PS', str(args.patch_size)]
         # args.save_file = '_'.join(save_file)

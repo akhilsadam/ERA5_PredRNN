@@ -5,7 +5,7 @@ import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_SROM, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
-    DAT_v2, linint, identity
+    DAT_v2, linint, itrDMD
 from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
@@ -46,16 +46,18 @@ class Model(object):
             'rLSTM': rLSTM.rLSTM,
             'ViT_LDM': ViT_LDM.ViT_LDM,
             'linint': linint.LinearIntegrator, 
-            'identity': identity.Identity,
+            'itrDMD': itrDMD.DMDIntegrator,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
-        device = configs.device # this is plural if Accelerate is used
+        # device = configs.device # this is plural if Accelerate is used
         # self.device = device
         
         self.start_itr = 0
 
         self.accelerator = Accelerator()
         self.device = self.accelerator.device
+        device = self.device
+        configs.device = device
         
         thread = threading.current_thread().name
         name = configs.model_name

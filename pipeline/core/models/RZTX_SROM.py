@@ -42,7 +42,7 @@ class RZTX(BaseModel):
         # number of modes is self.siren_dim
         # so input shape is [mode, time, channels, shapex, shapey]
         
-        self.siren = MLP(4,self.n_siren_embd,1,self.n_siren_layers,"sin",omega_0= self.sfreq / torch.pi,train_omega=True).to(self.device)
+        self.siren = MLP(4,self.n_siren_embd,1,self.n_siren_layers,"sin",omega_0= self.sfreq / torch.pi,train_omega=False).to(self.device)
         
         m = 2*torch.arange(self.siren_dim).to(torch.float32)/self.siren_dim - 1
         # t = torch.arange(self.input_length).to(torch.float32)/self.input_length
@@ -106,7 +106,7 @@ class RZTX(BaseModel):
         out = torch.cat((inpt_restored,outpt_raw),dim=1)  
         out = self.preprocessor.batched_output_transform(out)
                     
-        loss_pred = loss_mixed(out, seq_total, self.input_length)
+        loss_pred = loss_mixed(out, seq_total, 0)
         loss_decouple = torch.tensor(0.0)
 
         return loss_pred, loss_decouple, out
