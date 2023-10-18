@@ -53,7 +53,7 @@ def visualize(hyp):
             genparam = importlib.util.module_from_spec(spec)
             sys.modules["module.name"] = genparam
             spec.loader.exec_module(genparam)
-            varnames = [normalize.short[x] for x in genparam.data['variable']]
+            varnames = [normalize.short[x.split(" ")[0]] for x in genparam.data['variable']]
         else:
             varnames = [f'var {x}' for x in range(5)]
             

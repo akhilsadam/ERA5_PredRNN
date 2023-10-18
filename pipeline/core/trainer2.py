@@ -87,6 +87,11 @@ def test(model, test_input_handle, configs, itr, last_test=False):
         else:
             test_iterations = mab
     
+    with NAA(tdp, delete_if_exists=True) as naa:
+        pass
+    with NAA(pdp, delete_if_exists=True) as naa:
+        pass
+    
     for i in range(test_iterations):
         try:
             test_ims = test_input_handle.get_batch()
