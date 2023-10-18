@@ -34,7 +34,7 @@ if visualize:
 class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
-    pretrain_name='model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
+    pretrain_name=None #'model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
     snapshot_interval = 1000 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
@@ -164,34 +164,34 @@ def run(i, device):
     if visualize and not skip:
         viz(hyp)
 
-def signal_handler(sig, frame):
-    print('\nResting workers...')     
-    global processes, running
-    running.value = 0
-    for t in processes:
-        t.join()
-    print('Done.')
+# def signal_handler(sig, frame):
+#     print('\nResting workers...')     
+#     global processes, running
+#     running.value = 0
+#     for t in processes:
+#         t.join()
+#     print('Done.')
                 
 
 
 if __name__ == '__main__':
+    run(0,"cuda:0")
     
-    
-    # start workers
-    processes = []
+#     # start workers
+#     processes = []
 
-    signal.signal(signal.SIGINT, signal_handler)
-    value = Value('i', 0)
-    for gpu_id in gpus:
-        for thread in range(hyt):
-            env = os.environ.copy()
-            # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
-            t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
-            processes.append(t)
-            t.start()
-            # time.sleep(0.01)
+#     signal.signal(signal.SIGINT, signal_handler)
+#     value = Value('i', 0)
+#     for gpu_id in gpus:
+#         for thread in range(hyt):
+#             env = os.environ.copy()
+#             # env.update({'CUDA_VISIBLE_DEVICES': str(gpu_id)})
+#             t = Process(target=worker, args=(gpu_id,thread,value, env, queue, busy_processes, arr_lock, running))
+#             processes.append(t)
+#             t.start()
+#             # time.sleep(0.01)
 
-    print("Started workers.\nPlease kill with Ctrl-C if necessary.")
+#     print("Started workers.\nPlease kill with Ctrl-C if necessary.")
     
-    for t in processes:
-        t.join()
+#     for t in processes:
+#         t.join()

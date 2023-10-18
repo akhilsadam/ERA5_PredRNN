@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import CyclicLR
 # GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
 # TODO make batch size > 2 possible (at present memory issue, so we need gradient accumulation,
 # also dataset maxes out at 3 batches, so we need to mix datasets)
-WP_GRAD_BATCHES = 4 # batches to accumulate if weather prediction
+WP_GRAD_BATCHES = 8 # batches to accumulate if weather prediction
 model_config = \
     {
         'TF':{
@@ -124,13 +124,13 @@ model_config = \
         'reZeroTF_POD_snapshot':{
             'n_layers': 8, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
-            'n_embd': 400, # number of hidden units in the transformer
-            'n_ffn_embd': 400, # number of hidden units in the FFN
+            'n_embd': 452, # number of hidden units in the transformer
+            'n_ffn_embd': 452, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-6, max_lr=1e-5, cycle_momentum=False, step_size_up=20),
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-5, cycle_momentum=False, step_size_up=20),
             'batch_size': 1, # batch size
             'test_batch_size':1,
         },
@@ -598,10 +598,10 @@ preprocessor_config = \
         'POD_snapshot':{
             'eigenvector': lambda var: f'POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
             'make_eigenvector': False, # whether to compute eigenvectors or not
-            'max_set_eigenvectors': 100, # maximum number of eigenvectors (otherwise uses PVE to determine)
-            'max_eigenvectors': 400,
-            'PVE_threshold': 0.99, # PVE threshold to determine number of eigenvectors
-            'PVE_threshold_2': 0.999,
+            'max_set_eigenvectors': 30, # maximum number of eigenvectors (otherwise uses PVE to determine) (30x4 total per month...)
+            'max_eigenvectors': 300, # 8.7 GB
+            'PVE_threshold': 0.999, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.9995,
             'n_sets': -1, # number of datasets to use, -1 for all
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
@@ -732,11 +732,10 @@ def operate_loop(hyp, device):
 
     from core.run2 import run2
 
-
+#    --device {device} \
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --device {device} \
     --dataset_name custom \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \

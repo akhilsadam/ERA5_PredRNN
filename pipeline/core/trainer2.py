@@ -114,20 +114,21 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             n+=1
             print(f"{configs.save_file}, loss: {loss.mean()}, avg_mse: {avg_mse}")
 
-            if memory_saving and configs.save_output:
-                # test_ims_ALL.append(test_ims.cpu().numpy())
-                # img_out_ALL.append(img_out.cpu().numpy())
-                # del test_ims
-                # del img_out
-                with NAA(tdp) as naa:
-                    naa.append(test_ims.unsqueeze(0).cpu().numpy())
-                with NAA(pdp) as naa:
-                    naa.append(img_out.unsqueeze(0).cpu().numpy())
-                torch.cuda.empty_cache()
-                gc.collect()
-            else:
-                test_ims_ALL.append(test_ims)
-                img_out_ALL.append(img_out)
+            if last_test and configs.save_output:
+                if memory_saving:
+                    # test_ims_ALL.append(test_ims.cpu().numpy())
+                    # img_out_ALL.append(img_out.cpu().numpy())
+                    # del test_ims
+                    # del img_out
+                    with NAA(tdp) as naa:
+                        naa.append(test_ims.unsqueeze(0).cpu().numpy())
+                    with NAA(pdp) as naa:
+                        naa.append(img_out.unsqueeze(0).cpu().numpy())
+                    torch.cuda.empty_cache()
+                    gc.collect()
+                else:
+                    test_ims_ALL.append(test_ims)
+                    img_out_ALL.append(img_out)
             
             test_input_handle.next()
 
