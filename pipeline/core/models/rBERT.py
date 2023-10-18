@@ -75,7 +75,7 @@ class rBERT(BaseModel):
         out = torch.cat((total[:,:self.input_length,:],outpt),dim=1)  
         out = self.preprocessor.batched_output_transform(out)
         
-        loss_pred = loss_mixed(out, seq_total, self.input_length) #+ 0.1*loss_perceptual(out, seq_total, self.input_length)
+        loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight) #+ 0.1*loss_perceptual(out, seq_total, self.input_length)
         loss_decouple = torch.tensor(0.0)
         return loss_pred, loss_decouple, out
 

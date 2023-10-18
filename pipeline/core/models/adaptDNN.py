@@ -182,7 +182,7 @@ class adaptDNN(BaseModel):
         # print(f"AVG CFL: {cfls}")
         print(f'Resweight: {self.resweight}')
         out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
-        loss_pred = loss_mixed(out, seq_total, self.input_length)
+        loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight)
         
         loss_decouple = 0.05 * loss_pred * (self.resweight.sum() - self.resweight.abs().sum())**2
         return loss_pred, loss_decouple, out

@@ -106,7 +106,7 @@ class ViT_LDM(BaseModel):
         
     #     out = self.preprocessor.batched_output_transform(outpt)
             
-    #     loss_pred = loss_mixed(out, seq_total, self.input_length)
+    #     loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight)
     #     loss_decouple = torch.tensor(0.0)
         
     def core_forward(self, seq_total, istrain=True, **kwargs):

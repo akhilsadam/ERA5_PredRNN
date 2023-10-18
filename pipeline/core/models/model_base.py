@@ -42,6 +42,7 @@ class BaseModel(nn.Module):
         self.cur_width = width
         self.img_height = self.configs.img_height
         self.img_width = self.configs.img_width
+        self.weight = self.configs.area_weight
     
     @abc.abstractmethod
     def edit_config(self,configs):

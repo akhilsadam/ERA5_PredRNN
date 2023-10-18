@@ -97,7 +97,7 @@ class DAT(BaseModel):
         out = self.preprocessor.batched_output_transform(outpt)
         out = torch.cat((seq_total[:,:self.input_length,:],out),dim=1)
                     
-        loss_pred = loss_mixed(out, seq_total, self.input_length)
+        loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight)
         loss_decouple = torch.tensor(0.0)
         return loss_pred, loss_decouple, out
 

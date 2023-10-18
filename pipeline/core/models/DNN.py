@@ -152,7 +152,7 @@ class DNN(BaseModel):
         loss_decouple = torch.tensor(0.0)
         out = torch.concat([seq_total[:,:self.configs.input_length,:],out],dim=1)
         
-        loss_pred = loss_mixed(out, seq_total, self.input_length)
+        loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight)
         
         return loss_pred, loss_decouple, out
 
