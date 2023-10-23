@@ -449,7 +449,7 @@ model_config_toy = \
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-3, cycle_momentum=False, step_size_up=20),
             'batch_size': 16, # batch size
             'test_batch_size': 10, # batch size for testin
         }, 

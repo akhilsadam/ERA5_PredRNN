@@ -51,6 +51,9 @@ class RZTX(BaseModel):
         sy = 2*torch.arange(shapey).to(torch.float32)/shapey - 1
         self.in_mesh = torch.stack(torch.meshgrid(m,c,sx,sy, indexing='ij'), dim=0).to(self.device)
         self.siren_shape = (self.siren_dim, self.preprocessor.latent_dims[-1], shapex, shapey)
+        
+        self.mtm_shape = (self.siren_dim,self.siren_dim)
+        self.mask = 1 - torch.eye(self.mtm_shape[0]).to(self.device)
             
         self.model = ReZero_base( \
                          ntoken=self.siren_dim, # attend along time dimension , so mode dim here
@@ -107,7 +110,9 @@ class RZTX(BaseModel):
         out = self.preprocessor.batched_output_transform(out)
                     
         loss_pred = loss_mixed(out, seq_total, self.input_length, self.weight)
-        loss_decouple = torch.tensor(0.0)
+
+        loss_decouple = torch.sum(self.mask * torch.einsum('mchw,nchw->mn', modes, modes)**2) # off diagonals set to 0.
+        #torch.tensor(0.0)
 
         return loss_pred, loss_decouple, out
 
