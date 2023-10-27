@@ -29,7 +29,7 @@ def make_US(D, D_t, PVE_threshold, max_v, us=True):
         # D = USV^T -> D_t @ D = V @ S^2 @ V^T, so US = DV = D @ Q
         
         # reduce Q
-        PVE = torch.cumsum(eig[1:]**2, dim=0) / torch.sum(eig[1:]**2) # make sure to skip the mean
+        PVE = torch.cumsum(eig[1:], dim=0) / torch.sum(eig[1:]) # make sure to skip the mean
         n = min(torch.where(PVE > PVE_threshold)[0][0] + 1, len(eig))
         print(n, PVE[n])
         
@@ -42,8 +42,11 @@ def make_US(D, D_t, PVE_threshold, max_v, us=True):
         if us:
             out = D @ Q_red # [S, n]  
         
+        else:
         # return U = D @ Q_red @ S^-1
-        out = D @ Q_red @ torch.diag(1/torch.sqrt(eig[:n])) # [S, n]
+            # out = D @ Q_red @ torch.diag(1/torch.sqrt(eig[:n])) # [S, n]
+            out = D @ Q_red @ torch.diag(1/torch.sqrt(eig[:n])), eig[:n] # [S, n] 
+            
         
         del D, D_t, cov, eig, Q, Q_red
         gc.collect()
@@ -119,12 +122,13 @@ class Preprocessor(PreprocessorBase):
                 
             M_t = M.T # [T, S]
             logger.info(f'Computing eigenvectors for all variables (together)...')
-            U = make_US(M, M_t, self.PVE_threshold_2, max_v = self.max_eigenvectors, us=False) # [S, n]   
+            U, eig = make_US(M, M_t, self.PVE_threshold_2, max_v = self.max_eigenvectors,us=False) # [S, n]    #  do we want it downscaled by importance?
 
 
 
 
         eigenvectors = U.numpy() # input transformation is a = U.T @ x, output transformation is y = U @ a
+        evals = eig.numpy()
         print(eigenvectors.shape)
         latent_dimension = eigenvectors.shape[1]
         
@@ -132,6 +136,7 @@ class Preprocessor(PreprocessorBase):
         logger.info(f'Saving eigenvectors ...')
         vdict = {
             'eigenvectors': eigenvectors,
+            'eigenvalues' : evals,
             'latent_dimension': latent_dimension,
             'method': [rows,cols]
         }
@@ -155,7 +160,7 @@ class Preprocessor(PreprocessorBase):
                 imageio.imwrite(f"{self.eigenvector_vis_path}/{v}/{i}.png", imc, format='JPEG')
             
         torch.cuda.synchronize()            
-        del datasets, U, eigenvectors, latent_dimension, vdict
+        del datasets, U, eigenvectors, evals, latent_dimension, vdict
         gc.collect()
         torch.cuda.empty_cache()
         
@@ -166,22 +171,27 @@ class Preprocessor(PreprocessorBase):
         self.scale, self.shift = super().load_scale(device)
         
         data = np.load(self.eigenvector_path(""))
-        self.data_torch = torch.from_numpy(data['eigenvectors']).float().to(device)
+        self.eigenvectors = torch.from_numpy(data['eigenvectors']).float()
+        self.sing_values = torch.sqrt(torch.from_numpy(data['eigenvalues'])).float()
         latent_dims = [0,int(data['latent_dimension']),] # number of latent dimensions
         # latent_dims.insert(0,0)
+        rows = data['method'][0] 
         
-        def in_tf(method):
-            rows = method[0] 
-            return lambda eigen,x: torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows))# torch.matmul(eigen.T, x.reshape(x.size(0),x.size(1),rows))
-                
-        def out_tf(eigen,a):
-            out = torch.einsum('sl,btl->bts',eigen, a)
-            return (out.reshape(out.size(0), out.size(1), -1, self.shapex, self.shapey) - self.shift) / self.scale 
+        eigen = self.eigenvectors.to(device) # unit length axes (loss starts at 300)
+        # eigen = torch.einsum('sl,l->sl',self.eigenvectors,self.sing_values).to(device) # importance-scaled axes (Mahalanobis, isotropic gaussian result) - (loss starts at 1e26?!)
+        # eigen = torch.einsum('sl,l->sl',self.eigenvectors,1/self.sing_values).to(device) # rev-importance-scaled axes (really shrinks small axes) - (loss also starts at 300, but has difficulty decreasing..
+        
+        def in_tf(eigen, x):
+            return torch.einsum('sl,bts->btl',eigen, (x*self.scale + self.shift).reshape(x.size(0),x.size(1),rows)) 
+            
+        def out_tf(eigen, a):
+            out = torch.einsum('sl,btl->bts',eigen, a) 
+            return (out.reshape(out.size(0), out.size(1), -1, self.shapex, self.shapey) - self.shift) / self.scale
             
         self.patch_x = 1
         self.patch_y = 1
         self.latent_dims = latent_dims
         # self.input_transform = lambda x: torch.stack([in_tf(data[v]['method'])(data_torch[v],x[:,v,:,:]) for v in range(self.n_var)],dim=1)
-        self.batched_input_transform = lambda x: (in_tf(data['method'])(self.data_torch,x)).unsqueeze(-1).unsqueeze(-1)
+        self.batched_input_transform = lambda x: in_tf(eigen, x).unsqueeze(-1).unsqueeze(-1)
         # self.output_transform = lambda a: torch.stack([out_tf(data[v]['method'])(data_torch[v],a[:,latent_dims[v]:latent_dims[v+1]]).reshape(-1, self.shapex, self.shapey) for v in range(self.n_var)],dim=1)
-        self.batched_output_transform = lambda a: (out_tf(self.data_torch,a[:,:,:,0,0]))
+        self.batched_output_transform = lambda a: out_tf(eigen, a[:,:,:,0,0])

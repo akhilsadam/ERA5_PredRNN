@@ -27,7 +27,7 @@
 #SBATCH -p rtx          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes (must be 1 for serial)
 #SBATCH -n 1               # Total # of mpi tasks (should be 1 for serial)
-#SBATCH -t 8:00:00        # Run time (hh:mm:ss)
+#SBATCH -t 16:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
 ### #SBATCH -A myproject       # Project/Allocation name (req'd if you have more than 1)
 #SBATCH --mail-user=akhil.sadam@utexas.edu
@@ -50,4 +50,5 @@ export NCCL_DEBUG=INFO;
 export NCCL_SOCKET_IFNAME=en,eth,em,bond;
 export CXX=g++;
 
-accelerate launch train.py -m reZeroTF -pre POD_snapshot
+accelerate launch train.py -m reZeroTF -pre POD_snapshot -a 2
+#python3 train.py -m reZeroTF -pre POD_snapshot
