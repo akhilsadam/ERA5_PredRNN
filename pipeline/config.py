@@ -183,6 +183,15 @@ model_config = \
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testin
         },
+        'DMDNet_POD_snapshot':{
+            'n_layers': 1, # number of layers 
+            # 'n_embd': 100, # number of hidden units
+            'dropout': 0.1, # dropout rate
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=4e-3, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
+        },
         'predrnn_v2_POD':{
             # "optimizer": None, # uses default Adam as configured below
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'

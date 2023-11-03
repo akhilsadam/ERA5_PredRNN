@@ -5,7 +5,7 @@ from torch.nn.parameter import Parameter
 from core.models.model_base import BaseModel
 from core.loss import loss_mixed
 
-class DMD_Net(nn.Module):
+class DMDNet(nn.Module):
     def __init__(self, num_layers, num_hidden, configs):
         super().__init__()
         
