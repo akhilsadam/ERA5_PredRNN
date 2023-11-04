@@ -188,7 +188,7 @@ model_config = \
             # 'n_embd': 100, # number of hidden units
             'dropout': 0.1, # dropout rate
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=4e-3, cycle_momentum=False, step_size_up=20),
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-4, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 1, # batch size
             'test_batch_size': 1, # batch size for testin
         },
@@ -204,6 +204,15 @@ model_config = \
     }
 model_config_toy = \
     {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
+        'DMDNet':{
+            'n_layers': 1, # number of layers 
+            # 'n_embd': 100, # number of hidden units
+            'dropout': 0.1, # dropout rate
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-4, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 4, # batch size
+            'test_batch_size': 1, # batch size for testin
+        },
         'reZeroNAT_LG':{
             'n_layers': 1, # number of layers in the transformer # memory issues with increasing this
             'n_head': 1, # number of heads in the transformer # cannot change at present
