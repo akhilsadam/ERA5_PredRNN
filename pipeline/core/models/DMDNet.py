@@ -19,7 +19,10 @@ class DMDNet(BaseModel):
         # self.reweight = torch.zeros_like(self.weight).T.to(self.device)
         
         self.m = self.preprocessor.latent_dims[-1] # number of modes
-        self.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1).to(torch.cfloat)) for _ in range(self.num_layers)])
+        # sel.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1).to(torch.cfloat)) for _ in range(self.num_layers)])
+        self.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
+        # no need for complex since we are not powering the matrix and u are real
+
 
     def core_forward(self, seq_total, istrain=True, **kwargs):
         total = self.preprocessor.batched_input_transform(seq_total)  # needs dimension shrinking like POD
@@ -53,7 +56,7 @@ class DMDNet(BaseModel):
     def flat_forward(self,x, i):
         # x is sequence (L,N)
         # u_pre = (self.modes.T@x).to(torch.cfloat) # (m,L) @ (L,N) = (m,N)
-        u_pre = x.to(torch.cfloat)
+        u_pre = x #.to(torch.cfloat)
         
         u = u_pre # (m,m) @ (m,N) = (m,N)
         # u = torch.linalg.multi_dot([self.rot.T,self.modes.T,x]) # (m,m) @ (m,L) @ (L,N) = (m,N)
@@ -74,7 +77,7 @@ class DMDNet(BaseModel):
             uc = torch.cat([uc[:,1:],u2.unsqueeze(1)],dim=1)
         
         # x2 = torch.linalg.multi_dot([self.modes, self.rot, uc]) # (L,N)
-        x2_pre = uc.to(torch.float) #(self.rot@uc).to(torch.double) # (m,N)
+        x2_pre = uc #.to(torch.float) #(self.rot@uc).to(torch.double) # (m,N)
         # x2 = self.modes@x2_pre # (L,m) @ (m,N) = (L,N)
         x2 = x2_pre # (m,N)
         
