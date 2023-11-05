@@ -20,7 +20,10 @@ class DMDNet(BaseModel):
         
         self.m = self.preprocessor.latent_dims[-1] # number of modes
         # sel.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1).to(torch.cfloat)) for _ in range(self.num_layers)])
-        self.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
+        self.A = nn.ParameterList([Parameter(torch.zeros((1,self.m,self.m)).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
+        with torch.no_grad():
+            for i in range(self.num_layers):
+                self.A[i].data[0,:,:] = torch.eye(self.m) # initialize to identity
         # no need for complex since we are not powering the matrix and u are real
 
 
