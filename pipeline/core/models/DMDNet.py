@@ -52,7 +52,7 @@ class DMDNet(BaseModel):
         
         # print(x2.size(),total.size())
         
-        loss_pred = loss_mixed(x2, total_flat[:,self.input_length:,], 0, weight=1.0) # not weighted, coefficient loss
+        loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0) # not weighted, coefficient loss
 
         return loss_pred, loss_decouple, out
 

@@ -50,5 +50,5 @@ export NCCL_DEBUG=INFO;
 export NCCL_SOCKET_IFNAME=en,eth,em,bond;
 export CXX=g++;
 
-accelerate launch train.py -m reZeroTF -pre POD_snapshot -a 2
-#python3 train.py -m reZeroTF -pre POD_snapshot
+accelerate launch train.py -m DMDNet -pre POD_snapshot
+#python3 train.py -m DMDNet -pre POD_snapshot -p 4000

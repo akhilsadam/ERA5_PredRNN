@@ -47,8 +47,8 @@ class hyperparam:
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
-    input_length = 20 # number of input frames (must be <= total_length)
-    total_length = 40 # total number of frames (must be equal to frames slices as given by dataset)
+    input_length = 40 # number of input frames (must be <= total_length)
+    total_length = 70 # total number of frames (must be equal to frames slices as given by dataset)
     ## 
     overrides = {}
     ##
