@@ -35,12 +35,13 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 250 # save model every n iterations
+    snapshot_interval = 500 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
     project_name = 'DMDNet' # name of wandb project
     interpret = False # interpret model
+    profile = False # run profiler?
     ##
     save_test_output=True # save test output to file
     weather_prediction=True # use PDE_* data or CDS_* data
@@ -147,6 +148,7 @@ def run(i, device):
     
     logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%y-%m-%d %H:%M', handlers = [logging.FileHandler(f'run_{i}.log'), logging.StreamHandler()])
+
     
     if mode < 3:
         for t,p,s in zip(tr,ptn,sal):

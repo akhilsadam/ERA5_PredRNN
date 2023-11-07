@@ -80,8 +80,10 @@ class DMDNet(BaseModel):
             
             
             # faster version
-            # Add batch dimension to uc (1, m, N), compute batch matrix multiplication between uc and A, and reshape adj to (N, m) for element-wise addition
-            adj = torch.einsum('bmn,nmp->bp', uc, self.A[i]) # (1, m, N) x (N, m, m) -> (1, N, m)
+            # compute batch matrix multiplication between uc and A, and reshape adj to (N, m) for element-wise addition
+            # print(uc.shape)
+            # print(self.A[i].shape)
+            adj = torch.einsum('bnm,nmp->bp', uc, self.A[i]) # (B, N, m) x (N, m, m) -> (1, N, m)
             # Update u2
             u2 = u2 + adj
             

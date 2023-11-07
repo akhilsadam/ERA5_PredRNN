@@ -22,7 +22,8 @@ class Model(object):
     def __init__(self, configs):
         self.configs = configs
         self.num_hidden = [int(x) for x in configs.num_hidden.split(',')]
-        self.num_layers = len(self.num_hidden)
+        # self.num_layers = len(self.num_hidden)
+        self.num_layers = configs.num_layers
         networks_map = {
             # 'predrnn': predrnn.RNN,
             'predrnn_v2': predrnn_v2_adj.RNN,
@@ -161,10 +162,16 @@ class Model(object):
         load_checkpoint_in_model(self.network, checkpoint_path)
 
     def train(self, frames, mask, istrain=True):
-        gc.collect()
+        # gc.collect()
         torch.cuda.empty_cache()
-        frames_tensor = torch.FloatTensor(frames).to(self.device)
-        mask_tensor = torch.FloatTensor(mask).to(self.device)
+        frames_tensor_cpu = torch.FloatTensor(frames)
+        frames_tensor = frames_tensor_cpu.to(self.device)
+        del frames_tensor_cpu
+        
+        mask_tensor_cpu = torch.FloatTensor(mask)
+        mask_tensor = mask_tensor_cpu.to(self.device)
+        del mask_tensor_cpu
+        
         with self.accelerator.accumulate(self.network):
             self.optimizer.zero_grad()
             loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)

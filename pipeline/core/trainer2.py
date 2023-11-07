@@ -100,13 +100,17 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     
     for i in range(test_iterations):
         try:
-            test_ims = test_input_handle.get_batch()
+            test_ims_cpu = test_input_handle.get_batch()
             # print(f"test_ims shape: {test_ims.shape}")
             
-            test_ims = torch.FloatTensor(test_ims).to(configs.device)
+            # test_ims = torch.FloatTensor(test_ims)
+            test_ims = test_ims_cpu.to(configs.device) # a float tensor by default
+            del test_ims_cpu
+            
             output_length = configs.total_length - configs.input_length
             torch.cuda.empty_cache()
-            gc.collect()
+            # gc.collect()
+            
             img_out, loss, loss_pred, decouple_loss = model.test(test_ims, real_input_flag)
             img_out = img_out.detach()
 
@@ -125,7 +129,8 @@ def test(model, test_input_handle, configs, itr, last_test=False):
                     with NAA(pdp) as naa:
                         naa.append(img_out.unsqueeze(0).cpu().numpy())
                     torch.cuda.empty_cache()
-                    gc.collect()
+                    # gc.collect()
+                    del test_ims, img_out
                 else:
                     test_ims_ALL.append(test_ims)
                     img_out_ALL.append(img_out)

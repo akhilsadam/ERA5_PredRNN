@@ -208,9 +208,9 @@ model_config_toy = \
             'n_layers': 1, # number of layers 
             # 'n_embd': 100, # number of hidden units
             'dropout': 0.1, # dropout rate
-            'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-4, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 4, # batch size
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=1e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 16, # batch size
             'test_batch_size': 1, # batch size for testin
         },
         'reZeroNAT_LG':{
@@ -795,6 +795,7 @@ def operate_loop(hyp, device):
     --batch_size {batch} \
     --test_batch_size {test_batch} \
     --max_iterations {hyp.max_iterations} \
+    --profile {hyp.profile} \
     --display_interval 1000 \
     --test_interval 10 \
     --snapshot_interval {snapshot} \
@@ -853,6 +854,7 @@ def operate_loop(hyp, device):
     args.optim_lm = model_args['optimizer']
     args.scheduler = model_args['scheduler'] if 'scheduler' in model_args else None
     args.batch_size = model_args['batch_size'] if 'batch_size' in model_args else args.batch_size
+    args.num_layers = model_args['n_layers'] if 'n_layers' in model_args else len(num_hidden.split(','))
     if 'test_batch_size' in model_args:
         args.test_batch_size = model_args['test_batch_size']
     args.weather_prediction = hyp.weather_prediction

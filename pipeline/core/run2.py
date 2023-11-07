@@ -43,6 +43,7 @@ class run2:
 
         # more params on model selection (added by Akhil)
         parser.add_argument('--multigpu', type=bool, default=False) # not used TODO remove after adding accelerator
+        parser.add_argument('--profile', type=str2bool, default=False)
 
         # option to save test output
         parser.add_argument('--save_output', type=str2bool, default=False)
@@ -462,7 +463,18 @@ class run2:
 
 
         if args.is_training:
-            train_wrapper(model)
+            if args.profile:
+                from torch.profiler import profile, record_function, ProfilerActivity, tensorboard_trace_handler
+                with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA,], profile_memory=True, record_shapes=True, with_stack=True,on_trace_ready=tensorboard_trace_handler("trace")) as prof:
+                    with record_function("train_wrapper"):
+                        train_wrapper(model)
+                # prof.export_chrome_trace("trace.json")
+                print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
+                quit()
+                
+                # see with `tensorboard --logdir=./trace`
+            else:
+                train_wrapper(model)
         else:
             test_wrapper(model)
         

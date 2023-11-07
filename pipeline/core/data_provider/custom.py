@@ -5,7 +5,7 @@ import zipfile
 import threading
 import gc
 import uuid
-import logging
+import logging, logging.handlers
 
 logging.basicConfig(filename="data_provider.log",
                     filemode='a',
@@ -13,7 +13,9 @@ logging.basicConfig(filename="data_provider.log",
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-logger = logging.getLogger('CDP')
+logger = logging.getLogger('CDP')    
+memory_handler = logging.handlers.MemoryHandler(capacity=50, flushLevel=logging.ERROR, flushOnClose=True)
+logger.addHandler(memory_handler)
 # logger.setLevel(logging.CRITICAL) # to disable logging
 
 def get_shape(path):
@@ -66,19 +68,21 @@ class DataUnit:
     def allocate(self, k):
         # prefetch all at once, starting from image k... (gpu_index is set to 0 at this point)
         self.start_index = k
-        gc.collect()
+        # gc.collect()
+        rdata = np.flip(np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :],axis=0)
+        fdata = rdata.copy() # not sure why flip is needed, but it is
+        del rdata
+        # gc.collect()
         
-        fdata = np.flip(np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :],axis=0).copy() # not sure why flip is needed, but it is
+        tdata = torch.from_numpy(fdata)
+        self.data = tdata.to(torch.float32)
+        del tdata # need this since copy from float64->32 happens, unfortunately
         
-        gc.collect()
         
-        self.data = torch.from_numpy(
-            fdata
-            ).to(torch.float32)
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
         self.recently_allocated = True
         
-        gc.collect()
+        # gc.collect()
         
     def update(self, gpu_index):
         if not self.recently_allocated:
@@ -96,9 +100,12 @@ class DataUnit:
             #     np.roll(np.load(self.cpath, mmap_mode='r')["input_raw_data"],cu_index,axis=0)[:self.total_length, self.img_layers, :, :]
             #     ).to(torch.float32)
             
-            rolled = torch.from_numpy(
-                np.flip(np.roll(np.load(self.cpath, mmap_mode='r')["input_raw_data"],-(cu_index),axis=0),axis=0)[:self.total_length, self.img_layers, :, :]
-                ).to(torch.float32)
+            npflat = np.load(self.cpath, mmap_mode='r')["input_raw_data"]
+            troll = torch.from_numpy(np.flip(np.roll(npflat,-(cu_index),axis=0),axis=0)[:self.total_length, self.img_layers, :, :]) # roll creates copy
+            del npflat
+                        
+            rolled = troll.to(torch.float32) # unfortunately data was saved in float64
+            del troll
             
             a = set_index
             b = (set_index + self.total_length) % self.dsize
@@ -107,6 +114,8 @@ class DataUnit:
                 self.data[a:] = rolled[:c]
                 self.data[:b] = rolled[c:]
             else: self.data[a:b] = rolled
+            
+            del rolled
 
 
             
@@ -255,7 +264,7 @@ class DataBatch(torch.utils.data.Dataset):
                 for t in self.threads:
                     t.join()
                 self.threads = []
-                gc.collect()
+                # gc.collect()
                 logger.info(f"Finished update thread {self.gpu_index // self.total_length}")
             
         
