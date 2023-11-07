@@ -23,7 +23,7 @@ class DMDNet(BaseModel):
         self.A = nn.ParameterList([Parameter(torch.zeros((1,self.m,self.m)).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
         with torch.no_grad():
             for i in range(self.num_layers):
-                self.A[i].data[0,:,:] = torch.eye(self.m) # initialize to identity
+                self.A[i].data[-1,:,:] = torch.eye(self.m) # initialize to identity
         # no need for complex since we are not powering the matrix and u are real
 
 
@@ -70,13 +70,21 @@ class DMDNet(BaseModel):
         uc = u
         for _ in range(self.predict_length): # prediction loop
             u2 = torch.zeros_like(uc[:,0])
-            for j in range(self.input_length):
-                adj =  uc[:,-j] @ self.A[i][j] # (m) # A[i] is (N,m,m), so A[i][j] is (m,m)
+            # for j in range(self.input_length):
+            #     adj =  uc[:,-j] @ self.A[i][j] # (m) # A[i] is (N,m,m), so A[i][j] is (m,m)
                 
-                # decouple = decouple - torch.sum((torch.bmm(u2.real.view(nbatch,1,latent),adj.real.view(nbatch,latent,1)))**2) # decouple loss, note batched vector dot
-                # this decouple loss is flat-out wrong
+            #     # decouple = decouple - torch.sum((torch.bmm(u2.real.view(nbatch,1,latent),adj.real.view(nbatch,latent,1)))**2) # decouple loss, note batched vector dot
+            #     # this decouple loss is flat-out wrong
                 
-                u2 = u2 + adj
+            #     u2 = u2 + adj
+            
+            
+            # faster version
+            # Add batch dimension to uc (1, m, N), compute batch matrix multiplication between uc and A, and reshape adj to (N, m) for element-wise addition
+            adj = torch.einsum('bmn,nmp->bp', uc, self.A[i]) # (1, m, N) x (N, m, m) -> (1, N, m)
+            # Update u2
+            u2 = u2 + adj
+            
             uc = torch.cat([uc[:,1:],u2.unsqueeze(1)],dim=1)
         
         # x2 = torch.linalg.multi_dot([self.modes, self.rot, uc]) # (L,N)

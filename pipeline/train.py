@@ -35,7 +35,7 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 400 # save model every n iterations
+    snapshot_interval = 250 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
@@ -47,8 +47,8 @@ class hyperparam:
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
-    input_length = 40 # number of input frames (must be <= total_length)
-    total_length = 70 # total number of frames (must be equal to frames slices as given by dataset)
+    input_length = 30 # number of input frames (must be <= total_length)
+    total_length = 50 # total number of frames (must be equal to frames slices as given by dataset)
     ## 
     overrides = {}
     ##

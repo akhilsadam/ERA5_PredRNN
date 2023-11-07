@@ -66,7 +66,12 @@ class DataUnit:
     def allocate(self, k):
         # prefetch all at once, starting from image k... (gpu_index is set to 0 at this point)
         self.start_index = k
+        gc.collect()
+        
         fdata = np.flip(np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :],axis=0).copy() # not sure why flip is needed, but it is
+        
+        gc.collect()
+        
         self.data = torch.from_numpy(
             fdata
             ).to(torch.float32)
