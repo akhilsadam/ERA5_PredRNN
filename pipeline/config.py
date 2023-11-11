@@ -8,7 +8,7 @@ from torch.optim.lr_scheduler import CyclicLR
 # GPU_use = 1 # number of GPUs to use per model # >1 not supported yet
 # TODO make batch size > 2 possible (at present memory issue, so we need gradient accumulation,
 # also dataset maxes out at 3 batches, so we need to mix datasets)
-WP_GRAD_BATCHES = 2 # batches to accumulate if weather prediction
+WP_GRAD_BATCHES = 1 # batches to accumulate if weather prediction
 model_config = \
     {
         'TF':{
@@ -183,13 +183,22 @@ model_config = \
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testin
         },
-        'DMDNet_POD_snapshot':{
+        'DMDNet':{
             'n_layers': 1, # number of layers 
             # 'n_embd': 100, # number of hidden units
-            'dropout': 0.1, # dropout rate
+            'dropout': 0.0, # dropout rate
             'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
+            'batch_size': 1, # batch size
+            'test_batch_size': 1, # batch size for testin
+        },
+        'ComplexDMDNet':{
+            'n_layers': 1, # number of layers 
+            # 'n_embd': 100, # number of hidden units
+            'dropout': 0.0, # dropout rate
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-4, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size
             'test_batch_size': 1, # batch size for testin
         },
         'predrnn_v2_POD':{
@@ -623,6 +632,16 @@ preprocessor_config = \
             'n_sets': -1, # number of datasets to use, -1 for all
             # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
         },
+        'SHM_POD_snapshot':{
+            'eigenvector': lambda var: f'SHM_POD_snap_eigenvector_{var}.npz', # place to store precomputed eigenvectors
+            'make_eigenvector': False, # whether to compute eigenvectors or not
+            'max_set_eigenvectors': 30, # maximum number of eigenvectors (otherwise uses PVE to determine) (30x4 total per month...)
+            'max_eigenvectors': 300, # 8.7 GB
+            'PVE_threshold': 0.90, # PVE threshold to determine number of eigenvectors
+            'PVE_threshold_2': 0.9999,
+            'n_sets': -1, # number of datasets to use, -1 for all
+            # 'randomized_svd_k': 10, # number of eigenvectors to compute using randomized SVD
+        },
         'DMD':{
             'eigenvector': lambda var: f'DMD_eigenvector_{var}.npz', # place to store precomputed eigenvectors in the data directory
             # (var is the variable name)
@@ -640,6 +659,9 @@ preprocessor_config = \
         'control':{
         },
         'scale':{
+        },
+        'SHM':{
+            'n_modes': 10, # m**2 / 2 true modes
         },
         'CNN':{
         },
