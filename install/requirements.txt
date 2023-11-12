@@ -24,3 +24,4 @@ adabound
 pydmd
 natten@git+https://github.com/SHI-Labs/NATTEN.git # may need to install cuda 11.7 on TACC, be prepared 
 npy-append-array
+torch-tb-profiler # only needed to profile
