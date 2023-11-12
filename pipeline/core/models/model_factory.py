@@ -5,7 +5,7 @@ import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_SROM, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
-    DAT_v2, linint, identity, DMDNet
+    DAT_v2, linint, identity, DMDNet, ComplexDMDNet
 from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
@@ -49,6 +49,7 @@ class Model(object):
             'linint': linint.LinearIntegrator, 
             'identity': identity.Identity,
             'DMDNet': DMDNet.DMDNet,
+            'ComplexDMDNet':ComplexDMDNet.DMDNet,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
         # device = configs.device # this is plural if Accelerate is used
@@ -180,7 +181,10 @@ class Model(object):
             self.accelerator.backward(loss)
         
         try:
-            nploss = loss.detach().cpu().numpy()
+            if loss.dtype == torch.cfloat:
+                nploss = np.sqrt(loss.imag.item()**2 + loss.real.item()**2)
+            else:
+                nploss = loss.item() #.detach().cpu().numpy()
         except Exception as e:
             nploss = 0.0
             self.print (f"Could not convert loss to numpy: {e}")

@@ -70,7 +70,7 @@ class BaseModel(nn.Module):
             return loss, loss_pred.detach(), decouple_loss.detach()
         else:
             next_frames = self.reshape_back_tensor(next_frames, self.patch_size)
-            return next_frames, loss, loss_pred, decouple_loss
+            return next_frames, loss, loss_pred.detach(), decouple_loss.detach()
     
 
     def reshape_back_tensor(self, img_tensor, patch_size):

@@ -21,13 +21,15 @@ class DMDNet(BaseModel):
         self.m = self.preprocessor.latent_dims[-1] # number of modes
         # sel.A = nn.ParameterList([Parameter(torch.eye(self.m).repeat(self.input_length,1,1).to(torch.cfloat)) for _ in range(self.num_layers)])
         # w = 1e-5
-        self.A = nn.ParameterList([Parameter(torch.zeros((1,self.m,self.m)).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
+        self.Ar = nn.ParameterList([Parameter(torch.zeros((1,self.m,self.m)).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
+        self.Ai = nn.ParameterList([Parameter(torch.zeros((1,self.m,self.m)).repeat(self.input_length,1,1)) for _ in range(self.num_layers)])
         with torch.no_grad():
             for i in range(self.num_layers):
                 # for j in range(self.input_length):
                 #     factor = 1 / math.factorial(j+1)
                 #     self.A[i].data[-j,:,:] = factor * torch.eye(self.m) # initialize to identity
-                self.A[i].data[-1,:,:] = torch.eye(self.m)
+                self.Ar[i].data[-1,:,:] = torch.eye(self.m)
+                
         # no need for complex since we are not powering the matrix and u are real
 
 
@@ -46,8 +48,10 @@ class DMDNet(BaseModel):
             x2 = x2 + step
             # TODO want to change x_in to be x_in - self.flat_backward(x2,i) (predictor and corrector) for next layer
         
+        x3 = x2.real
+        
         if not istrain:
-            outpt = x2        
+            outpt = x3        
             outpt = outpt.reshape(outpt.shape[0],outpt.shape[1],nc,sx,sy)
             out = torch.cat((total[:,:self.input_length,:],outpt),dim=1)  
             out = self.preprocessor.batched_output_transform(out)
@@ -56,7 +60,7 @@ class DMDNet(BaseModel):
         
         # print(x2.size(),total.size())
         
-        loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.5, b=0.01) # not weighted, coefficient loss
+        loss_pred = loss_mixed(x3[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.5, b=0.01) # not weighted, coefficient loss
 
         return loss_pred, loss_decouple, out
 
@@ -87,9 +91,10 @@ class DMDNet(BaseModel):
             # compute batch matrix multiplication between uc and A, and reshape adj to (N, m) for element-wise addition
             # print(uc.shape)
             # print(self.A[i].shape)
-            adj = torch.einsum('bnm,nmp->bp', uc, self.A[i]) # (B, N, m) x (N, m, m) -> (1, N, m)
+            adj_real = torch.einsum('bnm,nmp->bp', uc.real, self.Ar[i]) - torch.einsum('bnm,nmp->bp', uc.imag, self.Ai[i]) # (B, N, m) x (N, m, m) -> (1, N, m)
+            adj_imag = torch.einsum('bnm,nmp->bp', uc.imag, self.Ar[i]) + torch.einsum('bnm,nmp->bp', uc.real, self.Ai[i])
             # Update u2
-            u2 = u2 + adj
+            u2 = u2 + torch.complex(adj_real,adj_imag)
             
             uc = torch.cat([uc[:,1:],u2.unsqueeze(1)],dim=1)
         

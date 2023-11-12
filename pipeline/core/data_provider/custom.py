@@ -52,6 +52,7 @@ class DataUnit:
         self.up_index = -total_length # update index (for the next batch)
         self.recently_allocated = False
         
+        self.skipped = 0 # how many updates were skipped (should be about 1 maximum every dataset)
         
         
         
@@ -103,23 +104,29 @@ class DataUnit:
             npflat = np.load(self.cpath, mmap_mode='r')["input_raw_data"]
             troll = torch.from_numpy(np.flip(np.roll(npflat,-(cu_index),axis=0),axis=0)[:self.total_length, self.img_layers, :, :]) # roll creates copy
             del npflat
+            
+            if troll.shape[0] < self.total_length:
+                # missing last segment: skip this update; all batches are similar size, so will be updated soon
+                self.skipped +=1
+                logger.info(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) skipped for the {self.skipped} time.")
+                if self.skipped >=2:
+                    logger.critical(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) SKIPPED FOR THE {self.skipped} time.")
+            else:            
                         
-            rolled = troll.to(torch.float32) # unfortunately data was saved in float64
-            del troll
-            
-            a = set_index
-            b = (set_index + self.total_length) % self.dsize
-            if b < a:
-                c = self.dsize - a
-                self.data[a:] = rolled[:c]
-                self.data[:b] = rolled[c:]
-            else: self.data[a:b] = rolled
-            
-            del rolled
-
-
-            
-            logger.info(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) updated from {self.clpath}: ({cu_index}:{cu_index+self.total_length})")
+                rolled = troll.to(torch.float32) # unfortunately data was saved in float64
+                del troll
+                
+                a = set_index
+                b = (set_index + self.total_length) % self.dsize
+                if b < a:
+                    c = self.dsize - a
+                    self.data[a:] = rolled[:c]
+                    self.data[:b] = rolled[c:]
+                else: self.data[a:b] = rolled
+                
+                del rolled
+                
+                logger.info(f"\tDataUnit {self.id}: ({set_index}:{(self.total_length+set_index) % self.dsize}) updated from {self.clpath}: ({cu_index}:{cu_index+self.total_length})")
             
             # # move start index back to current image
             # if self.recently_allocated:
