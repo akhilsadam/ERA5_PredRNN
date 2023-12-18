@@ -35,7 +35,7 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_1000.ckpt' #'model_best_mse.ckpt' # None if no pretrained model
-    snapshot_interval = 500 # save model every n iterations
+    snapshot_interval = 200 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
@@ -61,7 +61,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 501
+hyp.max_iterations = 201
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]

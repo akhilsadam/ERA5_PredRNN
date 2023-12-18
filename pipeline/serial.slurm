@@ -51,4 +51,4 @@ export NCCL_SOCKET_IFNAME=en,eth,em,bond;
 export CXX=g++;
 
 accelerate launch train.py -m DMDNet -pre SHM_POD_snapshot
-#python3 train.py -m DMDNet -pre SHM_POD_snapshot
+#python3 train.py -m DMDNet -pre SHM_POD_snapshot -a 2
