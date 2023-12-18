@@ -208,8 +208,8 @@ model_config = \
             'batch_size': 2, # batch size
             'test_batch_size': 2, # batch size for testing -- for some reason this needs to be the same as batch_size
             'patch_size': 1, # divides the image l,w - breaks it into patches that are FCN into the hidden layers (so each patch_size x patch_size -> # of hidden units).
-        }
-        'FPNet_POD':{
+        },
+        'FPNet_POD_snapshot':{
             'n_layers': 4, # number of layers 
             # 'n_embd': 100, # number of hidden units
             'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'

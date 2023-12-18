@@ -44,34 +44,33 @@ class FPNet(BaseModel):
         
         loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.1, b=0.01) # not weighted, coefficient loss
 
-        return loss_pred, torch.tensor(0.0), out
+        return loss_pred, decouple_loss, out
 
 
     def R(self,x,t):
         # t  :  B, N, m
         # x  :  B, 1, m - the solution at next step
         
-        # normalize against the last known value
-        n = t[:,-1:,:]
+        # # normalize against the last known value
+        # n = t[:,-1:,:]
         
-        t = t / n
-        x = x / n
+        # t = t / n
+        # x = x / n
         
         # network
         flat = torch.flatten(torch.cat([x,t],dim=1),start_dim=1)
-        flat = self.net()
+        flat = self.net(flat)
         x2 = flat.reshape(x.shape)
         
-        # rescale
-        x2 = x2 * n
+        # skip rescale
         
-        return x2    
+        return x2
         
         
         
 
     def fixed_point(self, t, it=15):
-        f = lambda x,t : x - R(x, t)
+        f = lambda x,t : x - self.R(x, t)
         
         # initial condition
         x = t[:,-1:,:]
@@ -90,17 +89,17 @@ class FPNet(BaseModel):
         xp = x + ep
         xn = x - ep
         
-        bwd = R(xp,t) - x # > ep
-        fwd = x - R(xn,t) # > 0, < ep
+        bwd = self.R(xp,t) - x # > ep
+        fwd = x - self.R(xn,t) # > 0, < ep
         
-        decouple = torch.nn.functional.relu(ep - bwd) \
-            + torch.nn.functional.relu(-fwd) \
-            + torch.nn.functional.relu(fwd-ep)
+        decouple = torch.mean(torch.nn.functional.relu(ep - bwd)**2) \
+            + torch.mean(torch.nn.functional.relu(-fwd)**2) \
+            + torch.mean(torch.nn.functional.relu(fwd-ep)**2)
 
         return x, decouple
 
     def flat_forward(self,x):
-        decouple = torch.tensor(0.0)
+        decouple = 0.0
         
         uc = x #(B,N,m)
         for _ in range(self.predict_length): # prediction loop
