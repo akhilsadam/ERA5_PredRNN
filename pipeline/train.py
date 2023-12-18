@@ -39,7 +39,7 @@ class hyperparam:
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'DMDNet' # name of wandb project
+    project_name = 'FPNet' # name of wandb project
     interpret = False # interpret model
     profile = False # run profiler?
     ##
@@ -48,8 +48,8 @@ class hyperparam:
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
-    input_length = 30 # number of input frames (must be <= total_length)
-    total_length = 50 # total number of frames (must be equal to frames slices as given by dataset)
+    input_length = 20 # number of input frames (must be <= total_length)
+    total_length = 40 # total number of frames (must be equal to frames slices as given by dataset)
     ## 
     overrides = {}
     ##
@@ -61,7 +61,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations = 201
+hyp.max_iterations = 1000
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]

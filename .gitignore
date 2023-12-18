@@ -11,3 +11,4 @@ git-secret/
 model_ls6/
 data_ls6/
 **.pt
+apex/
