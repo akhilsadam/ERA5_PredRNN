@@ -44,7 +44,7 @@ class FPNet(BaseModel):
         
         loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.1, b=0.01) # not weighted, coefficient loss
 
-        return loss_pred, decouple_loss, out
+        return loss_pred, decouple_loss*loss_pred, out
 
 
     def R(self,x,t):
@@ -69,7 +69,7 @@ class FPNet(BaseModel):
         
         
 
-    def fixed_point(self, t, it=15):
+    def fixed_point(self, t, it=6):
         f = lambda x,t : x - self.R(x, t)
         
         # initial condition
