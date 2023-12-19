@@ -70,14 +70,16 @@ class DataUnit:
         # prefetch all at once, starting from image k... (gpu_index is set to 0 at this point)
         self.start_index = k
         # gc.collect()
-        rdata = np.flip(np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :],axis=0)
-        fdata = rdata.copy() # not sure why flip is needed, but it is
-        del rdata
+        # rdata = np.flip(np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :].astype(np.float32),axis=0)
+        # fdata = rdata.copy() # not sure why flip is needed, but it is
+        # del rdata
         # gc.collect()
         
-        tdata = torch.from_numpy(fdata)
-        self.data = tdata.to(torch.float32)
-        del tdata # need this since copy from float64->32 happens, unfortunately
+        fdata = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize:-1, self.img_layers, :, :].astype(np.float32)
+        self.data = torch.from_numpy(fdata)
+        # tdata = torch.from_numpy(fdata)
+        # self.data = tdata.to(torch.float32)
+        # del tdata # need this since copy from float64->32 happens, unfortunately
         
         
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
