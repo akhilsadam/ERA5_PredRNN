@@ -75,7 +75,7 @@ class DataUnit:
         # del rdata
         # gc.collect()
         
-        fdata = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize:-1, self.img_layers, :, :].astype(np.float32)
+        fdata = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k+self.dsize:k:-1, self.img_layers, :, :].astype(np.float32)
         self.data = torch.from_numpy(fdata)
         # tdata = torch.from_numpy(fdata)
         # self.data = tdata.to(torch.float32)
