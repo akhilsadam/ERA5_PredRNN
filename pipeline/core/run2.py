@@ -232,7 +232,7 @@ class run2:
 
 
 
-        def train_wrapper(model):
+        def train_wrapper(model,prof=None):
             torch.cuda.empty_cache()
             if args.pretrained_model and os.path.exists(args.pretrained_model):
                 model.load(args.pretrained_model)
@@ -380,7 +380,8 @@ class run2:
                         train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
-                    
+                    if prof is not None:
+                        prof.step()
             print('Training done')
             # test_wrapper(model, last=True, load=False) 
                         
@@ -465,9 +466,17 @@ class run2:
         if args.is_training:
             if args.profile:
                 from torch.profiler import profile, record_function, ProfilerActivity, tensorboard_trace_handler
-                with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA,], profile_memory=True, record_shapes=True, with_stack=True,on_trace_ready=tensorboard_trace_handler("trace")) as prof:
+                with profile(
+                    schedule=torch.profiler.schedule(wait=1, warmup=1, active=10, repeat=0),
+                    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA,],
+                    profile_memory=True,
+                    record_shapes=True, 
+                    with_stack=True,
+                    with_flops=True,
+                    with_modules=True,
+                    on_trace_ready=tensorboard_trace_handler("trace")) as prof:
                     with record_function("train_wrapper"):
-                        train_wrapper(model)
+                        train_wrapper(model,prof=prof)
                 # prof.export_chrome_trace("trace.json")
                 # create a wandb Artifact
                 profile_art = wandb.Artifact("trace", type="profile")
