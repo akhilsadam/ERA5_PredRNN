@@ -19,7 +19,7 @@ class FPNet(BaseModel):
         
         # self.reweight = torch.zeros_like(self.weight).T.to(self.device)
         
-        self.m = self.preprocessor.latent_dims[-1] # number of modes
+        self.m = self.preprocessor.latent_dims[-1]*self.preprocessor.patch_x*self.preprocessor.patch_y # number of modes
         sz = self.m * (self.input_length + 1)
         osz = self.m
         self.net = MLP(sz,sz,osz,configs.model_args['n_layers'],"sin",omega_0=(self.m/math.pi))
@@ -92,9 +92,9 @@ class FPNet(BaseModel):
         bwd = self.R(xp,t) - x # > ep
         fwd = x - self.R(xn,t) # > 0, < ep
         
-        decouple = torch.mean(torch.nn.functional.relu(ep - bwd)**2) \
-            + torch.mean(torch.nn.functional.relu(-fwd)**2) \
-            + torch.mean(torch.nn.functional.relu(fwd-ep)**2)
+        decouple = torch.tensor(0.0) #torch.mean(torch.nn.functional.relu(ep - bwd)**2) \
+            #+ torch.mean(torch.nn.functional.relu(-fwd)**2) \
+            #+ torch.mean(torch.nn.functional.relu(fwd-ep)**2)
 
         return x, decouple
 
