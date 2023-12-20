@@ -469,6 +469,12 @@ class run2:
                     with record_function("train_wrapper"):
                         train_wrapper(model)
                 # prof.export_chrome_trace("trace.json")
+                # create a wandb Artifact
+                profile_art = wandb.Artifact("trace", type="profile")
+                # add the pt.trace.json files to the Artifact
+                profile_art.add_file(glob.glob("trace/" + ".pt.trace.json"))
+                # log the artifact
+                profile_art.save()
                 print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
                 quit()
                 
