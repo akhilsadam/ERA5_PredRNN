@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 import random
 import wandb
+import glob
 
 from scipy import ndimage
 
@@ -244,7 +245,7 @@ class run2:
             # for file in train_data_files:
             #     print(file)
             
-            slow = args.dataset_name != 'custom'
+            slow = 'custom' not in args.dataset_name
             
             if slow:
                 print(train_data_files)
@@ -389,7 +390,7 @@ class run2:
         def test_wrapper(model, last=True, load=True):
             if load:
                 model.load(args.pretrained_model)
-            slow = args.dataset_name != 'custom'
+            slow = 'custom' not in args.dataset_name
             
             if 'test_input_handle' not in model.__dict__ or slow:
                 # one time setup
@@ -465,9 +466,9 @@ class run2:
 
         if args.is_training:
             if args.profile:
-                from torch.profiler import profile, record_function, ProfilerActivity, tensorboard_trace_handler
+                from torch.profiler import profile, schedule, record_function, ProfilerActivity, tensorboard_trace_handler
                 with profile(
-                    schedule=torch.profiler.schedule(wait=1, warmup=1, active=10, repeat=0),
+                    schedule=schedule(wait=1, warmup=1, active=2, repeat=0),
                     activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA,],
                     profile_memory=True,
                     record_shapes=True, 
@@ -477,14 +478,15 @@ class run2:
                     on_trace_ready=tensorboard_trace_handler("trace")) as prof:
                     with record_function("train_wrapper"):
                         train_wrapper(model,prof=prof)
+                print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
                 # prof.export_chrome_trace("trace.json")
                 # create a wandb Artifact
                 profile_art = wandb.Artifact("trace", type="profile")
                 # add the pt.trace.json files to the Artifact
-                profile_art.add_file(glob.glob("trace/" + ".pt.trace.json"))
+                [profile_art.add_file(m) for m in glob.glob("trace/" + ".pt.trace.json")]
                 # log the artifact
                 profile_art.save()
-                print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
+                
                 quit()
                 
                 # see with `tensorboard --logdir=./trace`

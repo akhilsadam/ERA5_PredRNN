@@ -1,8 +1,9 @@
-from core.data_provider import custom, mnist_new #, bair
+from core.data_provider import custom_PDE,custom_CDS, mnist_new #, bair
 
 datasets_map = {
     'mnist': mnist_new,
-    'custom': custom,
+    'custom_PDE': custom_PDE,
+    'custom_CDS': custom_CDS,
     #'action': kth_action,
     # 'bair': bair,
 }
@@ -14,7 +15,7 @@ def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
     if dataset_name not in datasets_map:
         raise ValueError('Name of dataset unknown %s' % dataset_name)
     img_layers = [int(x) for x in img_layers.split(',')]
-    if dataset_name in ['mnist', 'custom'] :
+    if dataset_name in ['mnist', 'custom_PDE', 'custom_CDS'] :
         if is_testing:
             valid_data_list = valid_data_paths.split(',')
             test_input_param = {'paths': valid_data_list,

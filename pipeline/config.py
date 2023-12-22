@@ -222,7 +222,7 @@ model_config = \
 model_config_toy = \
     {# note base learning rate is 1e-3 for all models (denoted by y in the optimizer)
         'FPNet':{
-            'n_layers': 4, # number of layers 
+            'n_layers': 0, # number of layers 
             # 'n_embd': 100, # number of hidden units
             'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-4, cycle_momentum=False, step_size_up=20),
@@ -792,7 +792,7 @@ def operate_loop(hyp, device):
     cmdargs = f"--is_training {train_int} \
     --test_iterations {test_iterations} \
     {concurrency} \
-    --dataset_name custom \
+    --dataset_name custom_CDS \
     --train_data_paths {train_data_paths} \
     --valid_data_paths {valid_data_paths} \
     {save} \
@@ -835,7 +835,7 @@ def operate_loop(hyp, device):
     --max_iterations {hyp.max_iterations} \
     --profile {hyp.profile} \
     --display_interval 1000 \
-    --test_interval 40 \
+    --test_interval 10 \
     --snapshot_interval {snapshot} \
     --conv_on_input 0 \
     --res_on_conv 0 \
