@@ -47,6 +47,7 @@ def test(model, test_input_handle, configs, itr, last_test=False):
     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), 'testing...')
     
     memory_saving = True # configs.weather_prediction
+    using_input_flag = False # if predrnn, use input_flag
     max_batches = 10000
     if configs.weather_prediction:
         max_batches = 25 # hack to make sure we don't run out of memory
@@ -56,14 +57,19 @@ def test(model, test_input_handle, configs, itr, last_test=False):
         mask_input = 1
     else:
         mask_input = configs.input_length
+        
+    if using_input_flag:
 
-    real_input_flag = torch.zeros((configs.test_batch_size, configs.total_length-mask_input-1, 1, 1, 1))
-    # print(f"real_input_flag: {real_input_flag.shape}")
-    if configs.reverse_scheduled_sampling == 1:
-        real_input_flag[:, :configs.input_length - 1, :, :] = 1.0
+        real_input_flag = torch.zeros((configs.test_batch_size, configs.total_length-mask_input-1, 1, 1, 1))
+        # print(f"real_input_flag: {real_input_flag.shape}")
+        if configs.reverse_scheduled_sampling == 1:
+            real_input_flag[:, :configs.input_length - 1, :, :] = 1.0
 
-    # test_ims = test_input_handle.get_batch()
-    real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device)
+        # test_ims = test_input_handle.get_batch()
+        real_input_flag = torch.FloatTensor(real_input_flag).to(configs.device, non_blocking=True)
+    else:
+        real_input_flag = None
+        
     test_ims_ALL = []
     img_out_ALL = []
     avg_mse = 0
@@ -104,11 +110,11 @@ def test(model, test_input_handle, configs, itr, last_test=False):
             # print(f"test_ims shape: {test_ims.shape}")
             
             # test_ims = torch.FloatTensor(test_ims)
-            test_ims = test_ims_cpu.to(configs.device) # a float tensor by default
+            test_ims = test_ims_cpu.to(configs.device, non_blocking=True) # a float tensor by default
             del test_ims_cpu
             
             output_length = configs.total_length - configs.input_length
-            torch.cuda.empty_cache()
+            # torch.cuda.empty_cache()
             # gc.collect()
             
             img_out, loss, loss_pred, decouple_loss = model.test(test_ims, real_input_flag)

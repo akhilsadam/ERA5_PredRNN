@@ -63,7 +63,7 @@ class Model(object):
         self.device = self.accelerator.device
         self.configs.device = self.accelerator.device
         self.configs.preprocessor.device = self.accelerator.device
-        self.configs.area_weight = self.configs.area_weight.to(device)
+        self.configs.area_weight = self.configs.area_weight.to(device, non_blocking=True)
         
         thread = threading.current_thread().name
         name = configs.model_name
@@ -165,19 +165,19 @@ class Model(object):
 
     def train(self, frames, mask, istrain=True):
         # gc.collect()
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         frames_tensor_cpu = torch.FloatTensor(frames)
-        frames_tensor = frames_tensor_cpu.to(self.device)
+        frames_tensor = frames_tensor_cpu.to(self.device, non_blocking=True)
         del frames_tensor_cpu
         
         mask_tensor_cpu = torch.FloatTensor(mask)
-        mask_tensor = mask_tensor_cpu.to(self.device)
+        mask_tensor = mask_tensor_cpu.to(self.device, non_blocking=True)
         del mask_tensor_cpu
         
         with self.accelerator.accumulate(self.network):
             self.optimizer.zero_grad()
             loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
-            torch.cuda.empty_cache()
+            # torch.cuda.empty_cache()
             # loss.backward()
             self.accelerator.backward(loss)
         
