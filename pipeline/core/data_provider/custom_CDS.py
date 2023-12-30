@@ -1,4 +1,6 @@
 import numpy as np
+import ctypes
+import multiprocessing as mp
 import torch
 import random
 import zipfile
@@ -55,6 +57,21 @@ class DataUnit:
         self.skipped = 0 # how many updates were skipped (should be about 1 maximum every dataset)
         
         
+        ############ set up multiprocessing arrays to save space
+        # self.data64 is float64 np array
+        # self.data is float32 torch array
+        # self.recently_allocated = mp.Value(ctypes.c_int, 0)
+        # memsize = self.dsize*shapes[0][1]*shapes[0][2]*shapes[0][3]
+        # array_base_64 = mp.Array(ctypes.c_double, memsize)
+        # self.data64 = np.ctypeslib.as_array(array_base_64.get_obj())
+        # self.data64 = self.data64.reshape(self.dsize,shapes[0][1],shapes[0][2],shapes[0][3])
+        # array_base_32 = mp.Array(ctypes.c_float, memsize)
+        # data32 = np.ctypeslib.as_array(array_base_32.get_obj())
+        # data32 = data32.reshape(self.dsize,shapes[0][1],shapes[0][2],shapes[0][3])
+        # self.data = torch.from_numpy(data32)        
+        
+        
+        
         
     def get_index(self, gpu_index=0):
         # logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}, start_index: {self.start_index}")
@@ -67,6 +84,10 @@ class DataUnit:
         logger.info(f"\tDataUnit {self.id} connected to {self.clpath} or index {i}")
     
     def allocate(self, k):
+        
+        # if self.recently_allocated ==1:
+        #     return
+        
         # prefetch all at once, starting from image k... (gpu_index is set to 0 at this point)
         self.start_index = k
         # gc.collect()
@@ -75,15 +96,18 @@ class DataUnit:
         # del rdata
         # gc.collect()
         
-        fdata = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k+self.dsize:k:-1, self.img_layers, :, :].astype(np.float32)
-        self.data = torch.from_numpy(fdata)
+        data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k+self.dsize:k:-1, self.img_layers, :, :]
+        data32 = torch.from_numpy(data64.astype(np.float32))
+        del data64
+        self.data = data32.pin_memory()
+        del data32
         # tdata = torch.from_numpy(fdata)
         # self.data = tdata.to(torch.float32)
         # del tdata # need this since copy from float64->32 happens, unfortunately
         
         
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
-        # self.recently_allocated = True
+        # self.recently_allocated = 1
         
         # gc.collect()
         
@@ -244,7 +268,7 @@ class DataBatch(torch.utils.data.Dataset):
             
             unit.connect(index)
             
-            unit.allocate(self.base_start_index) 
+            unit.allocate(self.base_start_index) # TODO add locks to this
 
             # if self.ordered_testing:
             #     unit.allocate(self.base_start_index)
@@ -258,6 +282,9 @@ class DataBatch(torch.utils.data.Dataset):
         
         #     out = unit.get(self.gpu_index) # discard first batch
         # else:
+        #      for u in self.units:
+        #         u.recently_allocated = 0
+            
         out = unit.get(self.gpu_index)
             
         # step after all units (every batch)
@@ -323,9 +350,9 @@ class InputHandle:
         self.total_length = input_param['total_length']
         self.prefetch_size = input_param.get('prefetch_size', 1) # holds CPU pinned memory of size prefetch+1 x a single GPU minibatch (timeseries sample) per DataUnit
         
-        testing = input_param.get('testing', False)
+        self.testing = input_param.get('testing', False)
         
-        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size, testing)       
+        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size, self.testing)       
         
     def get_max_batches(self):
         return self.dataset.max_batches
@@ -337,7 +364,11 @@ class InputHandle:
         return self.dataset.total
 
     def begin(self, do_shuffle=True):
-        self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.dataset.batch_size, shuffle = do_shuffle, pin_memory=True)
+        if self.testing:
+            self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.dataset.batch_size, shuffle = False, pin_memory=False, num_workers=0)
+        else:
+            self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.dataset.batch_size, shuffle = False, pin_memory=False, num_workers=1, persistent_workers=True, prefetch_factor=2) # shuffle= do_shuffle not needed as we do it ourselves
+            # more workers require multiple allocations??
 
     def next(self):
         pass
