@@ -147,7 +147,7 @@ class Model(object):
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(citr)+'.ckpt')
         
         confile = checkpoint_path+'config.json'
-        if not os.path.exists(self.confile):
+        if not os.path.exists(confile):
             with open(confile, 'w') as f:
                 json.dump(self.conf_dict, f, indent=4)
                 
