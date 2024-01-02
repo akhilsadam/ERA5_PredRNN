@@ -136,10 +136,12 @@ def test(model, test_input_handle, configs, itr, last_test=False):
                         naa.append(img_out.unsqueeze(0).cpu().numpy())
                     torch.cuda.empty_cache()
                     # gc.collect()
-                    del test_ims, img_out
+                    
                 else:
                     test_ims_ALL.append(test_ims)
                     img_out_ALL.append(img_out)
+                    
+            del test_ims, img_out, loss, loss_pred, decouple_loss
             
             test_input_handle.next()
 

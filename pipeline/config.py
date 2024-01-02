@@ -213,9 +213,9 @@ model_config = \
             'n_layers': 4, # number of layers 
             # 'n_embd': 100, # number of hidden units
             'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
-            'test_batch_size': 2, # batch size for testing
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-3, cycle_momentum=False, step_size_up=20),
+            'batch_size': 1, # batch size, will be mult by number of GPU, so really 4
+            'test_batch_size': 1, # batch size for testing
         },
 
     }
@@ -835,7 +835,7 @@ def operate_loop(hyp, device):
     --max_iterations {hyp.max_iterations} \
     --profile {hyp.profile} \
     --display_interval 1000 \
-    --test_interval 40 \
+    --test_interval 10 \
     --snapshot_interval {snapshot} \
     --conv_on_input 0 \
     --res_on_conv 0 \

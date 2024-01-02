@@ -117,6 +117,8 @@ def visualize(hyp):
             for var in range(variables):
                 for bq in bts:
                     b = bq // gt.shape[1]
+                    if b == gt.shape[0]:
+                        continue # check to make sure
                     a = bq % gt.shape[1]
                     for stepi in sps:
 

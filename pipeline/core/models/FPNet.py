@@ -22,7 +22,7 @@ class FPNet(BaseModel):
         self.m = self.preprocessor.latent_dims[-1]*self.preprocessor.patch_x*self.preprocessor.patch_y # number of modes
         sz = self.m * (self.input_length + 1)
         osz = self.m
-        self.net = MLP(sz,sz,osz,configs.model_args['n_layers'],"sin",omega_0=(self.m/math.pi))
+        self.net = MLP(sz,sz,osz,configs.model_args['n_layers'],"sin",omega_0=(self.preprocessor.latent_dims[-1]/math.pi))
 
 
     def core_forward(self, seq_total, istrain=True, **kwargs):
@@ -42,7 +42,7 @@ class FPNet(BaseModel):
         else:
             out = total_flat
         
-        loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.1, b=0.01) # not weighted, coefficient loss
+        loss_pred = loss_mixed(x2[:,-self.predict_length:,], total_flat[:,self.input_length:,], 0, weight=1.0, a=0.2, b=0.01) # not weighted, coefficient loss
 
         return loss_pred, decouple_loss*1e-3, out
 
@@ -69,7 +69,7 @@ class FPNet(BaseModel):
         
         
 
-    def fixed_point(self, t, it=6):
+    def fixed_point(self, t, it=9):
         f = lambda x,t : x - self.R(x, t)
         
         # initial condition

@@ -170,9 +170,10 @@ class Model(object):
         frames_tensor = frames_tensor_cpu.to(self.device, non_blocking=True)
         del frames_tensor_cpu
         
-        mask_tensor_cpu = torch.FloatTensor(mask)
-        mask_tensor = mask_tensor_cpu.to(self.device, non_blocking=True)
-        del mask_tensor_cpu
+        # mask_tensor_cpu = torch.FloatTensor(mask)
+        # mask_tensor = mask_tensor_cpu.to(self.device, non_blocking=True)
+        # del mask_tensor_cpu
+        mask_tensor = None
         
         with self.accelerator.accumulate(self.network):
             self.optimizer.zero_grad()

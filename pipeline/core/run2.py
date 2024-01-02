@@ -16,6 +16,8 @@ import torch.nn as nn
 import random
 import wandb
 import glob
+import logging
+logger = logging.getLogger('RUN')
 
 from scipy import ndimage
 
@@ -239,8 +241,9 @@ class run2:
                 model.load(args.pretrained_model)
             model.network.train()
             curr_pos = 0
-            real_input_flag = np.zeros((args.batch_size, args.total_length-1-1, 1, 1, 1))
-            real_input_flag[:, :args.input_length - 1, :, :] = 1.0
+            # real_input_flag = np.zeros((args.batch_size, args.total_length-1-1, 1, 1, 1))
+            # real_input_flag[:, :args.input_length - 1, :, :] = 1.0
+            real_input_flag = None
             train_data_files = args.train_data_paths.split(',')
             # for file in train_data_files:
             #     print(file)
@@ -359,7 +362,7 @@ class run2:
                     for i in range(model.accumulate_batch):
                         
                         ims = train_input_handle.get_batch()
-                        ims = ims[:,:,:args.img_channel,:,:]
+                        # ims = ims[:,:,:args.img_channel,:,:] # redundant
                         
                         # if args.reverse_scheduled_sampling == 1:
                         #     real_input_flag = reserve_schedule_sampling_exp(itr)
@@ -383,6 +386,7 @@ class run2:
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
                     if prof is not None:
                         prof.step()
+                        
             print('Training done')
             # test_wrapper(model, last=True, load=False) 
                         

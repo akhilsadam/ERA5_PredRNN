@@ -8,6 +8,7 @@ import threading
 import gc
 import uuid
 import logging, logging.handlers
+import inspect, os
 
 logging.basicConfig(filename="data_provider.log",
                     filemode='a',
@@ -16,7 +17,7 @@ logging.basicConfig(filename="data_provider.log",
                     level=logging.DEBUG)
 
 logger = logging.getLogger('CDP')    
-memory_handler = logging.handlers.MemoryHandler(capacity=50, flushLevel=logging.ERROR, flushOnClose=True)
+memory_handler = logging.handlers.MemoryHandler(capacity=50, flushLevel=logging.DEBUG, flushOnClose=True)
 logger.addHandler(memory_handler)
 # logger.setLevel(logging.CRITICAL) # to disable logging
 
@@ -30,6 +31,60 @@ def get_shape(path):
                 break
     return shape
 
+
+
+def retrieve_name(var):
+    cframe = inspect.currentframe()
+    frame = cframe.f_back.f_back.f_back # two f_back to get_batch context, and another f_back to original context
+    caller = frame.f_code.co_name
+    
+    # do 3 steps to make sure
+    items = []
+    for _ in range(3): 
+        callers_local_vars = frame.f_locals.items()
+        nm = [var_name for var_name, var_val in callers_local_vars if var_val is var]
+        name = f"{nm}" if len(nm) != 0 else ""
+
+        items.append(name)
+        frame = frame.f_back
+        
+    return f"{caller}: {'->'.join(items)}"
+
+def getTsize(a):
+    return a.element_size()*a.nelement()*1e-9 # in GB
+def getAsize(a):
+    return a.itemsize*a.size*1e-9 # in GB
+
+def mem_prof():
+    pid = os.getpid()
+    logger.info(f"CPU MEM----------------{pid}")
+    gc.collect()
+    mem = 0
+    
+    def check(obj, opt="", threshold=0.01):
+        cmem = 0
+        try:
+            if torch.is_tensor(obj) and obj.get_device()==-1:
+                cmem = getTsize(obj)
+                if cmem > threshold:
+                    logger.info(f"{pid}--{opt}torch {retrieve_name(obj)}, {obj.dtype}, {obj.size()}, {cmem} GB")
+            elif isinstance(obj, (np.ndarray)):
+                cmem = getAsize(obj)
+                if cmem > threshold:
+                    logger.info(f"{pid}--{opt}numpy {retrieve_name(obj)}, {obj.dtype}, {obj.shape}, {cmem} GB")
+            # else:
+            #     logger.info(f"-- {obj.__name__}, {obj.dtype}, {obj.shape()}")
+        except Exception as e:
+            logger.warn(e)
+        
+        return cmem
+    
+    for obj in gc.get_objects():
+        mem += check(obj)
+    for obj in gc.garbage:
+        mem += check(obj, opt="DEL ")
+
+    logger.info(f"CPU MEM END-------------{pid}: {mem} GB")
 
 
 class DataUnit:
@@ -96,6 +151,10 @@ class DataUnit:
         # del rdata
         # gc.collect()
         
+        del self.data
+        # gc.collect()
+        mem_prof()
+        
         data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k+self.dsize:k:-1, self.img_layers, :, :]
         data32 = torch.from_numpy(data64.astype(np.float32))
         del data64
@@ -107,9 +166,10 @@ class DataUnit:
         
         
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
+        logger.info("<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>> ")
         # self.recently_allocated = 1
         
-        # gc.collect()
+        gc.collect()
         
     # def update(self, gpu_index):
     #     if not self.recently_allocated:
@@ -376,5 +436,6 @@ class InputHandle:
     def no_batch_left(self):
         return self.dataset.step == 0
 
-    def get_batch(self):
+    def get_batch(self): 
+        mem_prof()      
         return next(iter(self.dataloader))
