@@ -41,10 +41,10 @@ class hyperparam:
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
     project_name = 'FPNet' # name of wandb project
     interpret = False # interpret model
-    profile = True # run profiler?
+    profile = False # run profiler?
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     n_valid = 1 # number of validation datasets to use
     max_datasets = args.max_datasets # maximum number of datasets to use (0 for all)
     ##
@@ -53,6 +53,7 @@ class hyperparam:
     ## 
     overrides = {}
     ##
+    opts = ""
     opt_str="_WP" if weather_prediction else ""
 
 
@@ -61,7 +62,7 @@ hyp = hyperparam()
 # hyp.overrides.update({'n_ffn_embd': 200}) #128
 # hyp.overrides.update({'n_head': 4})
 hyp.n_valid = 12 if hyp.weather_prediction else 1
-hyp.max_iterations =200
+hyp.max_iterations =2000
 # hyp.overrides.update({'n_embd': 400}) #64
 if mode == -1:
     tr = [False]

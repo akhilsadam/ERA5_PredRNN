@@ -699,7 +699,7 @@ def operate_loop(hyp, device):
         os.environ['LD_LIBRARY_PATH'] = '/usr/lib/wsl/lib'
 
     datadir = os.path.abspath(userparam.param['data_dir'])
-    options=hyp.opt_str
+    options=hyp.opts+hyp.opt_str
     checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
     os.makedirs(checkpoint_dir, exist_ok=True)
 
