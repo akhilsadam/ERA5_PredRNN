@@ -155,7 +155,7 @@ class DataUnit:
         # gc.collect()
         mem_prof()
         
-        data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k+self.dsize:k:-1, self.img_layers, :, :]
+        data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :] # k+self.dsize:k:-1
         data32 = torch.from_numpy(data64.astype(np.float32))
         del data64
         self.data = data32.pin_memory()

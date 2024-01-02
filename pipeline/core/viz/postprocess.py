@@ -108,7 +108,7 @@ def visualize(hyp):
             # bts = np.arange(0,bs-0.9,1).astype(int)
             # linspace instead at 5 points
             bts = np.linspace(0,bs-0.9,5).astype(int)
-            sps = [0,5,25,30,38]
+            sps = [5,25,30,38]
             # sps = list(range(39))
             
             cmw = jpcm.get('desert')
