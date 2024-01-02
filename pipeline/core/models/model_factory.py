@@ -145,17 +145,23 @@ class Model(object):
         # stats = {}
         # stats['net_param'] = self.network.state_dict()
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(citr)+'.ckpt')
-        
-        confile = checkpoint_path+'config.json'
-        if not os.path.exists(confile):
-            with open(confile, 'w') as f:
-                json.dump(self.conf_dict, f, indent=4)
                 
         # torch.save(stats, checkpoint_path)
         self.accelerator.wait_for_everyone()
         self.accelerator.save_model(self.network, checkpoint_path, max_shard_size="1GB")
         self.print("saved model to %s" % checkpoint_path)
-
+        
+        confile = checkpoint_path+'/config.json'
+        def dumper(obj):
+            try:
+                return obj.toJSON()
+            except:
+                return obj.__dict__
+        
+        if not os.path.exists(confile):
+            with open(confile, 'w') as f:
+                json.dump(self.conf_dict, f, default=dumper, indent=4)
+                
     def load(self, checkpoint_path):
         self.print('loading model from', checkpoint_path)
         
