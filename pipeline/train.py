@@ -53,7 +53,7 @@ class hyperparam:
     ## 
     overrides = {}
     ##
-    opts = ""
+    opts = "_siren"
     opt_str="_WP" if weather_prediction else ""
 
 

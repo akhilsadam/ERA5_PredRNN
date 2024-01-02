@@ -212,7 +212,7 @@ model_config = \
         'FPNet_POD_snapshot':{
             'n_layers': 4, # number of layers 
             # 'n_embd': 100, # number of hidden units
-            'activation': 'relu',
+            'activation': 'sin',
             'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-3, cycle_momentum=False, step_size_up=20),
             'batch_size': 1, # batch size, will be mult by number of GPU, so really 4

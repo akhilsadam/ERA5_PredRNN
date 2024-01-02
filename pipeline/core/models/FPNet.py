@@ -22,7 +22,7 @@ class FPNet(BaseModel):
         self.m = self.preprocessor.latent_dims[-1]*self.preprocessor.patch_x*self.preprocessor.patch_y # number of modes
         sz = self.m * (self.input_length + 1)
         osz = self.m
-        self.net = MLP(sz,sz,osz,configs.model_args['n_layers'],configs.activation,omega_0=(self.preprocessor.latent_dims[-1]/math.pi))
+        self.net = MLP(sz,sz,osz,configs.model_args['n_layers'],configs.model_args['activation'],omega_0=(self.preprocessor.latent_dims[-1]/math.pi))
 
 
     def core_forward(self, seq_total, istrain=True, **kwargs):
