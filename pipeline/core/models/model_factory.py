@@ -9,7 +9,7 @@ from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_con
 from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
-import wandb
+import wandb, json
 import gc
 from accelerate import Accelerator, load_checkpoint_in_model
 
@@ -124,14 +124,18 @@ class Model(object):
         
             # + '_'.join((self.configs.save_file, self.configs.run_name))
         )
-        self.wrun = wandb.init(project=self.configs.project, name=run_name, allow_val_change=True, \
-        config={
+        
+        self.conf_dict = {
             'model_name': self.configs.model_name,
             'opt' : self.optimizer.__class__.__name__,
             'lr' : self.optimizer.param_groups[0]["lr"],
-            'batch_size' : self.configs.model_args['batch_size'],
             'preprocessor' : self.configs.preprocessor_name,
-        })
+        }
+        
+        self.conf_dict.update(self.configs.model_args)
+        
+        self.wrun = wandb.init(project=self.configs.project, name=run_name, allow_val_change=True, \
+        config=self.conf_dict)
         
     def finish(self):
         self.wrun.finish()
@@ -141,6 +145,12 @@ class Model(object):
         # stats = {}
         # stats['net_param'] = self.network.state_dict()
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(citr)+'.ckpt')
+        
+        confile = checkpoint_path+'config.json'
+        if not os.path.exists(self.confile):
+            with open(confile, 'w') as f:
+                json.dump(self.conf_dict, f, indent=4)
+                
         # torch.save(stats, checkpoint_path)
         self.accelerator.wait_for_everyone()
         self.accelerator.save_model(self.network, checkpoint_path, max_shard_size="1GB")
