@@ -88,7 +88,7 @@ def mem_prof():
 
 
 class DataUnit:
-    def __init__(self, paths, shapes, prefetch_size, img_channel1, img_layers, total_length, max_batches):
+    def __init__(self, paths, shapes, prefetch_size, img_channel1, img_layers, total_length, total_batches, sanity):
         self.cpath = None
         self.paths = paths
         self.shapes = shapes
@@ -96,7 +96,8 @@ class DataUnit:
         self.img_channel1 = img_channel1
         self.img_layers = img_layers
         self.total_length = total_length
-        self.max_batches = max_batches
+        self.total_batches = total_batches
+        self.sanity = sanity
         self.id = str(uuid.uuid4())[:4]
         
         
@@ -107,6 +108,7 @@ class DataUnit:
         self.data = torch.empty((self.dsize, img_channel1, shapes[0][2], shapes[0][3]), dtype=torch.float32)
         self.start_index = self.base_start_index
         self.up_index = -total_length # update index (for the next batch)
+        self.current_allocation = 0
         # self.recently_allocated = True
         
         self.skipped = 0 # how many updates were skipped (should be about 1 maximum every dataset)
@@ -130,7 +132,7 @@ class DataUnit:
         
     def get_index(self, gpu_index=0):
         # logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}, start_index: {self.start_index}")
-        return (self.start_index + gpu_index) % self.max_batches # this is data index, for a gpu index < max_batches.
+        return (self.start_index + gpu_index) % self.total_batches # this is data index, for a gpu index < max_batches.
         
     def connect(self,i):
         # connect data unit to a particular file
@@ -138,8 +140,9 @@ class DataUnit:
         self.clpath=self.cpath.split('/')[-2][:12]
         logger.info(f"\tDataUnit {self.id} connected to {self.clpath} or index {i}")
     
-    def allocate(self, k):
+    def allocate(self, total_allocation):
         
+        k = self.current_allocation*self.total_length
         # if self.recently_allocated ==1:
         #     return
         
@@ -155,6 +158,11 @@ class DataUnit:
         # gc.collect()
         mem_prof()
         
+        # if self.sanity:
+        #     # make up data as sine
+        #     data64 = np.zeros((self.dsize, self.img_channel1, self.shapes[0][2], self.shapes[0][3]), dtype=np.float64)
+        #     data64[:,:,:,:] = np.sin(np.linspace(0,2*np.pi,self.dsize//2))[:,None,None,None]            
+        # else:        
         data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :] # k+self.dsize:k:-1
         data32 = torch.from_numpy(data64.astype(np.float32))
         del data64
@@ -165,9 +173,10 @@ class DataUnit:
         # del tdata # need this since copy from float64->32 happens, unfortunately
         
         
-        logger.info(f"\tDataUnit {self.id} allocated from {self.clpath}, with start_index {self.start_index}")
+        logger.info(f"\tDataUnit {self.id} allocated from {self.clpath} at start_index {k}")
         logger.info("<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>> ")
         # self.recently_allocated = 1
+        self.current_allocation = (self.current_allocation + 1) % total_allocation
         
         gc.collect()
         
@@ -259,23 +268,25 @@ def make_valid(paths):
 
 
 class DataBatch(torch.utils.data.Dataset):
-    def __init__(self, name, paths, total_length, img_channel1, img_layers, prefetch_size, batch_size, testing):
+    def __init__(self, name, paths, total_length, img_channel1, img_layers, prefetch_size, batch_size, testing, sanity):
         self.paths = make_valid(paths)
         self.total_length = total_length
         self.img_channel1 = img_channel1
         self.img_layers = img_layers
         self.batch_size = batch_size
         self.prefetch_size = prefetch_size
+        self.sanity = sanity
         self.name = name
         
         logger.info(f"{self.name}, Loading data from {self.paths}")
         self.load()
         
-        # odd issue with first batch, we will skip it
-        
         self.dsize = (prefetch_size+1) * total_length # total size of data unit
         self.max_batches = prefetch_size*total_length
+        self.total_allocation = min([s[0] for s in self.shapes])//self.max_batches - 2  # exclusive
+        
         self.base_start_index = 0
+        self.current_allocation = 0
         if testing:
             logger.info("Testing, setting batch size to match number of paths if larger")
             if self.batch_size > len(self.paths):
@@ -283,14 +294,9 @@ class DataBatch(torch.utils.data.Dataset):
             self.path_index = 0
         self.testing = testing
         self.ordered_testing = False
-        # if self.batch_size > len(self.paths):
-        #     logger.warning(f"Batch size {self.batch_size} must be less than number of paths {len(self.paths)}")
-        #     self.batch_size = len(self.paths)
         
         # shape data is [frame, channel, height, width]
-        self.units = [DataUnit(paths, self.shapes, prefetch_size, img_channel1, img_layers, total_length, self.max_batches) for _ in range(self.batch_size)]
-        
-        self.total = self.max_batches * len(self.paths)
+        self.units = [DataUnit(paths, self.shapes, prefetch_size, img_channel1, img_layers, total_length, self.max_batches*self.total_allocation, self.sanity) for _ in range(self.batch_size)]
         
         self.unit_selector = 0
         self.gpu_index = 0 # step isethe current step in each batch of size 1080 or so, gpu_index is that mod dataunit size. Note the local gpu_index will change for dataunits, since that will be modded to get the current batch from whichever location.
@@ -302,11 +308,13 @@ class DataBatch(torch.utils.data.Dataset):
         self.ordered_testing = True
         self.unit_selector = 0
         self.gpu_index = 0
+        self.base_start_index = 0
+        self.current_allocation = 0
         self.step = 0
         self.threads = []    
         
     def __len__(self):
-        return self.max_batches
+        return self.max_batches * self.batch_size * self.total_allocation
     
     def get(self, dummy_index):        
         # get unit
@@ -317,18 +325,21 @@ class DataBatch(torch.utils.data.Dataset):
         if self.step == 0:
             # get index
             # logger.info(self.paths)
+            if unit.current_allocation == 0:
             
-            logger.info(f"High = {len(self.paths)}")
-            if self.ordered_testing:
-                index = self.path_index
-                self.path_index = (self.path_index + 1) % len(self.paths)
-            else:
-                index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
-            # TODO make striated (skip used indices)
+                logger.info(f"High = {len(self.paths)}")
+                if self.ordered_testing:
+                    index = self.path_index
+                    self.path_index = (self.path_index + 1) % len(self.paths)
+                else:
+                    index = torch.randint(low=0, high=len(self.paths), size=(1,)).item()
+                # TODO make striated (skip used indices)
+                
+                unit.connect(index)
+
+            unit.allocate(self.total_allocation) # TODO add locks to this? (check if needed)
             
-            unit.connect(index)
             
-            unit.allocate(self.base_start_index) # TODO add locks to this
 
             # if self.ordered_testing:
             #     unit.allocate(self.base_start_index)
@@ -345,7 +356,12 @@ class DataBatch(torch.utils.data.Dataset):
         #      for u in self.units:
         #         u.recently_allocated = 0
             
-        out = unit.get(self.gpu_index)
+        if self.ordered_testing:
+            idx = self.gpu_index
+        else:
+            idx = self.gpu_index * 7901 % self.max_batches # 7901 is prime, so should be good for randomizing    
+                        
+        out = unit.get(idx)
             
         # step after all units (every batch)
         if self.unit_selector == 0:
@@ -386,7 +402,7 @@ class DataBatch(torch.utils.data.Dataset):
         self.shapes = [get_shape(p) for p in self.paths]
         self.lengths = [s[0] for s in self.shapes]
         self.starts = np.cumsum(self.lengths)
-        # self.max_batches = min([s[0] for s in self.shapes]) - self.total_length -1# exclusive
+        
         
     
 
@@ -401,6 +417,7 @@ class InputHandle:
         self.is_output_sequence = input_param['is_output_sequence']
         self.concurent_step = input_param['concurent_step']
         self.img_layers = input_param['img_layers']
+        self.sanity = input_param.get('sanity_check', False)
         if input_param['is_WV']:
             # print(f"input_param['img_channel']: {input_param['img_channel']}")
             self.img_channel1 = int(input_param['img_channel']/10.)
@@ -412,10 +429,10 @@ class InputHandle:
         
         self.testing = input_param.get('testing', False)
         
-        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size, self.testing)       
+        self.dataset = DataBatch(self.name, self.paths, self.total_length, self.img_channel1, self.img_layers, self.prefetch_size, self.batch_size, self.testing, self.sanity)       
         
     def get_max_batches(self):
-        return self.dataset.max_batches
+        return self.dataset.max_batches * self.dataset.batch_size * self.dataset.total_allocation
     
     def reset_for_full_test(self):
         self.dataset.reset_for_full_test()
@@ -429,6 +446,7 @@ class InputHandle:
         else:
             self.dataloader = torch.utils.data.DataLoader(self.dataset, batch_size = self.dataset.batch_size, shuffle = False, pin_memory=False, num_workers=1, persistent_workers=True, prefetch_factor=2) # shuffle= do_shuffle not needed as we do it ourselves
             # more workers require multiple allocations??
+        self.iterator = iter(self.dataloader)
 
     def next(self):
         pass
@@ -438,4 +456,4 @@ class InputHandle:
 
     def get_batch(self): 
         mem_prof()      
-        return next(iter(self.dataloader))
+        return next(self.iterator)

@@ -2,6 +2,7 @@ import os,sys, importlib, numpy as np
 import matplotlib.pyplot as plt
 import jpcm
 import matplotlib as mpl
+from tqdm import tqdm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.ticker as mticker
 import traceback
@@ -69,7 +70,7 @@ def visualize(hyp):
         # n_batch = hyp.n_valid
         
         
-        options=hyp.opt_str
+        options=hyp.opts+hyp.opt_str
         checkpoint_dir = f"{userparam.param['model_dir']}/{hyp.model_name}/{hyp.preprocessor_name}{options}/"
                 
         try: 
@@ -81,8 +82,12 @@ def visualize(hyp):
         
         result_path = f"{checkpoint_dir}test_result/"
         
+        print(f'Loading {model} from {result_path}...')
+        
         gt = np.load(f'{result_path}true_data.npy')#.replace('/mnt/c','C:'))
         pd = np.load(f'{result_path}pred_data.npy')#.replace('/mnt/c','C:'))
+        
+        print(f'Loaded {model} from {result_path}...')
                
         # unnormalize data
         if hyp.weather_prediction:
@@ -91,6 +96,8 @@ def visualize(hyp):
             for i in range(gt.shape[3]):
                 gt[:,:,:,i,:,:] = invfunc(i)(gt[:,:,:,i,:,:])
                 pd[:,:,:,i,:,:] = invfunc(i)(pd[:,:,:,i,:,:])
+            
+        print("Normalized data...")
         
         def make_plots(gt, pd):
             # stepi = 5
@@ -106,10 +113,15 @@ def visualize(hyp):
             bs = gt.shape[0] * gt.shape[1]
             # bts = [0]
             # bts = np.arange(0,bs-0.9,1).astype(int)
+            # sps = list(range(39))
+            # sps = [25,]
             # linspace instead at 5 points
+            
+            
+            # default below
             bts = np.linspace(0,bs-0.9,5).astype(int)
             sps = [5,25,30,38]
-            # sps = list(range(39))
+            
             
             cmw = jpcm.get('desert')
 
@@ -120,7 +132,7 @@ def visualize(hyp):
                     if b == gt.shape[0]:
                         continue # check to make sure
                     a = bq % gt.shape[1]
-                    for stepi in sps:
+                    for stepi in tqdm(sps):
 
                         stepd = input_length - 1 # last true frame
 
@@ -261,7 +273,7 @@ def visualize(hyp):
                        
             fig.colorbar(
                 mpl.cm.ScalarMappable(
-                    norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1] * gt.shape[2]), cmap=cmap # * gt.shape[2] if  not using custom dataloader
+                    norm=mpl.colors.Normalize(0, gt.shape[0] * gt.shape[1]), cmap=cmap # * gt.shape[2] if  not using custom dataloader
                 ),
                 cax=cax,
                 orientation='vertical',
@@ -285,7 +297,8 @@ def visualize(hyp):
             plt.suptitle(f'{model} MSE for output frames (all frames shown)')
             # plt.tight_layout()
             plt.savefig(f'{result_path}mse.png',bbox_inches='tight')#.replace('/mnt/c','C:'))
-            plt.show()
+            plt.close()
+            # plt.show()
             
         make_plots(gt,pd)
         

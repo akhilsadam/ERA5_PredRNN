@@ -61,6 +61,7 @@ class run2:
 
         # data
         parser.add_argument('--dataset_name', type=str, default='mnist')
+        parser.add_argument('--sanity_check', type=bool, default=False, required=False)
         parser.add_argument('--train_data_paths', type=str, default='data/moving-mnist-example/moving-mnist-train.npz')
         parser.add_argument('--valid_data_paths', type=str, default='data/moving-mnist-example/moving-mnist-valid.npz')
         parser.add_argument('--save_dir', type=str, default='')
@@ -338,7 +339,7 @@ class run2:
                         injection_action=args.injection_action, 
                         concurent_step=args.concurent_step,
                         img_channel=args.img_channel, img_layers=args.img_layers,
-                        is_testing=True, is_training=False, is_WV=args.is_WV)
+                        is_testing=True, is_training=False, is_WV=args.is_WV, sanity_check=args.sanity_check)
                     train_input_handle = datasets_factory.data_provider(
                         args.dataset_name, train_data_files, 
                         args.valid_data_paths, 
@@ -348,7 +349,7 @@ class run2:
                         injection_action=args.injection_action, 
                         concurent_step=args.concurent_step,
                         img_channel=args.img_channel, img_layers=args.img_layers,
-                        is_testing=False, is_training=True, is_WV=args.is_WV)
+                        is_testing=False, is_training=True, is_WV=args.is_WV, sanity_check=args.sanity_check)
                     train_input_handle = model.accelerator.prepare(train_input_handle)
                     test_input_handle = model.accelerator.prepare(test_input_handle)
                     model.test_input_handle = test_input_handle

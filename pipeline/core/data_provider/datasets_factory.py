@@ -11,7 +11,7 @@ datasets_map = {
 
 def data_provider(dataset_name, train_data_paths, valid_data_paths, batch_size,
                   img_height, img_width, seq_length, injection_action, concurent_step,
-                  img_channel, img_layers, is_testing=True, is_training=True, is_WV=True):
+                  img_channel, img_layers, is_testing=True, is_training=True, is_WV=True, sanity_check=False):
     if dataset_name not in datasets_map:
         raise ValueError('Name of dataset unknown %s' % dataset_name)
     img_layers = [int(x) for x in img_layers.split(',')]

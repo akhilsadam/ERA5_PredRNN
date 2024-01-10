@@ -225,10 +225,10 @@ model_config_toy = \
         'FPNet':{
             'n_layers': 4, # number of layers 
             # 'n_embd': 100, # number of hidden units
-            'activation': 'relu',
-            'optimizer' :  lambda x,y : Adam(x, lr=1e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-4, max_lr=1e-3, cycle_momentum=False, step_size_up=20),
-            'batch_size': 4, # batch size
+            'activation': 'sin',
+            'optimizer' :  lambda x,y : Adam(x, lr=1e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=1e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 32, # batch size
             'test_batch_size': 1, # batch size for testing
         },
         'DMDNet':{
@@ -449,24 +449,24 @@ model_config_toy = \
             'n_head': 2, # number of heads in the transformer
             'n_embd': 400, # number of hidden units in the transformer
             'n_ffn_embd': 400, # number of hidden units in the FFN
-            'dropout': 0.1, # dropout rate
+            'dropout': 0.0, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
             'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-5, max_lr=5e-5, cycle_momentum=False, step_size_up=20),
             'batch_size': 32, # batch size
         },
         'reZeroTF_POD_snapshot':{
             'n_layers': 4, # number of layers in the transformer
             'n_head': 2, # number of heads in the transformer
-            'n_embd': 100, # number of hidden units in the transformer
-            'n_ffn_embd': 100, # number of hidden units in the FFN
+            'n_embd': 400, # number of hidden units in the transformer
+            'n_ffn_embd': 400, # number of hidden units in the FFN
             'dropout': 0.1, # dropout rate
             'initialization': None, # initialization method as list of functions
             'activation': 'relu', # activation function
-            'optimizer' :  lambda x,y : Adam(x, lr=5e-5), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
-            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 2, # batch size
+            'optimizer' :  lambda x,y : Adam(x, lr=5e-6), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
+            'scheduler' : lambda x : CyclicLR(x, base_lr=5e-6, max_lr=5e-5, cycle_momentum=False, step_size_up=20),
+            'batch_size': 32, # batch size
         },
         'reZeroNAT_POD_v4':{
             'n_layers': 4, # number of layers in the transformer
@@ -530,7 +530,7 @@ model_config_toy = \
             'dropout': 0.1, # dropout rate
             'optimizer' :  lambda x,y : Adam(x, lr=5e-4), # final_lr=0.1), #SGD(x, lr=0.4),#, momentum=0.1, nesterov=True), #ASGD(x,lr=100*y), # [None, Adam, ASGD,...]'
             'scheduler' : lambda x : CyclicLR(x, base_lr=1e-5, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
-            'batch_size': 16, # batch size
+            'batch_size': 1, # batch size
         },
         'LSTM_DMD':{
             'n_layers': 4, # number of layers 
@@ -862,6 +862,7 @@ def operate_loop(hyp, device):
             .Preprocessor(preprocessor_args)
     args.preprocessor_name = hyp.preprocessor_name
     
+    args.sanity_check = hyp.sanity_check
     cmodel_config = copy.deepcopy(args.__dict__)
     if hyp.weather_prediction:
         cmodel_config.update(model_config,allow_override=True)
