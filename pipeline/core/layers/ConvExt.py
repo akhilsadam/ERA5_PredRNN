@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class ConvX(nn.Module):
-    def __init__(self, in_time, in_channel, height, width, filter_size, slices, operator_class, operator_args, device):
+    def __init__(self, in_time, in_channel, height, width, filter_size, slices, operator_class, device, operator_args=[], operator_kwargs={}):
         super(ConvX, self).__init__()
 
         assert height % 2*slices == 0, "Cannot slice, height is not evenly divisible into desired slices" 
@@ -15,13 +15,12 @@ class ConvX(nn.Module):
         self.t = in_time
         self.h = height # wrapped BC here by def'n # should be zero or ignored, though
         self.w = width # wrapped BC here by def'n
-        self.s = filter_size
+        self.filter_size = filter_size
         self.n = slices
         self.uh = height // slices
         self.uw = width // slices
         self.patches = self.uh*self.uw
-        self.operator = operator_class(self.latent, self.s**2, device=device)
-        self.operator_args = operator_args
+        self.operator = operator_class(self.latent, self.filter_size**2, device=device, *operator_args, **operator_kwargs)
         self.device = device
         self.pad = (filter_size - 1) // 2
         self.puh = self.uh + 2 * self.pad
@@ -49,12 +48,12 @@ class ConvX(nn.Module):
         full_uf_shape = (*in_data.shape[:-2],self.patches,self.uh,self.uw) # BTCphw 012345 -> BpTChw
         inner_shape = (*full_uf_shape[:-2], -1) # BpTCL -> BpTC
         windows = F.unfold(data.view(flat_in_shape), (self.filter_size,self.filter_size)).view(full_uf_shape).permute((0,3,1,2,4,5)).reshape(inner_shape) # BpTCL
-        out = self.operator(windows, *self.operator_args).squeeze().permute((0,2,3,1)) # BpTC_ -> BpTC -> BTCp
+        out = self.operator(windows).squeeze().permute((0,2,3,1)) # BpTC_ -> BpTC -> BTCp
         
         return out.reshape((*out.shape[:-1],self.uh,self.uw))
     
     def forward(self, x, y):
-        # assumes y is blank or will be cleared
+        # assumes y is blank or can be cleared
 
         
         for i in range(self.n-1): # height / first dim

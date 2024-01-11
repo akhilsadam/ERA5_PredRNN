@@ -107,7 +107,7 @@ class DataUnit:
         logger.info(f"DataUnit {self.id} created with size: {self.dsize}")
         self.data = torch.empty((self.dsize, img_channel1, shapes[0][2], shapes[0][3]), dtype=torch.float32)
         self.start_index = self.base_start_index
-        self.up_index = -total_length # update index (for the next batch)
+        # self.up_index = -total_length # update index (for the next batch)
         self.current_allocation = 0
         # self.recently_allocated = True
         
@@ -158,12 +158,16 @@ class DataUnit:
         # gc.collect()
         mem_prof()
         
+        
+        mlen = get_shape(self.cpath)[0]
+        end = min(k+self.dsize,mlen)
+        self.width = end - k - self.total_length + 1
         # if self.sanity:
         #     # make up data as sine
         #     data64 = np.zeros((self.dsize, self.img_channel1, self.shapes[0][2], self.shapes[0][3]), dtype=np.float64)
         #     data64[:,:,:,:] = np.sin(np.linspace(0,2*np.pi,self.dsize//2))[:,None,None,None]            
         # else:        
-        data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:k+self.dsize, self.img_layers, :, :] # k+self.dsize:k:-1
+        data64 = np.load(self.cpath, mmap_mode='r')["input_raw_data"][k:end, self.img_layers, :, :] # k+self.dsize:k:-1
         data32 = torch.from_numpy(data64.astype(np.float32))
         del data64
         self.data = data32.pin_memory()
@@ -171,6 +175,9 @@ class DataUnit:
         # tdata = torch.from_numpy(fdata)
         # self.data = tdata.to(torch.float32)
         # del tdata # need this since copy from float64->32 happens, unfortunately
+        
+        # workaround for leaky edge (lack of samples on last batch..)
+        
         
         
         logger.info(f"\tDataUnit {self.id} allocated from {self.clpath} at start_index {k}")
@@ -242,6 +249,7 @@ class DataUnit:
         # if at end (gpu_index == self.max_batches - self.total_length), we need to reallocate at 0-index
         # if (self.start_index==self.max_batches - self.total_length):
         #     self.allocate(self.base_start_index) # start over
+        gpu_index = gpu_index % self.width
         
         
         # get data unit, starting from image gpu_index... when gpu_index % total_length == 0
@@ -283,7 +291,10 @@ class DataBatch(torch.utils.data.Dataset):
         
         self.dsize = (prefetch_size+1) * total_length # total size of data unit
         self.max_batches = prefetch_size*total_length
-        self.total_allocation = min([s[0] for s in self.shapes])//self.max_batches - 2  # exclusive
+        min_sample_size = min([s[0] for s in self.shapes])
+        self.total_allocation = min_sample_size//self.max_batches
+        
+        logger.info(f"Min sample size : {min_sample_size}, total allocation : {self.total_allocation}")
         
         self.base_start_index = 0
         self.current_allocation = 0
@@ -314,7 +325,7 @@ class DataBatch(torch.utils.data.Dataset):
         self.threads = []    
         
     def __len__(self):
-        return self.max_batches * self.batch_size * self.total_allocation
+        return self.max_batches * self.batch_size * self.total_allocation * 50000 # say no more than 50000 mini-epochs
     
     def get(self, dummy_index):        
         # get unit
@@ -452,7 +463,7 @@ class InputHandle:
         pass
 
     def no_batch_left(self):
-        return self.dataset.step == 0
+        return self.dataset.step == 0 and self.current_allocation == 0
 
     def get_batch(self): 
         mem_prof()      
