@@ -5,7 +5,7 @@ import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_SROM, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
-    DAT_v2, linint, identity, DMDNet, ComplexDMDNet, FPNet
+    DAT_v2, linint, identity, DMDNet, ComplexDMDNet, FPNet, GateLoop
 from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
@@ -50,7 +50,8 @@ class Model(object):
             'identity': identity.Identity,
             'DMDNet': DMDNet.DMDNet,
             'ComplexDMDNet':ComplexDMDNet.DMDNet,
-            'FPNet':FPNet.FPNet
+            'FPNet':FPNet.FPNet,
+            'GateLoop':GateLoop.GateLoop,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
         # device = configs.device # this is plural if Accelerate is used
