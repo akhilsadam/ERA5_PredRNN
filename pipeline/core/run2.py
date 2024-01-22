@@ -360,29 +360,27 @@ class run2:
                 train_input_handle = model.train_input_handle
                 
                 for itr in range(1, args.max_iterations + 1):
-                    for i in range(model.accumulate_batch):
-                        
-                        ims = train_input_handle.get_batch()
-                        # ims = ims[:,:,:args.img_channel,:,:] # redundant
-                        
-                        # if args.reverse_scheduled_sampling == 1:
-                        #     real_input_flag = reserve_schedule_sampling_exp(itr)
-                        # else:
-                        #     eta, real_input_flag = schedule_sampling(eta, itr)
-                        lossargs = trainer.train(model, ims, real_input_flag, args, itr)
+                    ims = train_input_handle.get_batch()
+                    # ims = ims[:,:,:args.img_channel,:,:] # redundant
                     
-                        if itr % args.snapshot_interval == 0:
-                            model.save(itr)
+                    # if args.reverse_scheduled_sampling == 1:
+                    #     real_input_flag = reserve_schedule_sampling_exp(itr)
+                    # else:
+                    #     eta, real_input_flag = schedule_sampling(eta, itr)
+                    lossargs = trainer.train(model, ims, real_input_flag, args, itr)
+                
+                    if itr % args.snapshot_interval == 0:
+                        model.save(itr)
 
-                        if itr % args.test_interval == 0:
-                            test_input_handle.begin(do_shuffle=False)
-                            test_err = trainer.test(model, test_input_handle, args, 'test_result')
-                            print('current test mse: '+str(np.round(test_err,6)))
-                            if test_err < args.curr_best_mse:
-                                print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
-                                args.curr_best_mse = test_err
-                                model.save(args.save_best_name)
-                        train_input_handle.next()
+                    if itr % args.test_interval == 0:
+                        test_input_handle.begin(do_shuffle=False)
+                        test_err = trainer.test(model, test_input_handle, args, 'test_result')
+                        print('current test mse: '+str(np.round(test_err,6)))
+                        if test_err < args.curr_best_mse:
+                            print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
+                            args.curr_best_mse = test_err
+                            model.save(args.save_best_name)
+                    # train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
                     print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
                     if prof is not None:

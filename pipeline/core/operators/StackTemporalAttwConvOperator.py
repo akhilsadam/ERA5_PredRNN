@@ -7,16 +7,22 @@ from core.layers._att import sqrt_act
 
 estkqv = lambda i: "tTc, Bp...Tcx -> Bp...tcx" if i==0 else "tT, Bp...Tcx -> Bp...tcx"
 
-esta = "Bp...tcx, Bp...Tcx, etT -> Bp...ecx"
+esta = "Bptcx, BpTcx, etT -> Bpecx"
 
-estp = "tx, Bp...tcx -> Bp...tcx"
+# moveaxis B..tcxp
+# reshape B..tcxp -> B..tcxhw
+# conv B..tcxhw -> B..tcxhw
+# reshape B..tcxhw -> B..tcxp
+# moveaxis B..tcxp -> B..tcx
 
-estb = "Bp...tcx, Bp...ecx, etT -> Bp...Tcx"
+# skip # estp = "tx, Bp...tcx -> Bp...tcx"
 
-estc ="tx, Bp...tcx -> Bp...c"
+estb = "Bptcx, Bpecx, etT -> BpTcx"
+
+estc ="tx, Bptcx -> Bpc"
     
 class Operator(nn.Module):
-    def __init__(self, nlatent, nspatial, ntime, device, n_embd=100, nlayers=1, **kwargs):
+    def __init__(self, nlatent, nspatial, ntime, device, h, w, n_embd=100, nlayers=2):
         super(Operator, self).__init__()
         
         self.nlatent = nlatent
@@ -24,6 +30,8 @@ class Operator(nn.Module):
         self.ntime = ntime
         self.nlayers = nlayers
         # self.n_embd = n_embd
+        self.h = h
+        self.w = w
   
         self.Ks = torch.nn.ParameterList([nn.Parameter(torch.empty((ntime,ntime,nlatent),device=device)),
             *[nn.Parameter(torch.empty((ntime,ntime),device=device)) for _ in range(nlayers-1)]])
@@ -42,8 +50,16 @@ class Operator(nn.Module):
         nn.init.orthogonal_(self.enc)
         nn.init.orthogonal_(self.dec)
         
-        self.a = nn.Parameter(torch.ones((ntime,nspatial),device=device)) # scaling vector / propagator
-        self.w = nn.Parameter(torch.ones((ntime,nspatial),device=device) / (nspatial*ntime)) # center selection vector
+        # self.a = nn.Parameter(torch.ones((ntime,nspatial),device=device)) # scaling vector / propagator
+        cchan = ntime * nspatial * nlatent
+        self.k = 5
+        self.a = nn.Conv2d(cchan,cchan,(self.k,self.k),padding="same",bias=False, groups=nspatial * nlatent) 
+        # init a 
+        self.a.weight.data.fill_(1/(self.k**2))
+        # self.a.weight.data[self.k//2,self.k//2] = 1
+        
+        # self.res = nn.Parameter(torch.zeros((ntime), device=device))
+        self.weight = nn.Parameter(torch.ones((ntime,nspatial),device=device) / (nspatial*ntime)) # center selection vector
           
     def forward(self,x): # just a single step
         # x has shape BpTcx, and TCx = [T0-20]cx are to be updated to [T21]cx and reduced to [T21]c at center, with operator depending on p
@@ -61,14 +77,23 @@ class Operator(nn.Module):
             x = sqrt_act(torch.einsum(esta, k, v, self.enc)) 
             
         # propagate
-        b = torch.einsum(estp, self.a, x) # scale time and position together (finite difference, without sums)
+        # xm = torch.moveaxis(x, 2, -1) # Bptcx -> Btcxp
+        # xp = xm
+        xm = x.reshape(x.shape[0],self.h, self.w, *x.shape[2:])
+        xp = xm.permute(0,3,4,5,1,2).reshape(xm.shape[0], -1 ,self.w, self.h)
+        # CONV2D, same padding
+        xc = self.a(xp)
+        # reshape
+        xq = xc.reshape(x.shape[0],*x.shape[2:],self.w, self.h).permute(0,4,5,1,2,3)
+        b = xq.reshape(x.shape)        
+        # b = torch.einsum(estp, self.a, x) # scale time and position together (finite difference, without sums)
         
         # projection
         for i in range(self.nlayers-1,-1,-1):
             
             b = torch.einsum(estb, qs[i], b, self.dec)
         
-        y = torch.einsum(estc, self.w, b) # select a time and position together (finite difference with sums)
+        y = torch.einsum(estc, self.weight, b) # select a time and position together (finite difference with sums)
         
         return y[:,:,None,:] # Bp_c, select a position, from center selection vector
     

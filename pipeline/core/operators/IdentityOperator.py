@@ -24,7 +24,7 @@ from core.layers._att import sqrt_act
 #     return zip(res,ies)
 
 class Operator(nn.Module):
-    def __init__(self, nlatent, nspatial, ntime, device, n_embd=100, nlayers=1):
+    def __init__(self, nlatent, nspatial, ntime, device, n_embd=100, nlayers=1, **kwargs):
         super(Operator, self).__init__()
         
         self.nlatent = nlatent

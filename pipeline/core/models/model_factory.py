@@ -5,7 +5,7 @@ import torch
 from torch.optim import Adam
 from core.models import predrnn, predrnn_v2_adj, action_cond_predrnn, action_cond_predrnn_v2, \
     TF, DNN, adaptDNN, BERT, BERT_v2, BERT_v3, rBERT, RZTX, RZTX_CNN, RZTX_NAT, RZTX_SROM, RZTX_NAT_LG, RZTX_CNN_LG, LSTM, rLSTM, ViT_LDM, \
-    DAT_v2, linint, identity, DMDNet, ComplexDMDNet, FPNet, GateLoop
+    DAT_v2, linint, identity, DMDNet, ComplexDMDNet, FPNet, GateLoop, GateOperator, SpatialOperator
 from core.utils.ext import prefixprint
 from torchview import draw_graph
 import traceback, sys
@@ -52,6 +52,8 @@ class Model(object):
             'ComplexDMDNet':ComplexDMDNet.DMDNet,
             'FPNet':FPNet.FPNet,
             'GateLoop':GateLoop.GateLoop,
+            'GateOperator':GateOperator.GateOperator,
+            'SpatialOperator':SpatialOperator.SpatialOperator,
         }
         torch.backends.cuda.matmul.allow_tf32 = True
         # device = configs.device # this is plural if Accelerate is used
@@ -59,7 +61,9 @@ class Model(object):
         
         self.start_itr = 0
 
-        self.accelerator = Accelerator()
+        self.accumulate_batch = configs.accumulate_batch if hasattr(configs, 'accumulate_batch') else 1
+
+        self.accelerator = Accelerator(gradient_accumulation_steps=self.accumulate_batch)
         device = self.accelerator.device
         self.device = self.accelerator.device
         self.configs.device = self.accelerator.device
@@ -71,7 +75,7 @@ class Model(object):
         self.print = prefixprint(level=1,n=80,tag=f"{device}:{thread}:{name}:").printfunction
     
         self.saliency = configs.interpret if hasattr(configs, 'interpret') else False
-        self.accumulate_batch = configs.accumulate_batch if hasattr(configs, 'accumulate_batch') else 1
+
 
         if configs.model_name in networks_map:
             self.network_handle = networks_map[configs.model_name]
@@ -142,7 +146,7 @@ class Model(object):
         self.wrun.finish()
 
     def save(self, itr):
-        citr = itr + self.start_itr
+        citr = itr + self.start_itr if type(itr) == int else itr
         # stats = {}
         # stats['net_param'] = self.network.state_dict()
         checkpoint_path = os.path.join(self.configs.save_dir, 'model'+'_'+str(citr)+'.ckpt')

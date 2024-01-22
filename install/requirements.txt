@@ -2,6 +2,7 @@ nvidia-cudnn-cu11
 tensorflow
 torch
 torchvision
+torchgeometry
 torchaudio
 lpips
 wandb
