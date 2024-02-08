@@ -109,6 +109,7 @@ class DataUnit:
         self.start_index = self.base_start_index
         # self.up_index = -total_length # update index (for the next batch)
         self.current_allocation = 0
+        self.starting_allocation = 0
         # self.recently_allocated = True
         
         self.skipped = 0 # how many updates were skipped (should be about 1 maximum every dataset)
@@ -132,7 +133,7 @@ class DataUnit:
         
     def get_index(self, gpu_index=0):
         # logger.info(f"max_batches: {self.max_batches}, gpu_index: {gpu_index}, start_index: {self.start_index}")
-        return (self.start_index + gpu_index) % self.total_batches # this is data index, for a gpu index < max_batches.
+        return (self.start_index + gpu_index) % self.total_batches + self.base_start_index + self.current_allocation*self.total_length # this is data index, for a gpu index < max_batches.
         
     def connect(self,i):
         # connect data unit to a particular file
@@ -142,7 +143,7 @@ class DataUnit:
     
     def allocate(self, total_allocation):
         
-        k = self.current_allocation*self.total_length
+        k = self.current_allocation*self.total_length + self.base_start_index
         # if self.recently_allocated ==1:
         #     return
         
@@ -156,7 +157,7 @@ class DataUnit:
         
         del self.data
         # gc.collect()
-        mem_prof()
+        # mem_prof()
         
         
         mlen = get_shape(self.cpath)[0]
@@ -286,6 +287,8 @@ class DataBatch(torch.utils.data.Dataset):
         self.sanity = sanity
         self.name = name
         
+        self.PDE_specific = "PDE" in self.paths
+        
         logger.info(f"{self.name}, Loading data from {self.paths}")
         self.load()
         
@@ -296,6 +299,11 @@ class DataBatch(torch.utils.data.Dataset):
         
         logger.info(f"Min sample size : {min_sample_size}, total allocation : {self.total_allocation}")
         
+        # if self.PDE_specific:
+        #     logger.info("PDE specific, setting base start index to 200 to prevent starting loss jumps")
+        #     self.base_start_index = 200
+        #     self.total_allocation = (min_sample_size-200)//self.max_batches
+        # else:
         self.base_start_index = 0
         self.current_allocation = 0
         if testing:
@@ -336,7 +344,7 @@ class DataBatch(torch.utils.data.Dataset):
         if self.step == 0:
             # get index
             # logger.info(self.paths)
-            if unit.current_allocation == 0:
+            if unit.current_allocation == unit.starting_allocation:
             
                 logger.info(f"High = {len(self.paths)}")
                 if self.ordered_testing:
@@ -347,7 +355,11 @@ class DataBatch(torch.utils.data.Dataset):
                 # TODO make striated (skip used indices)
                 
                 unit.connect(index)
-
+                
+            if not self.ordered_testing:
+                unit.starting_allocation = torch.randint(low=0, high=self.total_allocation, size=(1,)).item()
+                unit.current_allocation = unit.starting_allocation
+                
             unit.allocate(self.total_allocation) # TODO add locks to this? (check if needed)
             
             
@@ -370,7 +382,7 @@ class DataBatch(torch.utils.data.Dataset):
         if self.ordered_testing:
             idx = self.gpu_index
         else:
-            idx = self.gpu_index * 7901 % self.max_batches # 7901 is prime, so should be good for randomizing    
+            idx = (self.gpu_index + self.unit_selector) * 7901 % self.max_batches # 7901 is prime, so should be good for randomizing    
                         
         out = unit.get(idx)
             
@@ -466,5 +478,5 @@ class InputHandle:
         return self.dataset.step == 0 and self.current_allocation == 0
 
     def get_batch(self): 
-        mem_prof()      
+        # mem_prof()      
         return next(self.iterator)

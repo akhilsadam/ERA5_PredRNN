@@ -104,7 +104,7 @@ def visualize(hyp):
             # var_dicts = {0:'u wind', 1:'v wind', 2:'Sea Surface Temperature',
             #             3:'Surface Pressure', 4:'Precipitation'}
             # var_dicts = {0:'-',}
-            shift = gt.shape[2] - pd.shape[2]
+            shift = 0 # gt.shape[2] - pd.shape[2]
             # var = 0
             # b = 4 # BATCH
             # a = 3 # MINIBATCH

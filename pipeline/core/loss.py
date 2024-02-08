@@ -7,6 +7,9 @@ import torch
 def loss_mse(out, seq_total, input_length, weight):
     return torch.mean( weight * (out[:,input_length:,:] - seq_total[:,input_length:,:])**2)
 
+def loss_mse_2(out, seq_total, input_length, weight):
+    return torch.mean( weight * (out[:,input_length:,:] - seq_total[:,input_length:,:])**2, dim=(0,2,3,4))
+
 def loss_grad(out, seq_total, input_length, weight):
     return torch.mean( weight * ((out[:,input_length+1:,:] - out[:,input_length:-1,:]) - (seq_total[:,input_length+1:,:] - seq_total[:,input_length:-1,:]))**2)
 
@@ -29,3 +32,10 @@ def loss_mixed(out, seq_total, input_length, weight, a=0.1, b=0.01):
 
 def loss_mixed_additional(out, seq_total, input_length, weight, a=0.1):
     return loss_grad(out, seq_total, input_length, weight) + a * loss_laplace(out, seq_total, input_length, weight)
+
+def loss_mixed_2(out, seq_total, input_length, weight, a=0.1, b=0.01):
+    m = loss_mse_2(out, seq_total, input_length, weight)
+    q = torch.mean(m) + a*loss_grad(out, seq_total, input_length, weight) + b * loss_laplace(out, seq_total, input_length, weight)
+    l = len(m)
+    r = sum([(m[i]-m[0]) * i for i in range(1,l)]) / (l-1)
+    return q, r

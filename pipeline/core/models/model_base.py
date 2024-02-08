@@ -9,7 +9,7 @@ from core.utils.tsne import visualization
 
 logging.basicConfig(level = logging.INFO,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%y-%m-%d %H:%M',)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("MOD")
 
 def abstractmethod(f):
     logger.warn(f"Using default method for {f.__name__}. This should be overridden in the subclass.")
@@ -62,7 +62,7 @@ class BaseModel(nn.Module):
         '''
         loss_pred, decouple_loss, next_frames = self.core_forward(frames_tensor, istrain, mask_true=mask_true)
             
-        print(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
+        logger.info(f"loss_pred:{loss_pred}, decouple_loss:{decouple_loss}")
         loss = loss_pred + self.configs.decouple_beta*decouple_loss
 
         if istrain:

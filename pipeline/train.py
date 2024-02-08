@@ -34,17 +34,17 @@ if visualize:
 class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
-    pretrain_name='model_1000.ckpt' # None if no pretrained model
+    pretrain_name=None #'model_3000.ckpt' # None if no pretrained model
     snapshot_interval = 1000 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control
-    project_name = 'GateOperator' # name of wandb project
+    project_name = 'MovingBasis_Hankel_WP' # name of wandb project
     interpret = False # interpret model
     profile = False # run profiler?
     ##
     save_test_output=True # save test output to file
-    weather_prediction=False # use PDE_* data or CDS_* data
+    weather_prediction=True # use PDE_* data or CDS_* data
     sanity_check=False # check if model is working at all (simple generated data), TODO
     ##
     n_valid = 1 # number of validation datasets to use

@@ -317,14 +317,14 @@ class run2:
                         if itr % args.test_interval == 0:
                             test_input_handle.begin(do_shuffle=False)
                             test_err = trainer.test(model, test_input_handle, args, 'test_result')
-                            print('current test mse: '+str(np.round(test_err,6)))
+                            logger.info('current test mse: '+str(np.round(test_err,6)))
                             if test_err < args.curr_best_mse:
                                 print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
                                 args.curr_best_mse = test_err
                                 model.save(args.save_best_name)
                         train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
+                    logger.info(f"Iteration: {itr}, ims.shape: {ims.shape}")   
                     
             else:
                 # not slow
@@ -375,14 +375,14 @@ class run2:
                     if itr % args.test_interval == 0:
                         test_input_handle.begin(do_shuffle=False)
                         test_err = trainer.test(model, test_input_handle, args, 'test_result')
-                        print('current test mse: '+str(np.round(test_err,6)))
+                        logger.info('current test mse: '+str(np.round(test_err,6)))
                         if test_err < args.curr_best_mse:
                             print(f'At step {itr}, Best test: '+str(np.round(test_err,6)))
                             args.curr_best_mse = test_err
                             model.save(args.save_best_name)
                     # train_input_handle.next()
                     trainer.update(model, *lossargs, args, itr)
-                    print(f"Iteration: {itr}, ims.shape: {ims.shape}")   
+                    logger.info(f"Iteration: {itr}, ims.shape: {ims.shape}")   
                     if prof is not None:
                         prof.step()
                         

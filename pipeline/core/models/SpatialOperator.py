@@ -4,7 +4,8 @@ import torch.nn as nn
 # from torch.nn.parameter import Parameter
 from core.models.model_base import BaseModel
 # from core.layers.ConvExt import ConvX
-from core.spatial_operators.LocalAugPODwDMDOperator import Operator
+# from core.spatial_operators.MovingBasisOperator3 import Operator
+from core.spatial_operators.MovingBasisWeather6 import Operator
 # from core.layers.Siren import MLP
 from core.loss import loss_mixed
 
@@ -23,7 +24,13 @@ class SpatialOperator(BaseModel):
         self.height = self.preprocessor.patch_x
         self.width = self.preprocessor.patch_y
         
-        self.operator = Operator(self.in_channel, self.input_length, self.height, self.width, device=self.device, nlayers=1)
+        self.area_weight = configs.area_weight
+        
+        acts = {'relu':nn.ReLU(),'tanh':nn.Tanh(),'sigmoid':nn.Sigmoid(),'sin': lambda x: torch.sin(x)}
+        
+        self.activation = acts[configs.model_args['activation']] if 'activation' in configs.model_args else nn.ReLU()
+        
+        self.operator = Operator(self.in_channel, self.input_length, self.height, self.width, device=self.device, nlayers=3, activation = self.activation, area_weight = self.area_weight)
 
         # torch.backends.cuda.preferred_linalg_library('magma')
 
@@ -50,10 +57,14 @@ class SpatialOperator(BaseModel):
             loss_pred = torch.tensor(0.0)
         else:
             out = total
+            
+        q = loss_mixed(x2[:,-lshift:,], total[:,rshift:self.input_length+predict_length,], 0, weight=1.0, a=0.2, b=0.01) # not weighted, coefficient loss w derivatives
         
-        loss_pred = (self.predict_length / predict_length) * loss_mixed(x2[:,-lshift:,], total[:,rshift:self.input_length+predict_length,], 0, weight=1.0, a=0.2, b=0.01) # not weighted, coefficient loss w derivatives
-
-        return loss_pred, torch.tensor(0.0), out
+        loss_pred = (self.predict_length / predict_length) * q
+        decouple_loss = torch.tensor(0.0)
+        # decouple_loss = r
+        
+        return loss_pred, decouple_loss, out
 
     def flat_forward(self,x, predict_length):        
         uc = x # BTCHW
