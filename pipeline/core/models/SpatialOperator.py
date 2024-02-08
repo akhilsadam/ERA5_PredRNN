@@ -5,7 +5,7 @@ import torch.nn as nn
 from core.models.model_base import BaseModel
 # from core.layers.ConvExt import ConvX
 # from core.spatial_operators.MovingBasisOperator3 import Operator
-from core.spatial_operators.MovingBasisWeather6 import Operator
+from core.spatial_operators.MovingBasisOperator6 import Operator
 # from core.layers.Siren import MLP
 from core.loss import loss_mixed
 
@@ -24,13 +24,13 @@ class SpatialOperator(BaseModel):
         self.height = self.preprocessor.patch_x
         self.width = self.preprocessor.patch_y
         
-        self.area_weight = configs.area_weight
+        # self.area_weight = configs.area_weight
         
         acts = {'relu':nn.ReLU(),'tanh':nn.Tanh(),'sigmoid':nn.Sigmoid(),'sin': lambda x: torch.sin(x)}
         
         self.activation = acts[configs.model_args['activation']] if 'activation' in configs.model_args else nn.ReLU()
         
-        self.operator = Operator(self.in_channel, self.input_length, self.height, self.width, device=self.device, nlayers=3, activation = self.activation, area_weight = self.area_weight)
+        self.operator = Operator(self.in_channel, self.input_length, self.height, self.width, device=self.device, nlayers=3, activation = self.activation)
 
         # torch.backends.cuda.preferred_linalg_library('magma')
 
