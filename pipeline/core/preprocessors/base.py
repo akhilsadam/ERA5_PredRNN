@@ -32,7 +32,7 @@ class PreprocessorBase:
         
     def precompute_check(self):
         # check if scale file exists
-        if not os.path.exists(self.scale_path):
+        if not self.weather_prediction and not os.path.exists(self.scale_path):
             logger.info(f"Scale file {self.scale_path} does not exist! Precomputing...")
             return self.precompute_scale(use_datasets=False)
     
