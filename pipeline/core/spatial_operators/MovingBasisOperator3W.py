@@ -19,7 +19,7 @@ import torch.nn.functional as F
 # HANKEL POD
 
 class Operator(nn.Module):
-    def __init__(self, nlatent, ntime, h, w, device, n_embd=400, nlayers=1, activation=torch.nn.ReLU(),area_weight = 1.0, **kwargs):
+    def __init__(self, nlatent, ntime, h, w, device, n_embd=400, nlayers=1, activation=torch.nn.ReLU(), **kwargs):
         super(Operator, self).__init__()
         
         self.nlatent = nlatent
@@ -31,26 +31,23 @@ class Operator(nn.Module):
        
         self.m = ntime // 2
 
-        self.nchan = 8
+        # self.nchan = 4
         
         self.device = device
         
         self.activation = activation
-        self.area_weight_half = area_weight**0.5
-        
-        self.area_weight_half = torch.where(self.area_weight_half > 1, 0, 0.1) + self.area_weight_half
         
         self.A = nn.Parameter(torch.empty((self.m, self.m, self.m, self.m),device=device))
         nn.init.xavier_uniform_(self.A)
         
         # self.lin = nn.ModuleList([nn.Linear(self.n_embd, self.n_embd) for _ in range(nlayers)])
         
-        self.in_cnn = nn.Conv2d(1, self.nchan, kernel_size=3, stride=1, padding=1, bias=True) # identify momenta
-        self.out_cnn = nn.Conv2d(1, self.nchan, kernel_size=3, stride=1, padding=1, bias=False) # create shifts
-        # the two will be multiplied to get shifts proportional to momenta
-        nn.init.xavier_uniform_(self.in_cnn.weight.data)
-        nn.init.constant_(self.in_cnn.bias.data,1.0) # crossout the latter, instead doing skip for stability # bias momenta to 1 to help push the shifts
-        self.out_cnn.weight.data = nn.Parameter((1/self.nchan) * torch.tensor([[0,0,0],[0,1,0],[0,0,0]],device=device)[None,None,:,:].expand(self.nchan,1,3,3))
+        # self.in_cnn = nn.Conv2d(1, self.nchan, kernel_size=3, stride=1, padding=1, bias=True) # identify momenta
+        # self.out_cnn = nn.Conv2d(1, self.nchan, kernel_size=3, stride=1, padding=1, bias=False) # create shifts
+        # # the two will be multiplied to get shifts proportional to momenta
+        # nn.init.xavier_uniform_(self.in_cnn.weight.data)
+        # nn.init.constant_(self.in_cnn.bias.data,1.0) # crossout the latter, instead doing skip for stability # bias momenta to 1 to help push the shifts
+        # self.out_cnn.weight.data = nn.Parameter((1/self.nchan) * torch.tensor([[0,0,0],[0,1,0],[0,0,0]],device=device)[None,None,:,:].expand(self.nchan,1,3,3))
         # nn.init.xavier_uniform_(self.out_cnn.weight.data)
         # nn.init.constant_(self.out_cnn.bias.data,0.0)
     
@@ -115,15 +112,15 @@ class Operator(nn.Module):
         #     x = self.activation(x)
         # return self.lin[-1](x)
     
-    def step_modes(self, u):
-        # print(u.requires_grad)
-        uv = u.reshape(-1, 1, self.h, self.w)
-        momenta = self.in_cnn(uv) # B nchan h w
-        # return torch.einsum('bchw -> bhw',momenta).reshape(u.shape)
-        shifts = self.out_cnn(uv)
-        uv2 = torch.einsum('bchw,bchw -> bhw',momenta,shifts) # since momenta are initialized to 1 and shifts are initialized to identity, this is initialized to uv
-        return uv2.reshape(u.shape)
-        # return (self.resweight * uv2.reshape(u.shape)) + u
+    # def step_modes(self, u):
+    #     # print(u.requires_grad)
+    #     uv = u.reshape(-1, 1, self.h, self.w)
+    #     momenta = self.in_cnn(uv) # B nchan h w
+    #     # return torch.einsum('bchw -> bhw',momenta).reshape(u.shape)
+    #     shifts = self.out_cnn(uv)
+    #     uv2 = torch.einsum('bchw,bchw -> bhw',momenta,shifts) # since momenta are initialized to 1 and shifts are initialized to identity, this is initialized to uv
+    #     return uv2.reshape(u.shape)
+    #     # return (self.resweight * uv2.reshape(u.shape)) + u
         
         
     def de(self, u, x):
@@ -142,8 +139,8 @@ class Operator(nn.Module):
         z = self.en(u, xk[:,-1] - xk[:,-2])
         z2 = self.step(z)
         
-        u2 = self.step_modes(u)
-        d = self.de(u2, z2)
+        # u2 = self.step_modes(u)
+        d = self.de(u, z2)
         
         return (d + xk[:,-1] + xu )[:,None,:,:,:] 
     

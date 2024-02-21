@@ -881,7 +881,7 @@ def operate_loop(hyp, device):
     --max_iterations {hyp.max_iterations} \
     --profile {hyp.profile} \
     --display_interval 1000 \
-    --test_interval 10 \
+    --test_interval 40 \
     --snapshot_interval {snapshot} \
     --conv_on_input 0 \
     --res_on_conv 0 \

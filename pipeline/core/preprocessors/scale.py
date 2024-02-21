@@ -29,7 +29,7 @@ class Preprocessor(PreprocessorBase):
         self.precompute()
     
     def precompute(self):
-        shape, _ = super().precompute_scale(use_datasets=False)
+        shape, _ = super().precompute_scale(use_datasets=False,lazy=True)
         self.shape = shape
         self.reduced_shape = shape[1:]
         
