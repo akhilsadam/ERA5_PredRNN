@@ -4,10 +4,12 @@ import torch.nn as nn
 # from torch.nn.parameter import Parameter
 from core.models.model_base import BaseModel
 # from core.layers.ConvExt import ConvX
-from core.spatial_operators.MovingBasisOperator7W import Operator
+from core.spatial_operators.MovingBasisOperator4W import Operator
 # from core.spatial_operators.MovingBasisOperator6 import Operator # CNNs are high memory cost
 # from core.layers.Siren import MLP
 from core.loss import loss_mixed
+
+import torch_harmonics as th
 
 class SpatialOperator(BaseModel):
     def __init__(self, num_layers, num_hidden, configs):
@@ -30,13 +32,22 @@ class SpatialOperator(BaseModel):
         
         self.activation = acts[configs.model_args['activation']] if 'activation' in configs.model_args else nn.ReLU()
         
+        h = self.preprocessor.patch_x
+        w = self.preprocessor.patch_y
         
-        self.operator = Operator(self.in_channel, self.input_length, self.height, self.width, device=self.device, nlayers=1, activation = self.activation)
+        
+        self.sht = th.RealSHT(h, w, grid="equiangular").to(self.device)
+        self.n_modes = 720 # seems to be default?
+        self.isht = th.InverseRealSHT(h, w, lmax=self.n_modes, mmax=self.n_modes+1, grid="equiangular").to(self.device)
+        
+        self.operator = Operator(self.in_channel, self.input_length, self.n_modes, self.n_modes+1, device=self.device, nlayers=1, activation = self.activation)
 
         # torch.backends.cuda.preferred_linalg_library('magma')
 
     def core_forward(self, seq_total, istrain=True, **kwargs):
-        total = self.preprocessor.batched_input_transform(seq_total)  # a scale preprocessor is expected
+        total_pre = self.preprocessor.batched_input_transform(seq_total)  # a scale preprocessor is expected
+        with torch.no_grad():
+            total = self.sht(total_pre)
         inpt = total[:,:self.input_length,:,:,:]
         
         if istrain:
@@ -53,13 +64,15 @@ class SpatialOperator(BaseModel):
         
         if not istrain:
             outpt = x2        
-            out = torch.cat((total[:,:self.input_length,:,:,:],outpt),dim=1)  
+            out = torch.cat((total[:,:self.input_length,:,:,:],outpt),dim=1)
+            with torch.no_grad():
+                out = self.isht(out)
             out = self.preprocessor.batched_output_transform(out)
             loss_pred = torch.tensor(0.0)
         else:
             out = total
             
-        q = loss_mixed(x2[:,-lshift:,], total[:,rshift:self.input_length+predict_length,], 0, weight=1.0, a=0.2, b=0.01) # not weighted, coefficient loss w derivatives
+        q = torch.norm(loss_mixed(x2[:,-lshift:,], total[:,rshift:self.input_length+predict_length,], 0, weight=1.0, a=0.2, b=0.01)) # not weighted, coefficient loss w derivatives
         
         loss_pred = (self.predict_length / predict_length) * q
         decouple_loss = torch.tensor(0.0)

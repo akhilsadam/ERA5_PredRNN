@@ -28,7 +28,7 @@ class GateLoop(BaseModel):
         fsize = 3      
         
         self.conv = ConvX(in_time=self.input_length, in_channel=self.in_channel, height=self.height, width=self.width,
-                          filter_size=fsize, slices=1, operator_class=Operator, device=self.device)
+                          filter_size=fsize, slices=10, operator_class=Operator, device=self.device)
 
 
     def core_forward(self, seq_total, istrain=True, **kwargs):

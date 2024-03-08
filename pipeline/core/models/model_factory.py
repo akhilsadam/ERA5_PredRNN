@@ -11,7 +11,7 @@ from torchview import draw_graph
 import traceback, sys
 import wandb, json
 import gc
-from accelerate import Accelerator, load_checkpoint_in_model
+from accelerate import Accelerator, load_checkpoint_in_model, DistributedDataParallelKwargs
 
 from core.utils import saliency
 from core.viz.viz_salient import viz
@@ -63,7 +63,8 @@ class Model(object):
 
         self.accumulate_batch = configs.accumulate_batch if hasattr(configs, 'accumulate_batch') else 1
 
-        self.accelerator = Accelerator(gradient_accumulation_steps=self.accumulate_batch)
+        # ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
+        self.accelerator = Accelerator(gradient_accumulation_steps=self.accumulate_batch)#, kwargs_handlers=[ddp_kwargs])
         device = self.accelerator.device
         self.device = self.accelerator.device
         self.configs.device = self.accelerator.device
@@ -185,6 +186,7 @@ class Model(object):
         load_checkpoint_in_model(self.network, checkpoint_path)
 
     def train(self, frames, mask, istrain=True):
+        self.network.train()
         # gc.collect()
         # torch.cuda.empty_cache()
         frames_tensor_cpu = torch.FloatTensor(frames)
@@ -261,6 +263,7 @@ class Model(object):
                 next_frames = next_frames.detach()
         else:
             with torch.no_grad():
+                self.network.eval()
                 next_frames, loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor, istrain=False)
 
 
