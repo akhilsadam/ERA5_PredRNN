@@ -35,21 +35,21 @@ class Operator(nn.Module):
         self.nlat = h
         self.nlon = w
         
-        dt_scale = 6*3600.0
+        # dt_scale = 6*3600.0
+        # 6370*1000 # Earth's radius (km)
         
         self.lat_rad = pi*lat/180
-        self.R_earth = 6370 # Earth's radius (km)
-        self.R_lat = self.R_earth*torch.cos(self.lat_rad)  # Radius as a function of latitude
+        self.R_earth = nn.Parameter(torch.tensor([1.0],device=device))
 
         # Step size as a function of latitude (in m)
         #   Based on 1/25 degree resolution
-        self.dx = (1/h)*2*pi*self.R_lat*1000 / dt_scale
-        self.y = torch.cumsum(self.dx, dim=0)
-        self.dt = torch.tensor([1],device=device) # 6-Hourly resolution # TODO make parameter
+        self.dx = lambda r: (1/h)*2*pi*r*torch.cos(self.lat_rad)# Radius as a function of latitude
+        self.y = lambda dx: torch.cumsum(dx, dim=0)
+        self.dt = nn.Parameter(torch.tensor([1.0],device=device)) # 6-Hourly resolution # TODO make parameter
 
         # Coriolis parameter
-        self.omega = 7.3e-5 # Rotation rate
-        self.f = 2*self.omega*torch.sin(self.lat_rad) # s^-1 # size h
+        # self.omega = nn.Parameter(torch.tensor([1.0],device=device)) #7.3e-5 # Rotation rate
+         # s^-1 # size h
 
         # Density
         # self.rho = nn.Parameter([1.204],device=device) # kg/m^3 # assuming incompressible for now! NEED TO CHANGE
@@ -60,9 +60,9 @@ class Operator(nn.Module):
         
         n_modes = ntime-1
         self.Ax = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
-        nn.init.xavier_uniform_(self.Ax.data,gain=0.1)
+        nn.init.xavier_uniform_(self.Ax.data,gain=0.001)
         self.Ay = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
-        nn.init.xavier_uniform_(self.Ay.data,gain=0.1)
+        nn.init.xavier_uniform_(self.Ay.data,gain=0.001)
         
         # regularization
         self.f_cohese = 1e-4
@@ -84,54 +84,60 @@ class Operator(nn.Module):
     def step(self,x,A):
         # BTCHW
         u = self.POD(x) # BMHW
-        y = torch.einsum("BTHW, BMHW, Mm, Bmhw -> BThw",x,u,A,u) # single shift
+        y = torch.einsum("BTHW, BMHW, Mm, Bmhw -> BThw",x,u,A,u) + x # single shift
         return y
     
     @torch.compile(fullgraph=False)
-    def scalar_gradients(self,u):
+    def scalar_gradients(self, u, dx, y):
         # Zonal derivative
-        ux = torch.zeros(u.shape,device=self.device)
-        for i in range(self.nlat):
-            ux[..., i, :] = torch.gradient(u[..., i, :], spacing=self.dx[i].item(), dim=-1)[0]
-            
+        # ux = torch.zeros(u.shape,device=self.device)
+        # for i in range(self.nlat):
+        #     ux[..., i, :] = torch.gradient(u[..., i, :], spacing=dx[i].item(), dim=-1)[0]
+        ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None]
         # Meridional derivative
-        uy = torch.zeros(u.shape,device=self.device)
-        for i in range(self.nlon):
-            uy[..., :, i] = torch.gradient(u[..., :, i], spacing=(self.y,), dim=-1)[0]
-        
+        # uy = torch.zeros(u.shape,device=self.device)
+        # for i in range(self.nlon):
+        #     uy[..., :, i] = torch.gradient(u[..., :, i], spacing=(y,), dim=-1)[0]
+        uy = torch.gradient(u, spacing=(y,), dim=-2)[0]
         return ux, uy
     
     @torch.compile(fullgraph=False)
-    def vector_gradients(self,u,v):
+    def vector_gradients(self, u, v, dx, y):
         # Zonal derivative
-        ux = torch.zeros(u.shape,device=self.device)
-        vx = torch.zeros(u.shape,device=self.device)
-        for i in range(self.nlat):
-            ux[..., i, :] = torch.gradient(u[..., i, :], spacing=self.dx[i].item(), dim=-1)[0]
-            vx[..., i, :] = torch.gradient(v[..., i, :], spacing=self.dx[i].item(), dim=-1)[0]
+        # ux = torch.zeros(u.shape,device=self.device)
+        # vx = torch.zeros(u.shape,device=self.device)
+        # for i in range(self.nlat):
+        #     ux[..., i, :] = torch.gradient(u[..., i, :], spacing=dx[i].item(), dim=-1)[0]
+        #     vx[..., i, :] = torch.gradient(v[..., i, :], spacing=dx[i].item(), dim=-1)[0]
+        ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None]
+        vx = torch.gradient(v, dim=-1)[0] / dx[None, None, :, None]
             
         # Meridional derivative
-        uy = torch.zeros(u.shape,device=self.device)
-        vy = torch.zeros(u.shape,device=self.device)
-        for i in range(self.nlon):
-            uy[..., :, i] = torch.gradient(u[..., :, i], spacing=(self.y,), dim=-1)[0]
-            vy[..., :, i] = torch.gradient(v[..., :, i], spacing=(self.y,), dim=-1)[0]
+        # uy = torch.zeros(u.shape,device=self.device)
+        # vy = torch.zeros(u.shape,device=self.device)
+        # for i in range(self.nlon):
+        #     uy[..., :, i] = torch.gradient(u[..., :, i], spacing=(y,), dim=-1)[0]
+        #     vy[..., :, i] = torch.gradient(v[..., :, i], spacing=(y,), dim=-1)[0]
+        uy = torch.gradient(u, spacing=(y,), dim=-2)[0]
+        vy = torch.gradient(v, spacing=(y,), dim=-2)[0]
         
         return ux, uy, vx, vy
 
     # @torch.compile(fullgraph=False)
-    def divergence(self,u,v):
+    def divergence(self, u, v, dx, y):
         # Zonal derivative
         # ux = torch.zeros(u.shape,device=self.device,requires_grad=True)
         # for i in range(self.nlat):
-        #     ux[..., i, :] = torch.gradient(u[..., i, :], spacing=self.dx[i].item(), dim=-1)[0]
-        ux = torch.stack([torch.gradient(u[..., i, :], spacing=self.dx[i].item(), dim=-1)[0] for i in range(self.nlat)], dim=-2)
+        #     ux[..., i, :] = torch.gradient(u[..., i, :], spacing=dx[i].item(), dim=-1)[0]
+        # ux = torch.stack([torch.gradient(u[..., i, :], spacing=dx[i].item(), dim=-1)[0] for i in range(self.nlat)], dim=-2)
+        ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None] # can divide afterward since change is perpendicular to gradient direction
             
         # Meridional derivative
         # vy = torch.zeros(u.shape,device=self.device,requires_grad=True)
         # for i in range(self.nlon):
-        #     vy[..., :, i] = torch.gradient(v[..., :, i], spacing=(self.y,), dim=-1)[0]
-        vy = torch.stack([torch.gradient(v[..., :, i], spacing=(self.y,), dim=-1)[0] for i in range(self.nlon)], dim=-1)
+        #     vy[..., :, i] = torch.gradient(v[..., :, i], spacing=(y,), dim=-1)[0]
+        # vy = torch.stack([torch.gradient(v[..., :, i], spacing=(y,), dim=-1)[0] for i in range(self.nlon)], dim=-1)
+        vy = torch.gradient(v, spacing=(y,), dim=-2)[0]
         return ux + vy
     
     # NOTE obsoleted, may use later
@@ -163,10 +169,10 @@ class Operator(nn.Module):
     # ut = torch.gradient(u, spacing=self.dt.item(), dim=1)[0] # t - (t-1)
     # vt = torch.gradient(v, spacing=self.dt.item(), dim=1)[0]
           
-    def calculate_terms(self,u,v):
+    def calculate_terms(self, u, v, dx, y):
         # BTHW
         with torch.no_grad():
-            ux, uy, vx, vy = self.vector_gradients(u,v)
+            ux, uy, vx, vy = self.vector_gradients(u, v, dx, y)
 
             # approximation for time-step (which we want to learn)
             ut = torch.diff(u, dim=1) / self.dt
@@ -177,8 +183,9 @@ class Operator(nn.Module):
             # Dv = vt + u*vx + v*vy;
 
             # Coriolis forces
-            cor_u = torch.einsum('h,bthw->bthw',self.f,v)
-            cor_v = -torch.einsum('h,bthw->bthw',self.f,u)
+            f = 2*self.omega*torch.sin(self.lat_rad)
+            cor_u = torch.einsum('h,bthw->bthw',f,v)
+            cor_v = -torch.einsum('h,bthw->bthw',f,u)
             
             # # unknown (negative) pressure gradients
             # fix = (Du + cor_u) # divided by density, negative (since this is just the residual directly)
@@ -190,7 +197,7 @@ class Operator(nn.Module):
             
             # same as before (negative pressure gradients) but storing advection terms instead
             fx = (ut + advx[:,:-1])
-            fy = (ut + advy[:,:-1])
+            fy = (vt + advy[:,:-1])
             
             # so we can recalculate ut, vt using the fx, fy values as opposed to direct estimation (which is lossier / more lossy)
             # ut = fx - advx
@@ -199,16 +206,16 @@ class Operator(nn.Module):
         return fx, fy, advx, advy
     
 
-    def calculate_step(self,u,v):
-        fx,fy, advx, advy = self.calculate_terms(u,v) # all past pressures: B (T-1) HW, and all adv terms:  BTHW
+    def calculate_step(self, u, v, dx, y):
+        fx,fy, advx, advy = self.calculate_terms(u, v, dx, y) # all past pressures: B (T-1) HW, and all adv terms:  BTHW
         
         fx_shift = self.step(fx,self.Ax)
         fy_shift = self.step(fy,self.Ay) # get shifted pressures, to get the last-step pressure.
                 
-        # add cohesion loss
-        if self.training:
-            loss = self.f_cohese * (torch.nn.functional.mse_loss(fx_shift[:,:-1],fx[:,1:]) + torch.nn.functional.mse_loss(fy_shift[:,:-1],fy[:,1:])) # compares (T-2) 
-            loss.backward(retain_graph=True) # only if training! #
+        # # add cohesion loss
+        # if self.training:
+        #     loss = self.f_cohese * (torch.nn.functional.mse_loss(fx_shift[:,:-1],fx[:,1:]) + torch.nn.functional.mse_loss(fy_shift[:,:-1],fy[:,1:])) # compares (T-2) 
+        #     loss.backward(retain_graph=True) # only if training! #
             
         advx_shift = advx[:,1:]
         advy_shift = advy[:,1:]
@@ -219,9 +226,9 @@ class Operator(nn.Module):
         u2 = u[:,1:] + ut * self.dt # B (T-1) HW again, but now starting at t=2 and ending at t=end+1
         v2 = v[:,1:] + vt * self.dt
          
-        if self.training:
-            loss = self.v_cohese * (torch.nn.functional.mse_loss(u2[:,:-1],u[:,2:]) + torch.nn.functional.mse_loss(v2[:,:-1],v[:,2:])) # only compare (T-2) since we start at t=2 now
-            loss.backward(retain_graph=True) # only if training! #
+        # if self.training:
+        #     loss = self.v_cohese * (torch.nn.functional.mse_loss(u2[:,:-1],u[:,2:]) + torch.nn.functional.mse_loss(v2[:,:-1],v[:,2:])) # only compare (T-2) since we start at t=2 now
+        #     loss.backward(retain_graph=True) # only if training! #
             
         return u2[:,-1:], v2[:,-1:] # last timesteps
          
@@ -235,38 +242,45 @@ class Operator(nn.Module):
         # assert torch.all(torch.isfinite(u2))
         # return u2, v2    
     
-    def concentration_resnet(self, c, u, v):
+    def concentration_resnet(self, c, u, v, dx, y):
         # BCHW with the exception of the two velocities
         # TODO add source term
         uc = (self.rate[None,:,:,:,0] * u[:,None,:,:]) * c
         vc = (self.rate[None,:,:,:,1] * v[:,None,:,:]) * c
         
         with torch.no_grad():
-            cx, cy = self.scalar_gradients(c)
+            cx, cy = self.scalar_gradients(c, dx, y)
         
         innerx = cx * self.diffusivity[None,:,None,None] - uc
         innery = cy * self.diffusivity[None,:,None,None] - vc
         
-        dcdt = self.divergence(innerx, innery)
+        dcdt = self.divergence(innerx, innery, dx, y)
         assert torch.all(torch.isfinite(dcdt))
         c2 = c + dcdt * self.dt   
         assert torch.all(torch.isfinite(c2))
         # # add cohesion loss
-        if self.training:
-            loss = self.c_cohese * torch.nn.functional.mse_loss(c2[:,:-1],c[:,1:])
-            loss.backward(retain_graph=True) # only if training!
+        # if self.training:
+        #     loss = self.c_cohese * torch.nn.functional.mse_loss(c2[:,:-1],c[:,1:])
+        #     loss.backward(retain_graph=True) # only if training!
         
         return c2[:,-1:]
     
     def forward(self, x):
         assert x.shape[1] > 2, "Not enough history. Coherency losses will fail"
+        
+        # make grid
+        dx = self.dx(self.R_earth)
+        y = self.y(dx)
+        
         # BTCHW, c==0 => u, c==1 => v
         u = x[:,:,0,:,:]
         v = x[:,:,1,:,:]
         c = x[:,:,2:,:,:]
         
-        c2 = self.concentration_resnet(c,u[:,-1],v[:,-1])
-        u2,v2 = self.calculate_step(u,v)
+        c2 = self.concentration_resnet(c,u[:,-1],v[:,-1], dx, y)
+        # u2,v2 = self.calculate_step(u, v, dx, y) # bad for some reason
+        u2 = self.step(u[:,-1:], self.Ax)
+        v2 = self.step(v[:,-1:], self.Ay)
 
         y = torch.cat([u2[:,:,None,:,:],v2[:,:,None,:,:],c2],dim=2)  
         return y
