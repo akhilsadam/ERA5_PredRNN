@@ -308,8 +308,8 @@ class Operator(nn.Module):
         
         return c2[:,-1:]
     
-    def forward(self, x):
-        assert x.shape[1] > 2, "Not enough history. Coherency losses will fail"
+    def forward(self, c):
+        assert c.shape[1] > 2, "Not enough history. Coherency losses will fail"
         
         # make grid
         dx = self.dx(self.R_earth)
