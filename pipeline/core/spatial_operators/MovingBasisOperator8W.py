@@ -3,7 +3,7 @@ __author__ = 'asadam'
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch_harmonics as th
+# import torch_harmonics as th
 import math
 
 
@@ -18,7 +18,6 @@ class Operator(nn.Module):
         super(Operator, self).__init__()
         
         self.nlatent = nlatent
-        self.clatent = nlatent - 2 # no velocity
         self.ntime = ntime
         self.nlayers = nlayers
         self.n_embd = n_embd
@@ -56,7 +55,7 @@ class Operator(nn.Module):
         
         # self.rate = nn.Parameter(torch.ones((self.clatent,h,w,2),device=device)) # friction-modulated velocity adjustment
         
-        self.diffusivity = nn.Parameter(torch.zeros((self.clatent),device=device)) # TODO make space-dependent!
+        self.diffusivity = nn.Parameter(torch.zeros((self.nlatent),device=device)) # TODO make space-dependent!
         
         n_modes = (ntime//2) - 1
         self.A_v = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
@@ -316,7 +315,7 @@ class Operator(nn.Module):
         dx = self.dx(self.R_earth)
         y = self.y(dx)
         
-        div_term, v_history, cx, cy = neuralvelocity(self, c, dx, y)
+        div_term, v_history, cx, cy = self.neuralvelocity(c, dx, y)
         v = self.step_w_cat(v_history, A_v)
         v_dot_grad_c = self.calculate_adv(v, cx, cy)
         c2 = self.concentration_resnet(c, div_term, v_dot_grad_c)
