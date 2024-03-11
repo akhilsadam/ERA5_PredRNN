@@ -282,7 +282,7 @@ class Operator(nn.Module):
         
         ct = torch.diff(c, dim=1) / self.dt
         
-        a = ct - dcdt_div_component[:,:-1] # B (T-1) CHW # v_dot_grad_c
+        a = ct - div_term[:,:-1] # B (T-1) CHW # v_dot_grad_c
         
         # find velocity that satisfies Occam's razor using cx, cy for gradients
         # basically have it change every two steps
