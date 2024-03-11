@@ -4,7 +4,7 @@ import torch.nn as nn
 # from torch.nn.parameter import Parameter
 from core.models.model_base import BaseModel
 # from core.layers.ConvExt import ConvX
-from core.spatial_operators.MovingBasisOperator7W import Operator
+from core.spatial_operators.MovingBasisOperator8W import Operator
 # from core.spatial_operators.MovingBasisOperator6 import Operator # CNNs are high memory cost
 # from core.layers.Siren import MLP
 from core.loss import loss_mixed
