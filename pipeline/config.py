@@ -780,7 +780,7 @@ def operate_loop(hyp, device):
     if hyp.weather_prediction:
 
         img_channel = rawshape[1]
-        img_layers = ','.join([str(i) for i in range(img_channel)])
+        img_layers = '0,1,2,3' #','.join([str(i) for i in range(img_channel)]) # NOTE: only 4 variables for now
         input_length = hyp.input_length #'24'
         total_length = hyp.total_length #'48'
         layer_need_enhance = '0' # used to be 1, but turning off for now.

@@ -258,9 +258,9 @@ class Operator(nn.Module):
         
         C_mat = torch.stack([cx,cy],axis=-1) # stack on n, for (..., m={t1,t2}, n={x,y}) -> BtCHW,2,2
         # expect a to be reshaped as well 
-        a = a.reshape(cx.shape[0],t_half,2,*cx.shape[2:]).permute(0,1,3,4,5,2)[...,None] # BtCHW,2,1
-        #
-        v = torch.linalg.lstsq(C_mat,a)[...,0] # BtCHW,2,1 -> BtCHW,2
+        a = a.reshape(a.shape[0],t_half,2,*a.shape[2:]).permute(0,1,3,4,5,2)[...,None] # BtCHW,2,1
+        # underdetermined solution?
+        v = torch.linalg.lstsq(C_mat,a)[0][...,0] # BtCHW,2,1 -> BtCHW,2
         return v
     
     def calculate_adv(self, v, cx, cy):
@@ -286,7 +286,7 @@ class Operator(nn.Module):
         
         # find velocity that satisfies Occam's razor using cx, cy for gradients
         # basically have it change every two steps
-        v = batch_lstsq(self, cx[:,:-2], cy[:,:-2], a[:,:-1]) # B (T-2)
+        v = self.batch_lstsq(cx[:,:-2], cy[:,:-2], a[:,:-1]) # B (T-2)
         
         return div_term, v, cx, cy
         

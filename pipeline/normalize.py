@@ -19,7 +19,7 @@ short=\
 short_inv={v: k for k, v in short.items()}
 norm_dict=\
     {
-        'u_wind': [-20, 20],
+        'u_wind': [-20, 20], # NOTE: keep u_wind and v_wind on the same scale!
         'v_wind': [-20, 20],
         'temp': [210, 305],
         'sea_press': [98000, 105000],
@@ -28,6 +28,19 @@ norm_dict=\
         'dry_static': [1.4e9, 2.9e9],
         'precip': [0, 0.0025],
     }
+# TODO make this automatic, currently must edit by hand
+norm_scales=\
+    [
+        norm_dict['u_wind'][1],
+        norm_dict['v_wind'][1],
+        (norm_dict['temp'][1] - norm_dict['temp'][0]),
+        (norm_dict['sea_press'][1] - norm_dict['sea_press'][0]),
+        (norm_dict['moist_static'][1] - norm_dict['moist_static'][0]),
+        (norm_dict['geo_dyn'][1] - norm_dict['geo_dyn'][0]),
+        (norm_dict['dry_static'][1] - norm_dict['dry_static'][0]),
+        (norm_dict['precip'][1] - norm_dict['precip'][0]),
+    ]
+    
 norm_func=\
     {
         'u_wind': lambda x: np.vstack(x)/norm_dict['u_wind'][1],
