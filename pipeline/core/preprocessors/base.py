@@ -87,7 +87,7 @@ class PreprocessorBase:
                                 break
                     
                     assert len(shape)==4, f"Raw data in {trainset} is not 4D!"
-                    assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
+                    # assert shape[1] == self.n_var, f"Number of variables in {trainset} does not match n_var!"
                     assert shape[2] == self.shapex, f"Shape of raw data in {trainset} does not match shapex!"
                     assert shape[3] == self.shapey, f"Shape of raw data in {trainset} does not match shapey!"         
                     

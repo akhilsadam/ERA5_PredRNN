@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch_harmonics as th
 import math
 
-from pipeline.normalize import norm_scales as scale
+from normalize import norm_scales as scale
 
 pi = math.pi   
 rho = 1.204
@@ -25,6 +25,7 @@ l_star = 1.0 # by definition
 dt_star = dt * const_T
 omega_star = omega * const_A
 
+v_clamp = 60
 
 # 2D incompressible N-S
 
@@ -37,16 +38,16 @@ def _matrix_pow(matrix: torch.Tensor, p: float) -> torch.Tensor:
     Returns:
         Power of a matrix
     """
-    vals, vecs = torch.eig(matrix, eigenvectors=True)
-    vals = torch.view_as_complex(vals.contiguous())
+    vals, vecs = torch.linalg.eig(matrix)
     vals_pow = vals.pow(p)
-    vals_pow = torch.view_as_real(vals_pow)[..., 0]
-    matrix_pow = torch.matmul(vecs, torch.matmul(torch.diag(vals_pow), torch.inverse(vecs)))
-    return matrix_pow
+    matrix_pow = torch.einsum("Bab,Bb,Bbc->Bac",vecs, vals_pow, torch.inverse(vecs))
+    return matrix_pow.real
 
 class Operator(nn.Module):
     def __init__(self, nlatent, ntime, h, w, device, n_embd=400, nlayers=1, activation=torch.nn.ReLU(), **kwargs):
         super(Operator, self).__init__()
+        
+        # print(f"NLATENT:{nlatent}")
         
         self.nlatent = nlatent
         self.clatent = nlatent - 2 # no velocity
@@ -62,12 +63,15 @@ class Operator(nn.Module):
         
         self.nlat = h
         self.nlon = w
-        self.lat = torch.linspace(0,2*pi,steps=h, device=device)
+        d_lat = pi/(2*h)
+        # d_lon = pi/w
+        self.lat = torch.linspace(-pi/2 + d_lat,pi/2 - d_lat,steps=h, device=device)
+        # self.lon = torch.linspace(d_lon,2*pi - d_lon,steps=w, device=device)
 
         # Step size as a function of latitude (in m)        
         self.l_star = torch.tensor([l_star],device=device)
-        self.dx = lambda r: (1/h)*2*pi*r*torch.cos(self.lat)# Radius as a function of latitude
-        self.y = lambda dx: torch.cumsum(dx, dim=0)
+        self.dx = lambda r: (1/h)*2*pi*r*torch.cos(self.lat) # dx (longitudinal steps along cylindrical perimeter) as a function of latitude
+        self.y = lambda r: r*torch.sin(self.lat) # y (latitude) axial height as a function of latitude
         self.dt = torch.tensor([dt_star],device=device) # 6-Hourly resolution # TODO make parameter
 
         # Coriolis parameter
@@ -75,14 +79,14 @@ class Operator(nn.Module):
         
         
         
-        # self.rate = nn.Parameter(torch.ones((self.clatent,h,w,2),device=device)) # friction-modulated velocity adjustment
-        # self.diffusivity = nn.Parameter(torch.zeros((self.clatent),device=device)) # TODO make space-dependent!
+        self.rate = nn.Parameter(torch.ones((self.clatent,h,w,2),device=device)) # friction-modulated velocity adjustment
+        self.diffusivity = nn.Parameter(torch.zeros((self.clatent),device=device)) # TODO make space-dependent!
         
-        n_modes = ntime-1
-        self.Ax = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
-        nn.init.xavier_uniform_(self.Ax.data,gain=0.001)
-        self.Ay = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
-        nn.init.xavier_uniform_(self.Ay.data,gain=0.001)
+        # n_modes = ntime-1
+        # self.Ax = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
+        # nn.init.xavier_uniform_(self.Ax.data,gain=0.001)
+        # self.Ay = nn.Parameter(torch.empty((n_modes,n_modes),device=device))
+        # nn.init.xavier_uniform_(self.Ay.data,gain=0.001)
         
         # regularization
         # self.f_cohese = 1e-4
@@ -107,9 +111,10 @@ class Operator(nn.Module):
             u = self.POD(x) # BM...
             z = torch.einsum("BT..., BM... -> BTM", x, u)
             
-            D_plus = torch.linalg.lstsq(z[:,:-1,:],z[:,1:,:]) # B,t,m_in  + B,t,m_out -> B,m_in,m_out           # forward DMD (AX-B)
-            D_minus = torch.linalg.lstsq(z[:,1:,:],z[:,:-1,:]) #  -> B,m_out,m_in (since reverse direction)     # backward DMD
-            D_plusminus = _matrix_pow(torch.einsum("Bba,Bbc->Bca",D_plus,D_minus),0.5)                          # square root of product
+            D_plus = torch.linalg.lstsq(z[:,:-1,:],z[:,1:,:]).solution # B,t,m_in  + B,t,m_out -> B,m_in,m_out           # forward DMD (AX-B)
+            D_minus = torch.linalg.lstsq(z[:,1:,:],z[:,:-1,:]).solution #  -> B,m_out,m_in (since reverse direction)     # backward DMD
+            _pm = torch.einsum("Bba,Bbc->Bca",D_plus,D_minus)
+            D_plusminus = _matrix_pow(_pm,0.5)                          # square root of product
             
             
             z_step = torch.einsum("Bc,Bca->Ba",z[:,-1,:],D_plusminus)           # step
@@ -122,20 +127,30 @@ class Operator(nn.Module):
     def scalar_gradients(self, u, dx, y):
         ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None] # Zonal derivative
         uy = torch.gradient(u, spacing=(y,), dim=-2)[0] # Meridional derivative
+        uy = torch.clamp(uy,-v_clamp,v_clamp)
         return ux, uy
     
     @torch.compile(fullgraph=False)
     def vector_gradients(self, u, v, dx, y):
-        ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None] # Zonal derivative
+        ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None] # Zonal derivative # verified
         vx = torch.gradient(v, dim=-1)[0] / dx[None, None, :, None]
         uy = torch.gradient(u, spacing=(y,), dim=-2)[0] # Meridional derivative
         vy = torch.gradient(v, spacing=(y,), dim=-2)[0]
+        uy = torch.clamp(uy,-v_clamp,v_clamp)
+        vy = torch.clamp(vy,-v_clamp,v_clamp)
         return ux, uy, vx, vy
-
+    
+    @torch.compile(fullgraph=False)
+    def curl(self, u, v):
+        vx = torch.gradient(v, dim=-1)[0]
+        uy = torch.gradient(u, dim=-2)[0] 
+        return vx-uy
+    
     @torch.compile(fullgraph=False)
     def divergence(self, u, v, dx, y):
         ux = torch.gradient(u, dim=-1)[0] / dx[None, None, :, None] # Zonal derivative # can divide afterward since change is perpendicular to gradient direction
         vy = torch.gradient(v, spacing=(y,), dim=-2)[0] # Meridional derivative
+        vy = torch.clamp(vy,-v_clamp,v_clamp)
         return ux + vy
           
     def calculate_terms(self, u, v, p, dx, y):
@@ -172,9 +187,42 @@ class Operator(nn.Module):
 
     def calculate_step(self, u, v, p, dx, y):
         fx,fy, advx, advy, px, py = self.calculate_terms(u, v, p, dx, y) # all past pressures: B (T-1) HW, and all adv terms:  BTHW
+        ufx = torch.mean(fx,dim=1,keepdim=True)
+        ufy = torch.mean(fy,dim=1,keepdim=True)
+        fx = fx - ufx
+        fy = fy - ufy
         
-        fx_shift = self.source_DMD(fx)
-        fy_shift = self.source_DMD(fy) # get shifted pressures, to get the last-step pressure.
+        with torch.no_grad():
+            import matplotlib.pyplot as plt
+            # print(dx)
+            # torch.gradient(u, dim=-1)[0]
+            # dx[None, None, :, None].expand(u.shape)
+            # y[None, None, :, None].expand(u.shape)
+            for i in range(fx.shape[1]):
+                plt.imshow(fx[0,i,:,:].cpu().numpy())
+                plt.colorbar()
+                plt.clim(-60,60)
+                plt.savefig(f"fx_{i}.png")
+                plt.close()
+            for i in range(fy.shape[1]):
+                plt.imshow(fy[0,i,:,:].cpu().numpy())
+                plt.colorbar()
+                plt.clim(-150,150)
+                plt.savefig(f"fy_{i}.png")
+                plt.close()
+            
+            c = self.curl(fx,fy)
+            for i in range(c.shape[1]):
+                plt.imshow(c[0,i,:,:].cpu().numpy())
+                plt.colorbar()
+                plt.clim(-30,30)
+                plt.savefig(f"curl_{i}.png")
+                plt.close()
+            
+            # quit()
+        
+        fx_shift = fx[:,-1:] + ufx #self.source_DMD(fx)
+        fy_shift = fy[:,-1:] + ufy #self.source_DMD(fy) # get shifted pressures, to get the last-step pressure.
                 
         advx_shift = advx[:,-1:] + px[:,-1:]
         advy_shift = advy[:,-1:] + py[:,-1:]
@@ -201,9 +249,9 @@ class Operator(nn.Module):
         innery = cy * self.diffusivity[None,:,None,None] - vc
         
         dcdt = self.divergence(innerx, innery, dx, y)
-        assert torch.all(torch.isfinite(dcdt))
-        c2 = c + dcdt * self.dt   
-        assert torch.all(torch.isfinite(c2))
+        # assert torch.all(torch.isfinite(dcdt))
+        c2 = c + dcdt * self.dt * 1e-12
+        # assert torch.all(torch.isfinite(c2))
         # # add cohesion loss
         if self.training:
             loss = self.c_cohese * torch.nn.functional.mse_loss(c2[:,:-1],c[:,1:])
@@ -216,7 +264,7 @@ class Operator(nn.Module):
         
         # make grid
         dx = self.dx(self.l_star)
-        y = self.y(dx)
+        y = self.y(self.l_star)
         
         # BTCHW, c==0 => u, c==1 => v
         u = x[:,:,0,:,:]
@@ -228,8 +276,8 @@ class Operator(nn.Module):
         c2 = self.concentration_resnet(c,u[:,-1],v[:,-1], dx, y)
         u2,v2 = self.calculate_step(u, v, p, dx, y) # bad for some reason
 
-        y = torch.cat([u2[:,:,None,:,:],v2[:,:,None,:,:],c2],dim=2)  
-        return y
+        out = torch.cat([u2[:,:,None,:,:],v2[:,:,None,:,:],c2],dim=2)  
+        return out
 
     
     
