@@ -6,6 +6,8 @@ import torch.nn.functional as F
 import torch_harmonics as th
 import math
 
+from tqdm import tqdm
+
 from normalize import norm_scales as scale
 
 pi = math.pi   
@@ -29,7 +31,7 @@ v_clamp = 60
 
 # 2D incompressible N-S
 
-def _matrix_pow(matrix: torch.Tensor, p: float) -> torch.Tensor:
+def _matrix_pow(matrix: torch.Tensor, p: float) -> torch.Tensor: # not the best, seems to die badly!
     r"""
     Power of a matrix using Eigen Decomposition.
     Args:
@@ -93,6 +95,14 @@ class Operator(nn.Module):
         # self.v_cohese = 1e-2
         self.c_cohese = 1e-2
         
+        self.POD_kern = 4 # even
+        self.pad = (self.POD_kern)//2
+        self.stride = self.pad
+        
+        # local (neighbor modes)
+        self.neighbor_kern = 8 # this times stride must be less than padding! NOTE: add padding increase eventually to accomodate large stride..
+        self.neighbor_stride = 1
+        
     @torch.compile(fullgraph=False)
     def POD(self,x):
         with torch.no_grad():            
@@ -103,6 +113,20 @@ class Operator(nn.Module):
             d = s / (s**2 + a2)
             sinv = torch.diag_embed(d,offset=0,dim1=-2,dim2=-1)
             u = torch.einsum("Bt..., BTt, BTm -> Bm...", x, vt, sinv)
+        return u
+
+    # @torch.compile(fullgraph=False)
+    def sparsePOD(self, x, PVE_cut = 0.99):
+        with torch.no_grad():            
+            vssv = torch.einsum("Bt..., BT... -> BtT", x, x) #* (1/(self.ntime-1)) # X^T X, shape BtT, results in vs^t s v^t
+            _, e, vt = torch.linalg.svd(vssv)
+            pe = e.sum(dim=0)
+            positive = (torch.cumsum(pe[1:], dim=0) / torch.sum(pe[1:]) > PVE_cut).tolist() # make sure to skip the mean
+            n = next((i for i in range(len(positive)) if positive[i]), len(positive))
+            # print(f"PVE cut reached at {n}")
+            d = 1 / torch.sqrt(e[:,:n])
+            sinv = torch.diag_embed(d,offset=0,dim1=-2,dim2=-1)
+            u = torch.einsum("Bt..., BTt, BTm -> Bm...", x, vt[:,:n,:], sinv)
         return u
     
     @torch.compile(fullgraph=False)
@@ -122,6 +146,186 @@ class Operator(nn.Module):
             # y = torch.cat([x,x_new],dim=1) # B(T+1)...                          # cat
             
         return x_new
+    
+    @torch.compile(fullgraph=False)
+    def reg_DMD(self,x):
+        with torch.no_grad():
+            u = self.POD(x)
+            z = torch.einsum("BT..., BM... -> BTM", x, u)
+            
+            D_plus = torch.linalg.lstsq(z[:,:-1-4,:],z[:,1:-4,:]).solution # B,t,m_in  + B,t,m_out -> B,m_in,m_out           # forward DMD (AX-B)
+            
+            z_step = torch.einsum("BTc,Bca->BTa",z,D_plus)           # step
+            x_new = torch.einsum("BTm, Bm... -> BT...", z_step, u)    # reproject
+            # y = torch.cat([x,x_new],dim=1) # B(T+1)...                          # cat
+            
+        return x_new
+    
+    @torch.compile(fullgraph=False)
+    def mod_DMD(self,x,u):
+        with torch.no_grad():
+            z = torch.einsum("BT..., BM... -> BTM", x, u)
+            
+            D_plus = torch.linalg.lstsq(z[:,:-1-4,:],z[:,1:-4,:]).solution # B,t,m_in  + B,t,m_out -> B,m_in,m_out           # forward DMD (AX-B)
+            
+            z_step = torch.einsum("BTc,Bca->BTa",z,D_plus)           # step
+            x_new = torch.einsum("BTm, Bm... -> BT...", z_step, u)    # reproject
+            # y = torch.cat([x,x_new],dim=1) # B(T+1)...                          # cat
+            
+        return x_new
+    
+    # @torch.compile(fullgraph=False)
+    # def spectral_DMD(self,x):
+    #     # Btchw -> Bfchw for each of size-m (t) slices -> Bftchw:
+    #     x_fft_chunked = torch.stack([self.fft(x[:,i:i+self.m]) for i in range(self.ntime - self.m)],dim=2) 
+    #     # batch POD over each frequency
+    #     u_fft_chunked = self.batch_CPOD(x_fft_chunked) # BfMchw # now M is actual modes!
+        
+    #     y_fft = self.liftstep(x_fft_chunked,u_fft_chunked)
+                
+    #     # return to realspace
+    #     y = self.ifft(y_fft) # Btchw
+    
+    # @torch.compile(fullgraph=False)
+    # def resolvent_DMD(self,x,u):
+    #     x_linear = self.mod_DMD(x,u)
+    #     forcing = x[:, 1:] - x_linear[:,:-1]
+    #     x_forced = self.spectral_DMD(forcing)
+            
+    #     return x_new
+    
+    @torch.compile(fullgraph=False)
+    def source_DMD_seq(self,x):
+        with torch.no_grad():
+            u = self.POD(x) # BM...
+            z = torch.einsum("BT..., BM... -> BTM", x, u)
+            
+            D_plus = torch.linalg.lstsq(z[:,:-1,:],z[:,1:,:]).solution # B,t,m_in  + B,t,m_out -> B,m_in,m_out           # forward DMD (AX-B)
+            D_minus = torch.linalg.lstsq(z[:,1:,:],z[:,:-1,:]).solution #  -> B,m_out,m_in (since reverse direction)     # backward DMD
+            _pm = torch.einsum("Bba,Bbc->Bca",D_plus,D_minus)
+            D_plusminus = _matrix_pow(_pm,0.5)                          # square root of product
+            
+            
+            z_step = torch.einsum("BTc,Bca->BTa",z,D_plusminus)           # step
+            x_new = torch.einsum("BTm, Bm... -> BT...", z_step, u)
+            # y = torch.cat([x,x_new],dim=1) # B(T+1)...                          # cat
+            
+        return x_new
+    
+    @torch.compile(fullgraph=False)
+    def pad_in(self,x):
+        shape = x.shape[:-2]        
+        x = x.reshape((x.shape[0]*x.shape[1]*x.shape[2], self.h, self.w))
+        x = F.pad(x, (self.pad,self.pad), mode='circular')
+        x = F.pad(x, (0,0,self.pad,self.pad), mode='reflect') # size is (BxTxC)hw, where hw = H+2p, W+2p
+        x = x.reshape((*shape, self.h + 2*self.pad, self.w + 2*self.pad))
+        return x
+    
+    def window_in_out(self,x_pad):    
+        x_hat = torch.zeros_like(x_pad,device=self.device)
+        norm = torch.zeros((self.h + 2*self.pad, self.w + 2*self.pad),device=self.device)
+        for i in range(0,self.w+self.pad,self.stride):
+            il = i #- self.pad
+            ih = i + 2*self.pad
+            for j in range(0,self.h+self.pad,self.stride):
+                jl = j #- self.pad
+                jh = j + 2*self.pad    
+                
+                patch = x_pad[...,jl:jh,il:ih]
+                u = self.POD(patch) # BM...
+                y = self.reg_DMD(patch,u)
+                x_hat[...,jl:jh,il:ih] = x_hat[...,jl:jh,il:ih] + y
+                norm[jl:jh,il:ih] = norm[jl:jh,il:ih] + 1.0
+
+        return x_hat / norm
+    
+    
+    def window_in_out_2(self,x_pad):    
+        x_hat = torch.zeros_like(x_pad,device=self.device)
+        norm = torch.zeros((self.h + 2*self.pad, self.w + 2*self.pad),device=self.device)
+        for i in tqdm(range(self.pad,self.w,self.stride)): # skip ends
+            il = i #- self.pad
+            ih = i + 2*self.pad
+            for j in range(self.pad,self.h,self.stride): # skip ends
+                jl = j #- self.pad
+                jh = j + 2*self.pad    
+                   
+                u_list = []
+                for i_ in range(-self.neighbor_kern,self.neighbor_kern):
+                    pil = il + i_*self.neighbor_stride
+                    pih = ih + i_*self.neighbor_stride
+                    for j_ in range(-self.neighbor_kern,self.neighbor_kern):
+                        pjl = jl + j_*self.neighbor_stride
+                        pjh = jh + j_*self.neighbor_stride
+                        
+                        patch_ij = x_pad[...,pjl:pjh,pil:pih]
+                        pu = self.POD(patch_ij) # BM...
+                        u_list.append(pu)
+                        
+                u = torch.cat(u_list, dim=1) # cat along mode-dim, since these are all modes!
+                u = self.sparsePOD(u)
+                patch = x_pad[...,jl:jh,il:ih]
+                y = self.mod_DMD(patch,u)
+                x_hat[...,jl:jh,il:ih] = x_hat[...,jl:jh,il:ih] + y
+                norm[jl:jh,il:ih] = norm[jl:jh,il:ih] + 1.0
+
+        return x_hat / norm
+    
+    # @torch.compile(fullgraph=False)
+    def window_in(self,x):    
+        us = []
+        zs = []
+        for i in range(0,self.w+self.pad,self.stride):
+            il = i #- self.pad
+            ih = i + 2*self.pad
+            us_y = []
+            zs_y = []
+            for j in range(0,self.h+self.pad,self.stride):
+                jl = j #- self.pad
+                jh = j + 2*self.pad    
+                
+                patch = x[...,jl:jh,il:ih]
+                u = self.POD(patch)
+                z = torch.einsum("BT..., BM... -> BTM", patch, u)
+                
+                us_y.append(u)
+                zs_y.append(z)
+            us.append(torch.stack(us_y,dim=-1))
+            zs.append(torch.stack(zs_y,dim=-1))
+        u = torch.stack(us,dim=-1) # BM C H_patch W_patch y x
+        z = torch.stack(zs,dim=-1) # BTM y x
+        return u, z
+        
+    # @torch.compile(fullgraph=False)
+    def window_out(self,u,z, x_pad): # same windows??
+        x_hat = torch.zeros_like(x_pad,device=self.device)
+        norm = torch.zeros((self.h + 2*self.pad, self.w + 2*self.pad),device=self.device)
+        
+        for x,i in enumerate(range(0,self.w+self.pad,self.stride)):
+            il = i #- self.pad
+            ih = i + 2*self.pad
+            for y,j in enumerate(range(0,self.h+self.pad,self.stride)):
+                jl = j #- self.pad
+                jh = j + 2*self.pad    
+                
+                ui = u[...,y,x]
+                zi = z[...,y,x]
+                # print(ui.shape,zi.shape, jl, jh, il, ih)
+                x_hat[...,jl:jh,il:ih] = x_hat[...,jl:jh,il:ih] + torch.einsum("BTM, BM... -> BT...", zi, ui)
+                norm[jl:jh,il:ih] = norm[jl:jh,il:ih] + 1.0
+
+        return x_hat / norm
+    
+    def in_out(self,x_pad):
+        u,z = self.window_in(x_pad)
+        return self.window_out(u,z,x_pad)
+    
+    
+    @torch.compile(fullgraph=False)
+    def scalar_gradients_raw(self, u):
+        ux = torch.gradient(u, dim=-1)[0]  # Zonal derivative
+        uy = torch.gradient(u, dim=-2)[0] # Meridional derivative
+        return ux, uy
     
     @torch.compile(fullgraph=False)
     def scalar_gradients(self, u, dx, y):
@@ -152,6 +356,96 @@ class Operator(nn.Module):
         vy = torch.gradient(v, spacing=(y,), dim=-2)[0] # Meridional derivative
         vy = torch.clamp(vy,-v_clamp,v_clamp)
         return ux + vy
+    
+    @torch.compile(fullgraph=False)
+    def _delta_t(self, u):
+        return torch.diff(u, dim=1)
+    
+    @torch.compile(fullgraph=False)
+    def _dt(self, u):
+        return torch.gradient(u, dim=1)[0]
+    
+    def calculate_advection(self, u):
+        # k = 30
+        # kern = torch.ones(u.shape[1],u.shape[1],k,k, device=self.device) / (k**2)
+        # u = nn.functional.conv2d(u,kern,padding='same')
+        
+        ux, uy = self.scalar_gradients_raw(u)
+        
+        end = -1 # 
+        diff_u = self._delta_t(u)
+        
+        zeros = 0.0 * ux[:,:end]
+        ones = zeros + 0.1 # regularization
+        
+        A = torch.stack(
+            [
+                torch.stack(
+                    [ux[:,:end], uy[:,:end]], dim = -1 # columns
+                ),
+                torch.stack(
+                    [ones, zeros], dim = -1
+                ),
+                torch.stack(
+                    [zeros, ones], dim = -1
+                ),
+            ],
+            dim = -2 # rows
+        ) # rows, cols = n_constraints, 2
+        
+        b = torch.stack([diff_u, zeros, zeros], dim = -1)[...,None] # rows, cols = n_constraints, 1
+        
+        # print(A.shape, b.shape)
+        
+        vel = torch.linalg.lstsq(A,b).solution[...,0] # rows, cols = 2 , 1
+        
+        return vel[...,0], vel[...,1], ux, uy
+
+    def calculate_advection_2(self, u):
+        # pretend we have a basis in the spatial gradients?? of course, this fails..
+        
+        ux, uy = self.scalar_gradients_raw(u) # BTHW
+        
+        ux_f = ux.reshape(*(ux.shape[:2]),-1) # BT(HW)
+        uy_f = uy.reshape(*(uy.shape[:2]),-1) # BT(HW)
+        
+         
+        diff_u = self._delta_t(u) # B(T-1)HW
+        du_t_f = diff_u.reshape(*(diff_u.shape[:2]),-1) # B(HW)(T-1)
+        
+        hist = 8
+        nb = u.shape[0]
+        
+        A_list = [torch.cat([ux_f[:,i-hist:i],uy_f[:,i-hist:i]],dim=1).permute(0,2,1) for i in range(hist, ux.shape[1])] # B HW, 2*hist
+
+        A = torch.stack(A_list,dim = 1) # B, windows, HW, time along window
+        b = du_t_f[:, hist-1:ux.shape[1]-1][...,None] # B, windows, HW, 1
+        
+        print(A.shape, b.shape)
+        # A2 = torch.stack([*A_list,*A_list2],dim=-2) # all windows, time along window
+        
+        # print(A.shape, b.shape, A2.shape)
+        
+        cxy = torch.linalg.lstsq(A,b).solution #  B, windows, time along window, 1
+        
+        reco = (A @ cxy)[0].reshape(u.shape[0], -1, *u.shape[2:]) + u[:,hist:]
+        err = u[:,hist+1:]-reco[:,:-1]
+        
+        return reco[:,:-1], err
+
+    def mode_adv(self, u):
+        # btchw
+        hist = 10
+        patches = [u[:,i-hist:i] for i in range(hist, u.shape[1])]
+        modes = [self.POD(ui) for ui in patches]
+        
+        coeffs = [torch.einsum("BT...,BM...->BTM",x,u_pod) for u_pod, x in zip(modes, patches)]
+        
+        
+        
+
+    def advect_step(self,vx,vy,ux,uy,u):
+        return u + ux * vx + uy * vy
           
     def calculate_terms(self, u, v, p, dx, y):
         # BTHW
@@ -198,25 +492,64 @@ class Operator(nn.Module):
             # torch.gradient(u, dim=-1)[0]
             # dx[None, None, :, None].expand(u.shape)
             # y[None, None, :, None].expand(u.shape)
-            for i in range(fx.shape[1]):
-                plt.imshow(fx[0,i,:,:].cpu().numpy())
-                plt.colorbar()
-                plt.clim(-60,60)
-                plt.savefig(f"fx_{i}.png")
-                plt.close()
-            for i in range(fy.shape[1]):
-                plt.imshow(fy[0,i,:,:].cpu().numpy())
-                plt.colorbar()
-                plt.clim(-150,150)
-                plt.savefig(f"fy_{i}.png")
-                plt.close()
+            # for i in range(fx.shape[1]):
+            #     plt.imshow(fx[0,i,:,:].cpu().numpy())
+            #     plt.colorbar()
+            #     plt.clim(-60,60)
+            #     plt.savefig(f"fx_{i}.png")
+            #     plt.close()
+            # for i in range(fy.shape[1]):
+            #     plt.imshow(fy[0,i,:,:].cpu().numpy())
+            #     plt.colorbar()
+            #     plt.clim(-150,150)
+            #     plt.savefig(f"fy_{i}.png")
+            #     plt.close()
             
-            c = self.curl(fx,fy)
-            for i in range(c.shape[1]):
-                plt.imshow(c[0,i,:,:].cpu().numpy())
-                plt.colorbar()
-                plt.clim(-30,30)
-                plt.savefig(f"curl_{i}.png")
+            fxy = torch.stack([fx,fy],dim=2) # BTCHW
+            # vx, vy, ux, uy = self.calculate_advection(fx)
+            # vxx, vxy, _,_ = self.calculate_advection(vx)
+            # fx_reco = self.advect_step(vx,vy,ux[:,:-1],uy[:,:-1],fx[:,:-1])
+            # # c = vx
+            # # fxy_u = self.POD(fx)
+            # # z = torch.einsum("BT..., BM... -> BTM", fx, fxy_u)
+            # # c = torch.einsum("BTM, BM... -> BT...", z, fxy_u)
+            # # fxy_pad = self.pad_in(fxy)
+            # # fxy2 = self.window_in_out_2(fxy_pad)
+            # # c = fxy2[:,:,0]
+            # # fx_pad = fxy_pad[:,:,0]
+            # # c = self.curl(fx,fy)
+            # uvx = torch.mean(vx, dim = 1, keepdim=True)
+            # vx_dm = vx - uvx
+            
+            # uvxx = torch.mean(vxx, dim=1, keepdim=True)
+            # vxx_dm = vxx-uvxx
+            
+            # for i in range(vx.shape[1]-1):
+            #     fig, axs = plt.subplots(2,1)
+            #     q = axs[0].imshow(vx_dm[0,i,:,:].cpu().numpy())
+            #     plt.colorbar(q)
+            #     q.set_clim(-60,60)
+            #     # q = axs[1].imshow((fx_reco[0,i,:,:] - fx[0,i+1,:,:]).cpu().numpy())
+            #     q = axs[1].imshow((vxx_dm[0,i+1,:,:]).cpu().numpy())
+            #     plt.colorbar(q)
+            #     q.set_clim(-60,60)
+            #     plt.savefig(f"reco_fx_{i}.png")
+            #     plt.close()
+
+            # fx_shift, err = self.calculate_advection_2(fx)
+
+            m, c, reco = self.mode_adv(fxy)
+             
+            for i in range(fx_shift.shape[1]-1):
+                fig, axs = plt.subplots(2,1)
+                q = axs[0].imshow(m[0,i,0,:,:].cpu().numpy())
+                plt.colorbar(q)
+                q.set_clim(-60,60)
+                # q = axs[1].imshow((fx_reco[0,i,:,:] - fx[0,i+1,:,:]).cpu().numpy())
+                q = axs[1].imshow(reco[0,i,0,:,:].cpu().numpy())
+                plt.colorbar(q)
+                q.set_clim(-60,60)
+                plt.savefig(f"reco_fx_{i}.png")
                 plt.close()
             
             # quit()
