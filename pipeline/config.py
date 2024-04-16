@@ -235,6 +235,7 @@ model_config = \
             'scheduler' : lambda x : CyclicLR(x, base_lr=5e-4, max_lr=5e-4, cycle_momentum=False, step_size_up=20),
             'batch_size': 1, # batch size
             'test_batch_size': 1, # batch size for testing
+            'coeff_loss_only': True, # if you want to disable gradients on the main loss!
         },
     }
 model_config_toy = \
@@ -881,7 +882,7 @@ def operate_loop(hyp, device):
     --max_iterations {hyp.max_iterations} \
     --profile {hyp.profile} \
     --display_interval 1000 \
-    --test_interval 40 \
+    --test_interval 400 \
     --snapshot_interval {snapshot} \
     --conv_on_input 0 \
     --res_on_conv 0 \

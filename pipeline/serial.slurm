@@ -39,11 +39,12 @@ pwd
 date
 
 # Launch serial code...
-source ../venv/bin/activate
+
 #python3 train.py -m predrnn_v2 predrnn_v2 predrnn_v2 -il 3 5 20 -pn LS6_toy1_control_predrnnTests LS6_toy1_control_predrnnTests LS6_toy1_control_predrnnTests # Do not use ibrun or any other MPI launcher
 # python3 train.py -m reZeroTF predrnn_v2 BERT LSTM
 
 # IMPORTANT !
+source ../venv/bin/activate
 export NCCL_IB_DISABLE=1;
 export NCCL_P2P_DISABLE=1;
 export NCCL_DEBUG=INFO;

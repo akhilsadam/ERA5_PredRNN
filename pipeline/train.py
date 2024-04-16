@@ -35,7 +35,7 @@ class hyperparam:
     training=True #False # train or test
     max_iterations = 10025
     pretrain_name=None #'model_3000.ckpt' # None if no pretrained model
-    snapshot_interval = 200 # save model every n iterations
+    snapshot_interval = 20 # save model every n iterations
     ##
     model_name = 'rLSTM' # [adaptDNN,DNN,TF,BERT,rBERT,reZeroTF, predrnn_v2]
     preprocessor_name = args.preprocessor # [raw, control, POD, DMD] # raw is no preprocessing for predrnn_v2, else use control

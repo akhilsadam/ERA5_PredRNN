@@ -63,13 +63,14 @@ class Model(object):
 
         self.accumulate_batch = configs.accumulate_batch if hasattr(configs, 'accumulate_batch') else 1
 
-        # ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-        self.accelerator = Accelerator(gradient_accumulation_steps=self.accumulate_batch)#, kwargs_handlers=[ddp_kwargs])
+        ddp_kwargs = DistributedDataParallelKwargs(static_graph=True) #find_unused_parameters=True)
+        self.accelerator = Accelerator(gradient_accumulation_steps=self.accumulate_batch, kwargs_handlers=[ddp_kwargs])
         device = self.accelerator.device
         self.device = self.accelerator.device
         self.configs.device = self.accelerator.device
         self.configs.preprocessor.device = self.accelerator.device
         self.configs.area_weight = self.configs.area_weight.to(device, non_blocking=True)
+        self.configs.accelerator = self.accelerator
         
         thread = threading.current_thread().name
         name = configs.model_name
@@ -112,6 +113,7 @@ class Model(object):
         self.network = self.network_handle(self.num_layers, self.num_hidden, self.configs)
         # self.network = torch.nn.DataParallel(self.network,device_ids=[self.device,], output_device=self.device)
         # self.network.to(self.device)
+        self.coefficient_loss = self.configs.model_args.get('coeff_loss_only',False)
 
 
     def modelvis(self):
@@ -203,7 +205,9 @@ class Model(object):
             loss, loss_pred, decouple_loss = self.network(frames_tensor, mask_tensor,istrain=istrain)
             # torch.cuda.empty_cache()
             # loss.backward()
-            self.accelerator.backward(loss)
+            if not self.coefficient_loss:
+                print("coeff loss + main loss")
+                self.accelerator.backward(loss)
         
         try:
             if loss.dtype == torch.cfloat:

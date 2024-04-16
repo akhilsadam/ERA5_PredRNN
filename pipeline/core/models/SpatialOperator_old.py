@@ -74,7 +74,7 @@ class SpatialOperator(BaseModel):
         uc = x # BTCHW
         for _ in range(predict_length): # prediction loop
             u2 = self.operator(uc)
-            # print("self.operator")
+            print("self.operator")
             # print(u2.shape) # TODO turn on for debugging
             uc = torch.cat([uc[:,1:],u2],dim=1)
         x2 = uc
